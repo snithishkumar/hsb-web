@@ -35,8 +35,12 @@ public class MenuService {
 	 * @return
 	 */
 	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
-	public ResponseEntity<String> getMenuDetails(){
+	public ResponseEntity<String> getMenuDetails(String lastServerSyncTimeTemp){
 		try{
+			long lastServerSyncTime = 0;
+			if(lastServerSyncTimeTemp != null){
+				lastServerSyncTime = Long.valueOf(lastServerSyncTimeTemp);
+			}
 			List<MenuCourse> menuCourses = menuListDao.getMenuCourse();
 			List<MenuListJson> menuListJsonList = new ArrayList<MenuListJson>();
 			for(MenuCourse menuCourse : menuCourses){
@@ -45,7 +49,7 @@ public class MenuService {
 				List<FoodCategory> foodCategories = menuListDao.getFoodCategory(menuCourse);
 				for(FoodCategory foodCategory : foodCategories){
 					FoodCategoryJson categoryJson = new FoodCategoryJson(foodCategory);
-					List<MenuEntity> menuEntities = menuListDao.getMenuEntity(menuCourse, foodCategory);
+					List<MenuEntity> menuEntities = menuListDao.getMenuEntity(menuCourse, foodCategory,lastServerSyncTime);
 					for(MenuEntity menuEntity : menuEntities){
 						MenuItemJson menuItemJson = new MenuItemJson(menuEntity);
 						categoryJson.getMenuItems().add(menuItemJson);

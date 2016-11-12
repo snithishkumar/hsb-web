@@ -26,7 +26,7 @@ public class MenuEntity {
 	public static final String PRICE= "price";
 	public static final String STATUS= "status";
 	public static final String DATE_TIME= "dateTime";
-	
+	public static final String SERVER_TIME = "serverTime";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -52,6 +52,9 @@ public class MenuEntity {
 	
 	@Column(name = "DateTime")
 	private long dateTime;
+	
+	@Column(name = "ServerTime")
+	private long serverTime;
 	
 	public int getMenuId() {
 		return menuId;
