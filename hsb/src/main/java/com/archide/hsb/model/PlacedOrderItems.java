@@ -17,6 +17,7 @@ public class PlacedOrderItems {
 	public static final String PLACED_ORDER_ITEMS_UUID = "placedOrderItemsUUID";
 	public static final String MENU_ITEM = "menuItem";
 	public static final String QUANTITY = "quantity";
+	public static final String PLACED_ORDERS = "placedOrders";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,6 +30,10 @@ public class PlacedOrderItems {
 	private MenuEntity menuItem;
 	@Column(name = "Quantity")
 	private float quantity;
+	@Column(name = "Name")
+	private String name;
+	@Column(name = "ItemCode")
+	private String itemCode;
 	
 	@ManyToOne
 	@JoinColumn(name = "PlacedOrdersId", referencedColumnName = "PlacedOrdersId")
@@ -61,6 +66,18 @@ public class PlacedOrderItems {
 	
 	
 	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getItemCode() {
+		return itemCode;
+	}
+	public void setItemCode(String itemCode) {
+		this.itemCode = itemCode;
+	}
 	public PlacedOrders getPlacedOrders() {
 		return placedOrders;
 	}
@@ -70,8 +87,10 @@ public class PlacedOrderItems {
 	@Override
 	public String toString() {
 		return "PlacedOrderItems [placedOrderItemsId=" + placedOrderItemsId + ", placedOrderItemsUUID="
-				+ placedOrderItemsUUID + ", menuItem=" + menuItem + ", quantity=" + quantity + "]";
+				+ placedOrderItemsUUID + ", menuItem=" + menuItem + ", quantity=" + quantity + ", name=" + name
+				+ ", itemCode=" + itemCode + ", placedOrders=" + placedOrders + "]";
 	}
+	
 	
 	
 

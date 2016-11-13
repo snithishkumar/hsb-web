@@ -3,17 +3,38 @@ package com.archide.hsb.jsonmodel;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.archide.hsb.model.PlacedOrders;
+
 public class PlaceOrdersJson {
 	
 	private String tableNumber;
 	private String userMobileNumber;
-	private List<MenuItems> menuItems = new ArrayList<PlaceOrdersJson.MenuItems>();
+	private List<OrderedMenuItems> menuItems = new ArrayList<OrderedMenuItems>();
 	private double price;
 	private double taxAmount;
 	private double discount;
 	private double totalPrice;
 	private String placeOrderUuid;
 	private String orderId;
+	private long serverDateTime;
+	private long orderDateTime;
+	private long lastUpdatedDateTime;
+	
+	public PlaceOrdersJson(){
+		
+	}
+	
+public PlaceOrdersJson(PlacedOrders placedOrders){
+		this.price = placedOrders.getPrice();
+		this.taxAmount = placedOrders.getTaxAmount();
+		this.discount = placedOrders.getDiscount();
+		this.totalPrice = placedOrders.getTotalPrice();
+		this.placeOrderUuid = placedOrders.getPlaceOrdersUUID();
+		this.orderId = placedOrders.getOrderId();
+		this.serverDateTime = placedOrders.getServerDateTime();
+		this.orderDateTime = placedOrders.getOrderDateTime();
+		this.lastUpdatedDateTime = placedOrders.getLastUpdatedDateTime();
+	}
 	
 	public String getTableNumber() {
 		return tableNumber;
@@ -30,11 +51,11 @@ public class PlaceOrdersJson {
 		this.userMobileNumber = userMobileNumber;
 	}
 
-	public List<MenuItems> getMenuItems() {
+	public List<OrderedMenuItems> getMenuItems() {
 		return menuItems;
 	}
 
-	public void setMenuItems(List<MenuItems> menuItems) {
+	public void setMenuItems(List<OrderedMenuItems> menuItems) {
 		this.menuItems = menuItems;
 	}
 
@@ -72,6 +93,30 @@ public class PlaceOrdersJson {
 	
 	
 
+	public long getServerDateTime() {
+		return serverDateTime;
+	}
+
+	public void setServerDateTime(long serverDateTime) {
+		this.serverDateTime = serverDateTime;
+	}
+
+	public long getOrderDateTime() {
+		return orderDateTime;
+	}
+
+	public void setOrderDateTime(long orderDateTime) {
+		this.orderDateTime = orderDateTime;
+	}
+
+	public long getLastUpdatedDateTime() {
+		return lastUpdatedDateTime;
+	}
+
+	public void setLastUpdatedDateTime(long lastUpdatedDateTime) {
+		this.lastUpdatedDateTime = lastUpdatedDateTime;
+	}
+
 	public String getPlaceOrderUuid() {
 		return placeOrderUuid;
 	}
@@ -87,36 +132,6 @@ public class PlaceOrdersJson {
 
 
 
-	public class MenuItems{
-		private float quantity;
-		private String menuUuid;
-		public float getQuantity() {
-			return quantity;
-		}
-		public void setQuantity(float quantity) {
-			this.quantity = quantity;
-		}
-		public String getMenuUuid() {
-			return menuUuid;
-		}
-		public void setMenuUuid(String menuUuid) {
-			this.menuUuid = menuUuid;
-		}
-		@Override
-		public String toString() {
-			return "MenuItems [quantity=" + quantity + ", menuUuid=" + menuUuid + "]";
-		}
-		
-		
-	}
-
-	@Override
-	public String toString() {
-		return "PlaceOrdersJson [tableNumber=" + tableNumber + ", userMobileNumber=" + userMobileNumber + ", menuItems="
-				+ menuItems + ", price=" + price + ", taxAmount=" + taxAmount + ", discount=" + discount
-				+ ", totalPrice=" + totalPrice + "]";
-	}
-	
 	
 
 }

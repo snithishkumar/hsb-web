@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
+import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
-import com.archide.hsb.jsonmodel.PlaceOrdersJson.MenuItems;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrders;
@@ -55,8 +55,8 @@ public class OrdersService {
 				
 				ordersDao.placeAnOrders(placedOrders);
 				
-				List<MenuItems> menuItemsList = placeOrdersJson.getMenuItems();
-				for(MenuItems menuItems : menuItemsList){
+				List<OrderedMenuItems> menuItemsList = placeOrdersJson.getMenuItems();
+				for(OrderedMenuItems menuItems : menuItemsList){
 					MenuEntity menuEntity = menuListDao.getMenuEntity(menuItems.getMenuUuid());
 					if(menuEntity != null){
 						PlacedOrderItems placedOrderItems = ordersDao.getPlacedOrderItems(menuItems.getMenuUuid());

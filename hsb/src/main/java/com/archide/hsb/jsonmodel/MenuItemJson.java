@@ -12,6 +12,10 @@ public class MenuItemJson {
 	private Status status;
 	private long dateTime;
 	
+	public MenuItemJson(){
+		
+	}
+	
 	public MenuItemJson(MenuEntity menuEntity){
 		this.menuUuid = menuEntity.getMenuUUID();
 		this.menuItemCode = menuEntity.getMenuItemCode();

@@ -38,8 +38,12 @@ public class PlacedOrders {
 	@ManyToOne
 	@JoinColumn(name = "TableListId", referencedColumnName = "TableListId")
 	private TableList tableNumber;
-	@Column(name = "DateTime")
-	private long dateTime;
+	@Column(name = "ServerDateTime")
+	private long serverDateTime;
+	@Column(name = "OrderDateTime")
+	private long orderDateTime;
+	@Column(name = "LastUpdatedDateTime")
+	private long lastUpdatedDateTime;
 	@Column(name = "Price")
 	private double price;
 	@Column(name = "TaxAmount")
@@ -56,7 +60,9 @@ public class PlacedOrders {
 	
 public PlacedOrders(PlaceOrdersJson placeOrdersJson){
 		this.placeOrdersUUID = placeOrdersJson.getPlaceOrderUuid();
-		this.dateTime = ServiceUtil.getCurrentGmtTime();
+		this.serverDateTime = ServiceUtil.getCurrentGmtTime();
+		this.orderDateTime = placeOrdersJson.getOrderDateTime();
+		this.lastUpdatedDateTime = serverDateTime;
 		this.price = placeOrdersJson.getPrice();
 		this.discount = placeOrdersJson.getDiscount();
 		this.totalPrice = placeOrdersJson.getTotalPrice();
@@ -88,12 +94,37 @@ public PlacedOrders(PlaceOrdersJson placeOrdersJson){
 	public void setTableNumber(TableList tableNumber) {
 		this.tableNumber = tableNumber;
 	}
-	public long getDateTime() {
-		return dateTime;
+	
+	public long getServerDateTime() {
+		return serverDateTime;
 	}
-	public void setDateTime(long dateTime) {
-		this.dateTime = dateTime;
+
+
+	public void setServerDateTime(long serverDateTime) {
+		this.serverDateTime = serverDateTime;
 	}
+
+
+	public long getOrderDateTime() {
+		return orderDateTime;
+	}
+
+
+	public void setOrderDateTime(long orderDateTime) {
+		this.orderDateTime = orderDateTime;
+	}
+
+
+	public long getLastUpdatedDateTime() {
+		return lastUpdatedDateTime;
+	}
+
+
+	public void setLastUpdatedDateTime(long lastUpdatedDateTime) {
+		this.lastUpdatedDateTime = lastUpdatedDateTime;
+	}
+
+
 	public double getPrice() {
 		return price;
 	}
@@ -118,12 +149,16 @@ public PlacedOrders(PlaceOrdersJson placeOrdersJson){
 	public void setTotalPrice(double totalPrice) {
 		this.totalPrice = totalPrice;
 	}
+
+
 	@Override
 	public String toString() {
 		return "PlacedOrders [placeOrdersId=" + placeOrdersId + ", placeOrdersUUID=" + placeOrdersUUID + ", orderId="
-				+ orderId + ", tableNumber=" + tableNumber + ", dateTime=" + dateTime + ", price=" + price
-				+ ", taxAmount=" + taxAmount + ", discount=" + discount + ", totalPrice=" + totalPrice + "]";
+				+ orderId + ", tableNumber=" + tableNumber + ", serverDateTime=" + serverDateTime + ", orderDateTime="
+				+ orderDateTime + ", lastUpdatedDateTime=" + lastUpdatedDateTime + ", price=" + price + ", taxAmount="
+				+ taxAmount + ", discount=" + discount + ", totalPrice=" + totalPrice + "]";
 	}
+	
 	
 	
 
