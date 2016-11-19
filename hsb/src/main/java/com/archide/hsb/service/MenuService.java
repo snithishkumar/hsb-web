@@ -66,6 +66,7 @@ public class MenuService {
 				List<FoodCategory> foodCategories = menuListDao.getFoodCategory(menuCourse);
 				for(FoodCategory foodCategory : foodCategories){
 					FoodCategoryJson categoryJson = new FoodCategoryJson(foodCategory);
+					menuListJson.getCategoryJsons().add(categoryJson);
 					List<MenuEntity> menuEntities = menuListDao.getMenuEntity(menuCourse, foodCategory,lastServerSyncTime);
 					for(MenuEntity menuEntity : menuEntities){
 						MenuItemJson menuItemJson = new MenuItemJson(menuEntity);
@@ -85,7 +86,7 @@ public class MenuService {
 				}
 				getMenuDetails.setPreviousOrder(placeOrdersJson);
 			}
-			String data = gson.toJson(menuListJsonList);
+			String data = gson.toJson(getMenuDetails);
 			return serviceUtil.getRestResponse(true, data);
 		}catch(Exception e){
 			logger.error("Error in getMenuDetails",e);
