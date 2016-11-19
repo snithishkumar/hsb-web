@@ -19,6 +19,7 @@ import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrders;
 import com.archide.hsb.model.TableList;
+import com.google.gson.JsonObject;
 
 
 @Service
@@ -71,7 +72,8 @@ public class OrdersService {
 						
 					}
 				}
-				return serviceUtil.getRestResponse(true, "success",200);
+				
+				return serviceUtil.getRestResponse(true,placedOrders.getServerDateTime(),200);
 			}
 			return serviceUtil.getRestResponse(true, "Invalid data",500);
 		}catch(Exception e){
