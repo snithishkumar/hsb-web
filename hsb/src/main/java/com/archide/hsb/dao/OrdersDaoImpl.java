@@ -11,6 +11,7 @@ import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.model.History;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrders;
 import com.archide.hsb.model.TableList;
@@ -21,6 +22,10 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	public void placeAnOrders(PlacedOrders placedOrders) {
 		saveObject(placedOrders);
 		
+	}
+	
+	public void saveHistory(History history){
+		saveObject(history);
 	}
 
 	public void placeOrdersItems(PlacedOrderItems placedOrderItems) {

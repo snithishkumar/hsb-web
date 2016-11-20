@@ -1,0 +1,59 @@
+package com.archide.hsb.jsonmodel;
+
+import com.archide.hsb.enumeration.DiscountType;
+import com.archide.hsb.model.PlacedOrders;
+
+public class AmountDetailsJson {
+	
+	private float taxAmount;
+	private String discountAmount;
+	private DiscountType discountType;
+	private String minimumAmount;
+	private String deliveryAmount;
+	
+	public AmountDetailsJson(PlacedOrders placedOrders){
+		this.deliveryAmount = "0";
+		this.minimumAmount = "0";
+		this.taxAmount = (float) placedOrders.getTaxAmount();
+		this.discountType = DiscountType.NONE;
+		this.discountAmount = String.valueOf(placedOrders.getDiscount());
+	}
+	public float getTaxAmount() {
+		return taxAmount;
+	}
+	public void setTaxAmount(float taxAmount) {
+		this.taxAmount = taxAmount;
+	}
+	public String getDiscountAmount() {
+		return discountAmount;
+	}
+	public void setDiscountAmount(String discountAmount) {
+		this.discountAmount = discountAmount;
+	}
+	public DiscountType getDiscountType() {
+		return discountType;
+	}
+	public void setDiscountType(DiscountType discountType) {
+		this.discountType = discountType;
+	}
+	public String getMinimumAmount() {
+		return minimumAmount;
+	}
+	public void setMinimumAmount(String minimumAmount) {
+		this.minimumAmount = minimumAmount;
+	}
+	public String getDeliveryAmount() {
+		return deliveryAmount;
+	}
+	public void setDeliveryAmount(String deliveryAmount) {
+		this.deliveryAmount = deliveryAmount;
+	}
+	@Override
+	public String toString() {
+		return "AmountDetailsJson [taxAmount=" + taxAmount + ", discountAmount=" + discountAmount + ", discountType="
+				+ discountType + ", minimumAmount=" + minimumAmount + ", deliveryAmount=" + deliveryAmount + "]";
+	}
+	
+	
+
+}

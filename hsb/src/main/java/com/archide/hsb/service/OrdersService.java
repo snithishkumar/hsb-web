@@ -1,6 +1,7 @@
 package com.archide.hsb.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -9,16 +10,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
+import com.archide.hsb.jsonmodel.AmountDetailsJson;
+import com.archide.hsb.jsonmodel.HistoryMenuItem;
 import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
+import com.archide.hsb.jsonmodel.PurchaseDetailsJson;
+import com.archide.hsb.jsonmodel.PurchaseJson;
+import com.archide.hsb.jsonmodel.ResponseData;
+import com.archide.hsb.model.History;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrders;
 import com.archide.hsb.model.TableList;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 
@@ -36,6 +45,11 @@ public class OrdersService {
 	
 	@Autowired
 	private OrdersDao ordersDao;
+	
+	@Autowired
+	private RestTemplate restTemplate;
+	@Autowired
+	private Gson gson;
 	
 	private static final Logger logger = Logger.getLogger(OrdersService.class);
 	
@@ -82,16 +96,38 @@ public class OrdersService {
 		return null;
 	}
 	
-	private String getOrderId(String tableNumber) {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("FOD-");
-		LocalDateTime dateTime = LocalDateTime.now();
-		stringBuilder.append(dateTime.getDayOfMonth());
-		stringBuilder.append(dateTime.getMonthValue());
-		stringBuilder.append(dateTime.getHour());
-		stringBuilder.append(dateTime.getMinute());
-		stringBuilder.append(tableNumber);
-		return stringBuilder.toString();
+	public ResponseEntity<String> billing(String tableNumber){
+		try{
+			TableList tableList = tableListDao.getTables(tableNumber);
+			if(tableList == null){
+				//return 
+			}
+			PlacedOrders placedOrders = ordersDao.getPlacedOrders(tableList);
+			List<PlacedOrderItems> orderItems  = ordersDao.getPlacedOrderItems(placedOrders);
+			PurchaseJson purchaseJson = new PurchaseJson(placedOrders);
+			AmountDetailsJson amountDetailsJson = new AmountDetailsJson(placedOrders);
+			List<HistoryMenuItem> historyMenuItems = new ArrayList<>();
+			for(PlacedOrderItems placedOrderItems : orderItems){
+				PurchaseDetailsJson purchaseDetailsJson = new PurchaseDetailsJson(placedOrderItems);
+				HistoryMenuItem historyMenuItem = new HistoryMenuItem(placedOrderItems);
+				historyMenuItems.add(historyMenuItem);
+				purchaseJson.getPurchaseDetails().add(purchaseDetailsJson);
+			}
+			purchaseJson.setAmountDetails(amountDetailsJson);
+			// itemcode,name,quantity,desc,menu course,food category,price
+			History history = new History(placedOrders);
+			history.setHistoryUUID(ServiceUtil.uuid());
+			history.setItems(gson.toJson(historyMenuItems));
+			ordersDao.saveHistory(history);
+			String responseDataJson = restTemplate.postForObject("", placedOrders, String.class);
+			ResponseData responseData = gson.fromJson(responseDataJson, ResponseData.class);
+			return serviceUtil.getRestResponse(true,responseData.getData(),responseData.getStatusCode());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return serviceUtil.getRestResponse(true, "Internal Server Error.",500);
 	}
+	
+	
 
 }

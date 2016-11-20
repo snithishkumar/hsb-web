@@ -25,7 +25,7 @@ public class History {
 	@JoinColumn(name = "TableListId", referencedColumnName = "TableListId")
 	private TableList tableNumber;
 	@Column(name = "DateTime")
-	private double dateTime;
+	private long dateTime;
 	@Column(name = "Price")
 	private double price;
 	@Column(name = "TaxAmount")
@@ -36,6 +36,21 @@ public class History {
 	private double totalPrice;
 	@Column(name = "Items")
 	private String items;
+	
+	public History(){
+		
+	}
+	
+	public History(PlacedOrders placedOrders){
+		this.orderId = placedOrders.getOrderId();
+		this.dateTime = placedOrders.getOrderDateTime();
+		this.price = placedOrders.getPrice();
+		this.taxAmount = placedOrders.getTaxAmount();
+		this.discount = placedOrders.getDiscount();
+		this.totalPrice = placedOrders.getTotalPrice();
+		
+	}
+	
 	
 	public int getHistoryId() {
 		return historyId;
@@ -61,10 +76,10 @@ public class History {
 	public void setTableNumber(TableList tableNumber) {
 		this.tableNumber = tableNumber;
 	}
-	public double getDateTime() {
+	public long getDateTime() {
 		return dateTime;
 	}
-	public void setDateTime(double dateTime) {
+	public void setDateTime(long dateTime) {
 		this.dateTime = dateTime;
 	}
 	public double getPrice() {

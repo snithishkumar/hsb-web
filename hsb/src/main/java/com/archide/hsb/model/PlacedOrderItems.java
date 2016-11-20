@@ -29,7 +29,7 @@ public class PlacedOrderItems {
 	@JoinColumn(name = "MenuId", referencedColumnName = "MenuId")
 	private MenuEntity menuItem;
 	@Column(name = "Quantity")
-	private float quantity;
+	private int quantity;
 	@Column(name = "Name")
 	private String name;
 	@Column(name = "ItemCode")
@@ -57,10 +57,10 @@ public class PlacedOrderItems {
 	public void setMenuItem(MenuEntity menuItem) {
 		this.menuItem = menuItem;
 	}
-	public float getQuantity() {
+	public int getQuantity() {
 		return quantity;
 	}
-	public void setQuantity(float quantity) {
+	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
 	
