@@ -26,4 +26,6 @@ public interface OrdersDao {
 	void saveHistory(History history);
 	
 	List<PlacedOrdersEntity> getPlacedOrders(List<String> orderIds);
+	
+	List<PlacedOrdersEntity> getPlacedOrders();
 }

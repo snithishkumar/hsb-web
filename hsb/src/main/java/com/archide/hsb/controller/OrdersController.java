@@ -20,4 +20,9 @@ public class OrdersController {
 	}
 
 
+	@RequestMapping(value="/mobile/getKitchenOrders")
+	public ResponseEntity<String> getKitchenOrderDetails(@RequestBody String requestData){
+		return orderService.getKitchenOrderDetails(requestData);
+	}
+
 }

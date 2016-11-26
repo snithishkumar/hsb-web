@@ -67,6 +67,7 @@ public PlacedOrdersEntity(PlaceOrdersJson placeOrdersJson){
 		this.discount = placeOrdersJson.getDiscount();
 		this.totalPrice = placeOrdersJson.getTotalPrice();
 		this.taxAmount = placeOrdersJson.getTaxAmount();
+		this.orderId = placeOrdersJson.getOrderId();
 	}
 	
 	

@@ -26,6 +26,11 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		
 	}
 	
+	public void ordersUpdate(PlacedOrdersEntity placedOrders) {
+		updateObject(placedOrders);
+		
+	}
+	
 	public void saveHistory(History history){
 		saveObject(history);
 	}
@@ -72,6 +77,11 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	public List<PlacedOrdersEntity> getPlacedOrders(List<String> orderIds) {
 		Criteria builder =  sessionFactory.getCurrentSession().createCriteria(PlacedOrdersEntity.class);
 		builder.add(Restrictions.not(Restrictions.in(PlacedOrdersEntity.ORDER_ID, orderIds)));
+		return builder.list();
+	}
+	
+	public List<PlacedOrdersEntity> getPlacedOrders() {
+		Criteria builder =  sessionFactory.getCurrentSession().createCriteria(PlacedOrdersEntity.class);
 		return builder.list();
 	}
 	

@@ -56,7 +56,7 @@ public class OrdersService {
 	
 	private static final Logger logger = Logger.getLogger(OrdersService.class);
 	
-	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
+	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
 	public ResponseEntity<String> placeAnOrder(String requestData){
 		try{
 			PlaceOrdersJson placeOrdersJson = serviceUtil.fromJson(requestData, PlaceOrdersJson.class);
@@ -69,9 +69,14 @@ public class OrdersService {
 				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(placeOrdersJson.getPlaceOrderUuid());
 				if(placedOrders == null){
 					 placedOrders = new PlacedOrdersEntity(placeOrdersJson);
+					 placedOrders.setTableNumber(tableList);
+					 ordersDao.placeAnOrders(placedOrders);
+				}else{
+					placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+					placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 				}
 				
-				ordersDao.placeAnOrders(placedOrders);
+				
 				
 				List<OrderedMenuItems> menuItemsList = placeOrdersJson.getMenuItems();
 				for(OrderedMenuItems menuItems : menuItemsList){
@@ -82,8 +87,13 @@ public class OrdersService {
 							placedOrderItems = new PlacedOrderItems();
 							placedOrderItems.setQuantity(menuItems.getQuantity());
 							placedOrderItems.setMenuItem(menuEntity);
+							placedOrderItems.setName(menuItems.getName());
+							placedOrderItems.setItemCode(menuItems.getItemCode());
 							placedOrderItems.setPlacedOrderItemsUUID(ServiceUtil.uuid());
 							placedOrderItems.setPlacedOrders(placedOrders);
+							placedOrderItems.setLastUpdatedTime(placedOrders.getServerDateTime());
+							placedOrderItems.setOrderDateTime(placedOrders.getServerDateTime());
+							placedOrderItems.setServerSyncTime(placedOrders.getServerDateTime());
 							ordersDao.placeOrdersItems(placedOrderItems);
 						}
 						
@@ -139,38 +149,46 @@ public class OrdersService {
 					new TypeToken<List<GetKitchenOrders>>() {}.getType());
 			List<String> orderIds = new ArrayList<>();
 			KitchenOrderListResponse kitchenOrderListResponse = new KitchenOrderListResponse();
-			List<PlaceOrdersJson> placeOrdersJsons = new ArrayList<>();
+			//List<PlaceOrdersJson> placeOrdersJsons = new ArrayList<>();
 			for (GetKitchenOrders getKitchenOrders : getKitchenOrderList) {
 				orderIds.add(getKitchenOrders.getOrderId());
 				PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(getKitchenOrders.getPlacedOrdersUuid());
 				if (placedOrdersEntity != null) {
-					processKitchenData(placedOrdersEntity, placeOrdersJsons, getKitchenOrders.getServerDateTime());
+					processKitchenData(placedOrdersEntity, kitchenOrderListResponse.getPlaceOrdersJsonList(), getKitchenOrders.getServerDateTime());
 				} else {
 					kitchenOrderListResponse.getClosedOrders().add(getKitchenOrders.getOrderId());
 				}
 			}
 
 			int size = orderIds.size();
-			int quo = size / 25;
-			int rem = size % 25;
-			if (quo > 0) {
-				for (int i = 0; i < quo; i++) {
-					List<String> orderIdsTemp = orderIds.subList(i * 25, (i + 1) * 25);
-					List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPlacedOrders(orderIdsTemp);
-					for (PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities) {
-						processKitchenData(placedOrdersEntity, placeOrdersJsons, 0);
+			if(size > 0){
+				int quo = size / 25;
+				int rem = size % 25;
+				if (quo > 0) {
+					for (int i = 0; i < quo; i++) {
+						List<String> orderIdsTemp = orderIds.subList(i * 25, (i + 1) * 25);
+						List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPlacedOrders(orderIdsTemp);
+						for (PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities) {
+							processKitchenData(placedOrdersEntity, kitchenOrderListResponse.getPlaceOrdersJsonList(), 0);
+						}
 					}
 				}
-			}
 
-			if (rem > 0) {
-				List<String> orderIdsTemp = orderIds.subList(quo * 25, size);
-				List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPlacedOrders(orderIdsTemp);
+				if (rem > 0) {
+					List<String> orderIdsTemp = orderIds.subList(quo * 25, size);
+					List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPlacedOrders(orderIdsTemp);
+					for (PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities) {
+						processKitchenData(placedOrdersEntity, kitchenOrderListResponse.getPlaceOrdersJsonList(), 0);
+					}
+				}
+			}else{
+				List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPlacedOrders();
 				for (PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities) {
-					processKitchenData(placedOrdersEntity, placeOrdersJsons, 0);
+					processKitchenData(placedOrdersEntity, kitchenOrderListResponse.getPlaceOrdersJsonList(), 0);
 				}
 			}
-			String data = gson.toJson(placeOrdersJsons);
+			
+			String data = gson.toJson(kitchenOrderListResponse);
 			return serviceUtil.getRestResponse(true, data);
 		}catch(Exception e){
 			e.printStackTrace();
