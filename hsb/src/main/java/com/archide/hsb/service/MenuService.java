@@ -23,7 +23,7 @@ import com.archide.hsb.model.FoodCategory;
 import com.archide.hsb.model.MenuCourse;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
-import com.archide.hsb.model.PlacedOrders;
+import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
 import com.google.gson.Gson;
 
@@ -76,7 +76,7 @@ public class MenuService {
 			}
 			getMenuDetails.setMenuListJsonList(menuListJsonList);
 			TableList tableList =	tableListDao.getTables(tableNumber);
-			PlacedOrders placedOrders = ordersDao.getPlacedOrders(tableList);
+			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList);
 			if(placedOrders != null){
 				PlaceOrdersJson placeOrdersJson =new PlaceOrdersJson(placedOrders);
 				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);

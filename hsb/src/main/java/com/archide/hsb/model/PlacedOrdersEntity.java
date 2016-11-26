@@ -14,7 +14,7 @@ import com.archide.hsb.service.ServiceUtil;
 
 @Entity
 @Table(name = "placedorders")
-public class PlacedOrders {
+public class PlacedOrdersEntity {
 	
 	public static final String PLACED_ORDERS_ID = "placeOrdersId";
 	public static final String PLACED_ORDERS_UUID = "placeOrdersUUID";
@@ -25,7 +25,7 @@ public class PlacedOrders {
 	public static final String TAX_AMOUNT = "taxAmount";
 	public static final String DISCOUNT = "discount";
 	public static final String TOTAL_PRICE = "totalPrice";
-	
+	public static final String SERVER_DATE_TIME = "serverDateTime";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,12 +53,12 @@ public class PlacedOrders {
 	@Column(name = "TotalPrice")
 	private double totalPrice;
 	
-	public PlacedOrders(){
+	public PlacedOrdersEntity(){
 		
 	}
 	
 	
-public PlacedOrders(PlaceOrdersJson placeOrdersJson){
+public PlacedOrdersEntity(PlaceOrdersJson placeOrdersJson){
 		this.placeOrdersUUID = placeOrdersJson.getPlaceOrderUuid();
 		this.serverDateTime = ServiceUtil.getCurrentGmtTime();
 		this.orderDateTime = placeOrdersJson.getOrderDateTime();

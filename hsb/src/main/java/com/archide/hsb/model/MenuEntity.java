@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.archide.hsb.enumeration.FoodType;
 import com.archide.hsb.enumeration.Status;
 
 
@@ -49,6 +50,9 @@ public class MenuEntity {
 	@Column(name = "Status")
 	@Enumerated
 	private Status status;
+	@Column(name = "FoodType")
+	@Enumerated
+	private FoodType foodType;
 	
 	@Column(name = "DateTime")
 	private long dateTime;
@@ -56,6 +60,20 @@ public class MenuEntity {
 	@Column(name = "ServerTime")
 	private long serverTime;
 	
+	
+	
+	public FoodType getFoodType() {
+		return foodType;
+	}
+	public void setFoodType(FoodType foodType) {
+		this.foodType = foodType;
+	}
+	public long getServerTime() {
+		return serverTime;
+	}
+	public void setServerTime(long serverTime) {
+		this.serverTime = serverTime;
+	}
 	public int getMenuId() {
 		return menuId;
 	}

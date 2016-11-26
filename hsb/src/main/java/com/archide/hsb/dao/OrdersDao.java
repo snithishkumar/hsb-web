@@ -4,21 +4,26 @@ import java.util.List;
 
 import com.archide.hsb.model.History;
 import com.archide.hsb.model.PlacedOrderItems;
-import com.archide.hsb.model.PlacedOrders;
+import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
 
 public interface OrdersDao {
 
-	void placeAnOrders(PlacedOrders placedOrders);
+	void placeAnOrders(PlacedOrdersEntity placedOrders);
 	
-	PlacedOrders getPlacedOrders(String placeOrdersUuid);
+	PlacedOrdersEntity getPlacedOrders(String placeOrdersUuid);
+	
 	
 	PlacedOrderItems getPlacedOrderItems(String placeOrderItemsUuid);
 	
 	void placeOrdersItems(PlacedOrderItems placedOrderItems);
 	
-	PlacedOrders getPlacedOrders(TableList tableList);
+	PlacedOrdersEntity getPlacedOrders(TableList tableList);
 	
-	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrders placedOrders);
+	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders);
+	
+	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,long serverSyncTime);
 	void saveHistory(History history);
+	
+	List<PlacedOrdersEntity> getPlacedOrders(List<String> orderIds);
 }

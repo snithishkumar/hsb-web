@@ -18,6 +18,9 @@ public class PlacedOrderItems {
 	public static final String MENU_ITEM = "menuItem";
 	public static final String QUANTITY = "quantity";
 	public static final String PLACED_ORDERS = "placedOrders";
+	public static final String SERVER_SYNC_TIME = "serverSyncTime";
+	public static final String ORDER_DATE_TIME = "orderDateTime";
+	public static final String LAST_UPDTED_TIME = "lastUpdatedTime";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,10 +37,16 @@ public class PlacedOrderItems {
 	private String name;
 	@Column(name = "ItemCode")
 	private String itemCode;
+	@Column(name = "ServerSyncTime")
+	private long serverSyncTime;
+	@Column(name = "OrderDateTime")
+	private long orderDateTime;
+	@Column(name = "LastUpdatedTime")
+	private long lastUpdatedTime;
 	
 	@ManyToOne
 	@JoinColumn(name = "PlacedOrdersId", referencedColumnName = "PlacedOrdersId")
-	private PlacedOrders placedOrders;
+	private PlacedOrdersEntity placedOrders;
 	
 	public int getPlacedOrderItemsId() {
 		return placedOrderItemsId;
@@ -66,6 +75,24 @@ public class PlacedOrderItems {
 	
 	
 	
+	public long getServerSyncTime() {
+		return serverSyncTime;
+	}
+	public void setServerSyncTime(long serverSyncTime) {
+		this.serverSyncTime = serverSyncTime;
+	}
+	public long getOrderDateTime() {
+		return orderDateTime;
+	}
+	public void setOrderDateTime(long orderDateTime) {
+		this.orderDateTime = orderDateTime;
+	}
+	public long getLastUpdatedTime() {
+		return lastUpdatedTime;
+	}
+	public void setLastUpdatedTime(long lastUpdatedTime) {
+		this.lastUpdatedTime = lastUpdatedTime;
+	}
 	public String getName() {
 		return name;
 	}
@@ -78,10 +105,10 @@ public class PlacedOrderItems {
 	public void setItemCode(String itemCode) {
 		this.itemCode = itemCode;
 	}
-	public PlacedOrders getPlacedOrders() {
+	public PlacedOrdersEntity getPlacedOrders() {
 		return placedOrders;
 	}
-	public void setPlacedOrders(PlacedOrders placedOrders) {
+	public void setPlacedOrders(PlacedOrdersEntity placedOrders) {
 		this.placedOrders = placedOrders;
 	}
 	@Override

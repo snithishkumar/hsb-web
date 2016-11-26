@@ -16,7 +16,9 @@ import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
 import com.archide.hsb.jsonmodel.AmountDetailsJson;
+import com.archide.hsb.jsonmodel.GetKitchenOrders;
 import com.archide.hsb.jsonmodel.HistoryMenuItem;
+import com.archide.hsb.jsonmodel.KitchenOrderListResponse;
 import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
 import com.archide.hsb.jsonmodel.PurchaseDetailsJson;
@@ -25,10 +27,11 @@ import com.archide.hsb.jsonmodel.ResponseData;
 import com.archide.hsb.model.History;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
-import com.archide.hsb.model.PlacedOrders;
+import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 
 @Service
@@ -63,9 +66,9 @@ public class OrdersService {
 					// return Invalid TableNumber
 					return serviceUtil.getRestResponse(true, "Invalid table number.",404);
 				}
-				PlacedOrders placedOrders = ordersDao.getPlacedOrders(placeOrdersJson.getPlaceOrderUuid());
+				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(placeOrdersJson.getPlaceOrderUuid());
 				if(placedOrders == null){
-					 placedOrders = new PlacedOrders(placeOrdersJson);
+					 placedOrders = new PlacedOrdersEntity(placeOrdersJson);
 				}
 				
 				ordersDao.placeAnOrders(placedOrders);
@@ -102,7 +105,7 @@ public class OrdersService {
 			if(tableList == null){
 				//return 
 			}
-			PlacedOrders placedOrders = ordersDao.getPlacedOrders(tableList);
+			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList);
 			List<PlacedOrderItems> orderItems  = ordersDao.getPlacedOrderItems(placedOrders);
 			PurchaseJson purchaseJson = new PurchaseJson(placedOrders);
 			AmountDetailsJson amountDetailsJson = new AmountDetailsJson(placedOrders);
@@ -126,6 +129,63 @@ public class OrdersService {
 			e.printStackTrace();
 		}
 		return serviceUtil.getRestResponse(true, "Internal Server Error.",500);
+	}
+	
+	
+	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
+	public ResponseEntity<String> getKitchenOrderDetails(String requestData){
+		try {
+			List<GetKitchenOrders> getKitchenOrderList = gson.fromJson(requestData,
+					new TypeToken<List<GetKitchenOrders>>() {}.getType());
+			List<String> orderIds = new ArrayList<>();
+			KitchenOrderListResponse kitchenOrderListResponse = new KitchenOrderListResponse();
+			List<PlaceOrdersJson> placeOrdersJsons = new ArrayList<>();
+			for (GetKitchenOrders getKitchenOrders : getKitchenOrderList) {
+				orderIds.add(getKitchenOrders.getOrderId());
+				PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(getKitchenOrders.getPlacedOrdersUuid());
+				if (placedOrdersEntity != null) {
+					processKitchenData(placedOrdersEntity, placeOrdersJsons, getKitchenOrders.getServerDateTime());
+				} else {
+					kitchenOrderListResponse.getClosedOrders().add(getKitchenOrders.getOrderId());
+				}
+			}
+
+			int size = orderIds.size();
+			int quo = size / 25;
+			int rem = size % 25;
+			if (quo > 0) {
+				for (int i = 0; i < quo; i++) {
+					List<String> orderIdsTemp = orderIds.subList(i * 25, (i + 1) * 25);
+					List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPlacedOrders(orderIdsTemp);
+					for (PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities) {
+						processKitchenData(placedOrdersEntity, placeOrdersJsons, 0);
+					}
+				}
+			}
+
+			if (rem > 0) {
+				List<String> orderIdsTemp = orderIds.subList(quo * 25, size);
+				List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPlacedOrders(orderIdsTemp);
+				for (PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities) {
+					processKitchenData(placedOrdersEntity, placeOrdersJsons, 0);
+				}
+			}
+			String data = gson.toJson(placeOrdersJsons);
+			return serviceUtil.getRestResponse(true, data);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return serviceUtil.getRestResponse(false, "Internal Server Error.");
+	}
+	
+	private void processKitchenData(PlacedOrdersEntity placedOrdersEntity,List<PlaceOrdersJson> placeOrdersJsons,long lastServerTime){
+		 PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrdersEntity, true);
+			placeOrdersJsons.add(placeOrdersJson);
+			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity, lastServerTime);
+			for(PlacedOrderItems placedOrderItems : placedOrderItemsList){
+				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(placedOrderItems,true);
+				placeOrdersJson.getMenuItems().add(orderedMenuItems);
+			}
 	}
 	
 	

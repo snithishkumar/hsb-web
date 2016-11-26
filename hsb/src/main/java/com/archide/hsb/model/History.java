@@ -41,7 +41,7 @@ public class History {
 		
 	}
 	
-	public History(PlacedOrders placedOrders){
+	public History(PlacedOrdersEntity placedOrders){
 		this.orderId = placedOrders.getOrderId();
 		this.dateTime = placedOrders.getOrderDateTime();
 		this.price = placedOrders.getPrice();

@@ -21,6 +21,7 @@ public class PurchaseDetailsJson {
 		
 	}
 	
+	
 	public int getItemNo() {
 		return itemNo;
 	}

@@ -3,7 +3,7 @@ package com.archide.hsb.jsonmodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.archide.hsb.model.PlacedOrders;
+import com.archide.hsb.model.PlacedOrdersEntity;
 
 public class PlaceOrdersJson {
 	
@@ -24,7 +24,7 @@ public class PlaceOrdersJson {
 		
 	}
 	
-public PlaceOrdersJson(PlacedOrders placedOrders){
+   public PlaceOrdersJson(PlacedOrdersEntity placedOrders){
 		this.price = placedOrders.getPrice();
 		this.taxAmount = placedOrders.getTaxAmount();
 		this.discount = placedOrders.getDiscount();
@@ -35,6 +35,15 @@ public PlaceOrdersJson(PlacedOrders placedOrders){
 		this.orderDateTime = placedOrders.getOrderDateTime();
 		this.lastUpdatedDateTime = placedOrders.getLastUpdatedDateTime();
 	}
+   
+   public PlaceOrdersJson(PlacedOrdersEntity placedOrders,boolean isPrice){
+ 		this.placeOrderUuid = placedOrders.getPlaceOrdersUUID();
+ 		this.orderId = placedOrders.getOrderId();
+ 		this.serverDateTime = placedOrders.getServerDateTime();
+ 		this.orderDateTime = placedOrders.getOrderDateTime();
+ 		this.lastUpdatedDateTime = placedOrders.getLastUpdatedDateTime();
+ 		this.tableNumber = placedOrders.getTableNumber().getTableNumber();
+ 	}
 	
 	public String getTableNumber() {
 		return tableNumber;

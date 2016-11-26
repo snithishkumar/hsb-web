@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.archide.hsb.enumeration.DeliveryOptions;
-import com.archide.hsb.model.PlacedOrders;
+import com.archide.hsb.model.PlacedOrdersEntity;
 
 
 
@@ -20,7 +20,7 @@ public class PurchaseJson {
 	private AmountDetailsJson amountDetails;
 	private String totalAmount;
 	
-	public PurchaseJson(PlacedOrders placedOrders){
+	public PurchaseJson(PlacedOrdersEntity placedOrders){
 		this.billNumber = placedOrders.getOrderId();
 		this.purchaseUuid = placedOrders.getPlaceOrdersUUID();
 		this.purchaseDateTime = String.valueOf(placedOrders.getOrderDateTime());

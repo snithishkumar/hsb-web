@@ -1,5 +1,6 @@
 package com.archide.hsb.jsonmodel;
 
+import com.archide.hsb.enumeration.FoodType;
 import com.archide.hsb.model.PlacedOrderItems;
 
 public class OrderedMenuItems {
@@ -9,6 +10,9 @@ public class OrderedMenuItems {
 	private String placedOrderItemsUUID;
 	private String menuUuid;
 	private String itemCode;
+	private String categoryName;
+	private String categoryUuid;
+	private FoodType foodType;
 	
 	public OrderedMenuItems(){
 		
@@ -20,6 +24,17 @@ public class OrderedMenuItems {
 		this.placedOrderItemsUUID = placedOrderItems.getPlacedOrderItemsUUID();
 		this.itemCode = placedOrderItems.getMenuItem().getMenuItemCode();
 		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
+	}
+	
+	public OrderedMenuItems(PlacedOrderItems placedOrderItems,boolean isKitchen){
+		this.name = placedOrderItems.getMenuItem().getName();
+		this.quantity = placedOrderItems.getQuantity();
+		this.placedOrderItemsUUID = placedOrderItems.getPlacedOrderItemsUUID();
+		this.itemCode = placedOrderItems.getMenuItem().getMenuItemCode();
+		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
+		this.foodType = placedOrderItems.getMenuItem().getFoodType();
+		this.categoryUuid = placedOrderItems.getMenuItem().getFoodCategory().getFoodCategoryUUID();
+		this.categoryName = placedOrderItems.getMenuItem().getFoodCategory().getCategoryName()+"-"+placedOrderItems.getMenuItem().getMenuCourse().getCategoryName();
 	}
 	
 	public String getItemCode() {

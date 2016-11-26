@@ -8,18 +8,20 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.jsonmodel.GetKitchenOrders;
 import com.archide.hsb.model.History;
 import com.archide.hsb.model.PlacedOrderItems;
-import com.archide.hsb.model.PlacedOrders;
+import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
 
 @Repository
 public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 
-	public void placeAnOrders(PlacedOrders placedOrders) {
+	public void placeAnOrders(PlacedOrdersEntity placedOrders) {
 		saveObject(placedOrders);
 		
 	}
@@ -32,14 +34,14 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		saveObject(placedOrderItems);		
 	}
 
-	public PlacedOrders getPlacedOrders(String placeOrdersUuid) {
+	public PlacedOrdersEntity getPlacedOrders(String placeOrdersUuid) {
 		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
-		CriteriaQuery<PlacedOrders> criteriaQuery = builder.createQuery(PlacedOrders.class);
-		Root<PlacedOrders> root = criteriaQuery.from(PlacedOrders.class);
+		CriteriaQuery<PlacedOrdersEntity> criteriaQuery = builder.createQuery(PlacedOrdersEntity.class);
+		Root<PlacedOrdersEntity> root = criteriaQuery.from(PlacedOrdersEntity.class);
 		criteriaQuery.select(root);
-		criteriaQuery.where(builder.equal(root.get(PlacedOrders.PLACED_ORDERS_UUID), placeOrdersUuid));
-		Query<PlacedOrders> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
-		List<PlacedOrders> placeOrdersList =  q.getResultList();
+		criteriaQuery.where(builder.equal(root.get(PlacedOrdersEntity.PLACED_ORDERS_UUID), placeOrdersUuid));
+		Query<PlacedOrdersEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
+		List<PlacedOrdersEntity> placeOrdersList =  q.getResultList();
 		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
 	}
 
@@ -55,19 +57,26 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	}
 	
 	
-	public PlacedOrders getPlacedOrders(TableList tableList) {
+	public PlacedOrdersEntity getPlacedOrders(TableList tableList) {
 		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
-		CriteriaQuery<PlacedOrders> criteriaQuery = builder.createQuery(PlacedOrders.class);
-		Root<PlacedOrders> root = criteriaQuery.from(PlacedOrders.class);
+		CriteriaQuery<PlacedOrdersEntity> criteriaQuery = builder.createQuery(PlacedOrdersEntity.class);
+		Root<PlacedOrdersEntity> root = criteriaQuery.from(PlacedOrdersEntity.class);
 		criteriaQuery.select(root);
-		criteriaQuery.where(builder.equal(root.get(PlacedOrders.TABLE_NUMBER), tableList));
-		Query<PlacedOrders> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
-		List<PlacedOrders> placeOrdersList =  q.getResultList();
+		criteriaQuery.where(builder.equal(root.get(PlacedOrdersEntity.TABLE_NUMBER), tableList));
+		Query<PlacedOrdersEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
+		List<PlacedOrdersEntity> placeOrdersList =  q.getResultList();
 		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
 	}
 	
 	
-	public List<PlacedOrderItems> getPlacedOrderItems(PlacedOrders placedOrders) {
+	public List<PlacedOrdersEntity> getPlacedOrders(List<String> orderIds) {
+		Criteria builder =  sessionFactory.getCurrentSession().createCriteria(PlacedOrdersEntity.class);
+		builder.add(Restrictions.not(Restrictions.in(PlacedOrdersEntity.ORDER_ID, orderIds)));
+		return builder.list();
+	}
+	
+	
+	public List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders) {
 		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
 		CriteriaQuery<PlacedOrderItems> criteriaQuery = builder.createQuery(PlacedOrderItems.class);
 		Root<PlacedOrderItems> root = criteriaQuery.from(PlacedOrderItems.class);
@@ -77,5 +86,20 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		List<PlacedOrderItems> placeOrderItemsList =  q.getResultList();
 		return placeOrderItemsList;
 	}
+
+
+	@Override
+	public List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders, long serverSyncTime) {
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<PlacedOrderItems> criteriaQuery = builder.createQuery(PlacedOrderItems.class);
+		Root<PlacedOrderItems> root = criteriaQuery.from(PlacedOrderItems.class);
+		criteriaQuery.select(root);
+		criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders),builder.and(builder.gt(root.get(PlacedOrderItems.SERVER_SYNC_TIME), serverSyncTime)));
+		Query<PlacedOrderItems> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
+		List<PlacedOrderItems> placeOrderItemsList =  q.getResultList();
+		return placeOrderItemsList;
+	}
+	
+	
 
 }

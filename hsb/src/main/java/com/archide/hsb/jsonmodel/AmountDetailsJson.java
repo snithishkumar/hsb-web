@@ -1,7 +1,7 @@
 package com.archide.hsb.jsonmodel;
 
 import com.archide.hsb.enumeration.DiscountType;
-import com.archide.hsb.model.PlacedOrders;
+import com.archide.hsb.model.PlacedOrdersEntity;
 
 public class AmountDetailsJson {
 	
@@ -11,7 +11,7 @@ public class AmountDetailsJson {
 	private String minimumAmount;
 	private String deliveryAmount;
 	
-	public AmountDetailsJson(PlacedOrders placedOrders){
+	public AmountDetailsJson(PlacedOrdersEntity placedOrders){
 		this.deliveryAmount = "0";
 		this.minimumAmount = "0";
 		this.taxAmount = (float) placedOrders.getTaxAmount();
