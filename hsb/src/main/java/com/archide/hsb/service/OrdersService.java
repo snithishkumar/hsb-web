@@ -94,6 +94,7 @@ public class OrdersService {
 							placedOrderItems.setLastUpdatedTime(placedOrders.getServerDateTime());
 							placedOrderItems.setOrderDateTime(placedOrders.getServerDateTime());
 							placedOrderItems.setServerSyncTime(placedOrders.getServerDateTime());
+							placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
 							ordersDao.placeOrdersItems(placedOrderItems);
 						}
 						

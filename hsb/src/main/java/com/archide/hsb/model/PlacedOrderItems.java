@@ -9,6 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.archide.hsb.enumeration.OrderStatus;
+
 @Entity
 @Table(name = "placedorderitems")
 public class PlacedOrderItems {
@@ -21,6 +23,7 @@ public class PlacedOrderItems {
 	public static final String SERVER_SYNC_TIME = "serverSyncTime";
 	public static final String ORDER_DATE_TIME = "orderDateTime";
 	public static final String LAST_UPDTED_TIME = "lastUpdatedTime";
+	public static final String ORDER_STATUS = "orderStatus";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,6 +50,9 @@ public class PlacedOrderItems {
 	@ManyToOne
 	@JoinColumn(name = "PlacedOrdersId", referencedColumnName = "PlacedOrdersId")
 	private PlacedOrdersEntity placedOrders;
+	
+	@Column(name = "OrderStatus")
+	private OrderStatus orderStatus;
 	
 	public int getPlacedOrderItemsId() {
 		return placedOrderItemsId;
@@ -75,6 +81,12 @@ public class PlacedOrderItems {
 	
 	
 	
+	public OrderStatus getOrderStatus() {
+		return orderStatus;
+	}
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
+	}
 	public long getServerSyncTime() {
 		return serverSyncTime;
 	}

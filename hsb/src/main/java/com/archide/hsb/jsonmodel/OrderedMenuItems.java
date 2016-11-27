@@ -1,6 +1,7 @@
 package com.archide.hsb.jsonmodel;
 
 import com.archide.hsb.enumeration.FoodType;
+import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.model.PlacedOrderItems;
 
 public class OrderedMenuItems {
@@ -13,6 +14,7 @@ public class OrderedMenuItems {
 	private String categoryName;
 	private String categoryUuid;
 	private FoodType foodType;
+	private OrderStatus orderStatus;
 	
 	public OrderedMenuItems(){
 		
@@ -24,6 +26,7 @@ public class OrderedMenuItems {
 		this.placedOrderItemsUUID = placedOrderItems.getPlacedOrderItemsUUID();
 		this.itemCode = placedOrderItems.getMenuItem().getMenuItemCode();
 		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
+		this.orderStatus = placedOrderItems.getOrderStatus();
 	}
 	
 	public OrderedMenuItems(PlacedOrderItems placedOrderItems,boolean isKitchen){
@@ -33,10 +36,45 @@ public class OrderedMenuItems {
 		this.itemCode = placedOrderItems.getMenuItem().getMenuItemCode();
 		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
 		this.foodType = placedOrderItems.getMenuItem().getFoodType();
+		this.orderStatus = placedOrderItems.getOrderStatus();
 		this.categoryUuid = placedOrderItems.getMenuItem().getFoodCategory().getFoodCategoryUUID();
 		this.categoryName = placedOrderItems.getMenuItem().getFoodCategory().getCategoryName()+"-"+placedOrderItems.getMenuItem().getMenuCourse().getCategoryName();
 	}
 	
+	
+	
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+
+	public String getCategoryUuid() {
+		return categoryUuid;
+	}
+
+	public void setCategoryUuid(String categoryUuid) {
+		this.categoryUuid = categoryUuid;
+	}
+
+	public FoodType getFoodType() {
+		return foodType;
+	}
+
+	public void setFoodType(FoodType foodType) {
+		this.foodType = foodType;
+	}
+
+	public OrderStatus getOrderStatus() {
+		return orderStatus;
+	}
+
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
+	}
+
 	public String getItemCode() {
 		return itemCode;
 	}
