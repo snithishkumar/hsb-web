@@ -24,6 +24,8 @@ public class PlacedOrderItems {
 	public static final String ORDER_DATE_TIME = "orderDateTime";
 	public static final String LAST_UPDTED_TIME = "lastUpdatedTime";
 	public static final String ORDER_STATUS = "orderStatus";
+	public static final String UN_AVAILABLE_COUNT = "unAvailableCount";
+	public static final String SERVER_LAST_UPDATED_TIME = "serverLastUpdatedTime";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -46,6 +48,11 @@ public class PlacedOrderItems {
 	private long orderDateTime;
 	@Column(name = "LastUpdatedTime")
 	private long lastUpdatedTime;
+	@Column(name = "ServerLastUpdatedTime")
+	private long serverLastUpdatedTime;
+	
+	@Column(name = "UnAvailableCount")
+	private int unAvailableCount;
 	
 	@ManyToOne
 	@JoinColumn(name = "PlacedOrdersId", referencedColumnName = "PlacedOrdersId")
@@ -81,6 +88,18 @@ public class PlacedOrderItems {
 	
 	
 	
+	public long getServerLastUpdatedTime() {
+		return serverLastUpdatedTime;
+	}
+	public void setServerLastUpdatedTime(long serverLastUpdatedTime) {
+		this.serverLastUpdatedTime = serverLastUpdatedTime;
+	}
+	public int getUnAvailableCount() {
+		return unAvailableCount;
+	}
+	public void setUnAvailableCount(int unAvailableCount) {
+		this.unAvailableCount = unAvailableCount;
+	}
 	public OrderStatus getOrderStatus() {
 		return orderStatus;
 	}

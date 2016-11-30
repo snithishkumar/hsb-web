@@ -12,6 +12,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.jsonmodel.GetKitchenOrders;
 import com.archide.hsb.model.History;
 import com.archide.hsb.model.PlacedOrderItems;
@@ -37,6 +38,10 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 
 	public void placeOrdersItems(PlacedOrderItems placedOrderItems) {
 		saveObject(placedOrderItems);		
+	}
+	
+	public void updateOrdersItems(PlacedOrderItems placedOrderItems) {
+		updateObject(placedOrderItems);		
 	}
 
 	public PlacedOrdersEntity getPlacedOrders(String placeOrdersUuid) {
@@ -92,6 +97,18 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		Root<PlacedOrderItems> root = criteriaQuery.from(PlacedOrderItems.class);
 		criteriaQuery.select(root);
 		criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders));
+		Query<PlacedOrderItems> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
+		List<PlacedOrderItems> placeOrderItemsList =  q.getResultList();
+		return placeOrderItemsList;
+	}
+	
+	
+	public List<PlacedOrderItems> getPreviousPlacedOrderItems(PlacedOrdersEntity placedOrders,long serverLastUdpateTime) {
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<PlacedOrderItems> criteriaQuery = builder.createQuery(PlacedOrderItems.class);
+		Root<PlacedOrderItems> root = criteriaQuery.from(PlacedOrderItems.class);
+		criteriaQuery.select(root);
+		criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders),builder.and(builder.gt(root.get(PlacedOrderItems.SERVER_LAST_UPDATED_TIME), serverLastUdpateTime)));
 		Query<PlacedOrderItems> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
 		List<PlacedOrderItems> placeOrderItemsList =  q.getResultList();
 		return placeOrderItemsList;

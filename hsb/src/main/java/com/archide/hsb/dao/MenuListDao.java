@@ -13,4 +13,6 @@ public interface MenuListDao {
 	List<MenuEntity> getMenuEntity(MenuCourse menuCourse,FoodCategory foodCategory);
 	List<MenuEntity> getMenuEntity(MenuCourse menuCourse,FoodCategory foodCategory,long lastUpdatedTime);
     MenuEntity getMenuEntity(String menuUuid);
+    
+    void udpateMenuEntity(MenuEntity menuEntity);
 }

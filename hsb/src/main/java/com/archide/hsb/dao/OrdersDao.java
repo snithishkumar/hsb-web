@@ -23,9 +23,16 @@ public interface OrdersDao {
 	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders);
 	
 	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,long serverSyncTime);
+	
+	List<PlacedOrderItems> getPreviousPlacedOrderItems(PlacedOrdersEntity placedOrders,long serverLastUdpateTime);
+	
 	void saveHistory(History history);
 	
 	List<PlacedOrdersEntity> getPlacedOrders(List<String> orderIds);
 	
 	List<PlacedOrdersEntity> getPlacedOrders();
+	
+	void updateOrdersItems(PlacedOrderItems placedOrderItems);
+	
+	void ordersUpdate(PlacedOrdersEntity placedOrders);
 }

@@ -15,6 +15,7 @@ public class OrderedMenuItems {
 	private String categoryUuid;
 	private FoodType foodType;
 	private OrderStatus orderStatus;
+	private int unAvailableCount;
 	
 	public OrderedMenuItems(){
 		
@@ -43,6 +44,14 @@ public class OrderedMenuItems {
 	
 	
 	
+	public int getUnAvailableCount() {
+		return unAvailableCount;
+	}
+
+	public void setUnAvailableCount(int unAvailableCount) {
+		this.unAvailableCount = unAvailableCount;
+	}
+
 	public String getCategoryName() {
 		return categoryName;
 	}

@@ -24,5 +24,16 @@ public class OrdersController {
 	public ResponseEntity<String> getKitchenOrderDetails(@RequestBody String requestData){
 		return orderService.getKitchenOrderDetails(requestData);
 	}
+	
+	@RequestMapping(value="/mobile/sendUnSyncedKitchenOrders")
+	public ResponseEntity<String> sendUnSyncedKitchenOrders(@RequestBody String requestData){
+		return orderService.updateKitchenOrderStatus(requestData);
+	}
+	
+	
+	@RequestMapping(value="/mobile/getPreviousOrder")
+	public ResponseEntity<String> getPreviousOrder(@RequestBody String requestData){
+		return orderService.getPreviousOrder(requestData);
+	}
 
 }
