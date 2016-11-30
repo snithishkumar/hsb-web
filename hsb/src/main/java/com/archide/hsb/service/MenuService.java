@@ -93,5 +93,20 @@ public class MenuService {
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
+	
+	
+	public ResponseEntity<String> getUnAvailableMenuItems(long serverDateTime){
+		try{
+			List datas = menuListDao.getUnAvailableMenus(serverDateTime);
+			if(datas.size() > 0){
+				return serviceUtil.getRestResponse(true, datas,200);
+			}else{
+				return serviceUtil.getRestResponse(true, "",404);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return serviceUtil.getRestResponse(false, "Internal Server Error.");
+	}
 
 }

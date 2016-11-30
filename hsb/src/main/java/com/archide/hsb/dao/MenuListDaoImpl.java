@@ -7,10 +7,15 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
+import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.enumeration.Status;
+import com.archide.hsb.jsonmodel.MenuItemJson;
 import com.archide.hsb.model.FoodCategory;
 import com.archide.hsb.model.MenuCourse;
 import com.archide.hsb.model.MenuEntity;
@@ -79,6 +84,27 @@ public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
 		Query<MenuEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
 		List<MenuEntity> menuEntities =  q.getResultList();
 		return menuEntities.size() > 0 ? menuEntities.get(0) : null;
+	}
+	
+	@Override
+	public List getUnAvailableMenus(long serverDateTime){
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(MenuEntity.class);
+		criteria.add(Restrictions.eq(MenuEntity.STATUS, Status.UN_AVAILABLE));
+		if(serverDateTime > 0){
+			criteria.add(Restrictions.ge(MenuEntity.SERVER_TIME, serverDateTime));
+		}
+		ProjectionList projectionList = Projections.projectionList();
+		projectionList.add(Projections.property(MenuEntity.SERVER_TIME), MenuItemJson.MENU_UUDI);
+		projectionList.add(Projections.property(MenuEntity.MENU_UUID), MenuItemJson.SERVER_DATE_TIME);
+		
+		criteria.setProjection(projectionList);
+		criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+		return criteria.list();
+	}
+
+	@Override
+	public void udpateMenuEntity(MenuEntity menuEntity) {
+		udpateMenuEntity(menuEntity);
 	}
 
 }

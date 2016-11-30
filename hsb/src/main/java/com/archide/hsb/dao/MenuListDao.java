@@ -15,4 +15,6 @@ public interface MenuListDao {
     MenuEntity getMenuEntity(String menuUuid);
     
     void udpateMenuEntity(MenuEntity menuEntity);
+    
+    List<String> getUnAvailableMenus(long serverDateTime);
 }

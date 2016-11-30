@@ -18,6 +18,13 @@ public class MenuController {
 	public ResponseEntity<String> getMenuLists(@RequestParam String lastServerSyncTime,@RequestParam String tableNumber){
 		return menuService.getMenuDetails(lastServerSyncTime,tableNumber);
 	}
+	
+	
+	@RequestMapping(value="/mobile/getUnAvailableMenuItems")
+	public ResponseEntity<String> getUnAvailableMenuItems(@RequestParam String lastServerSyncTime){
+		return menuService.getUnAvailableMenuItems(Long.valueOf(lastServerSyncTime));
+	}
 
+	//getUnAvailableMenuItems
 
 }

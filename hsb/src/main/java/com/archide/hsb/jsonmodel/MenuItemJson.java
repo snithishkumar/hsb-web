@@ -4,13 +4,15 @@ import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.model.MenuEntity;
 
 public class MenuItemJson {
-	
+	public static final String MENU_UUDI = "menuUuid";
+	public static final String SERVER_DATE_TIME = "serverDateTime";
 	private String menuUuid;
 	private String menuItemCode;
 	private String name;
 	private double price;
 	private Status status;
 	private long dateTime;
+	private long serverDateTime;
 	
 	public MenuItemJson(){
 		
@@ -23,9 +25,20 @@ public class MenuItemJson {
 		this.price = menuEntity.getPrice();
 		this.status = menuEntity.getStatus();
 		this.dateTime = menuEntity.getDateTime();
+		this.serverDateTime = menuEntity.getServerTime();
 	}
 	
 	
+	
+	
+	public long getServerDateTime() {
+		return serverDateTime;
+	}
+
+	public void setServerDateTime(long serverDateTime) {
+		this.serverDateTime = serverDateTime;
+	}
+
 	public String getMenuUuid() {
 		return menuUuid;
 	}
