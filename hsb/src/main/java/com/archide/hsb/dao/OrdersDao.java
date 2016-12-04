@@ -18,7 +18,7 @@ public interface OrdersDao {
 	
 	void placeOrdersItems(PlacedOrderItems placedOrderItems);
 	
-	PlacedOrdersEntity getPlacedOrders(TableList tableList);
+	PlacedOrdersEntity getPlacedOrders(TableList tableList,String mobileNumber);
 	
 	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders);
 	

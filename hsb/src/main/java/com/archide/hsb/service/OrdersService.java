@@ -119,7 +119,7 @@ public class OrdersService {
 			if(tableList == null){
 				//return 
 			}
-			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList);
+			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,null);
 			List<PlacedOrderItems> orderItems  = ordersDao.getPlacedOrderItems(placedOrders);
 			PurchaseJson purchaseJson = new PurchaseJson(placedOrders);
 			AmountDetailsJson amountDetailsJson = new AmountDetailsJson(placedOrders);
@@ -215,8 +215,9 @@ public class OrdersService {
 		try{
 			JsonObject requestJson = (JsonObject)jsonParser.parse(requestData);
 			long serverLastUdpateTime = requestJson.get("serverLastUdpateTime").getAsLong();
+			String mobileNumber = requestJson.get("mobileNumber").getAsString();
 			TableList tableList = tableListDao.getTables(requestJson.get("tableNumber").getAsString());
-			PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(tableList);
+			PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(tableList,mobileNumber);
 			if(placedOrdersEntity != null){
 				PlaceOrdersJson placeOrdersJson =new PlaceOrdersJson(placedOrdersEntity);
 				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPreviousPlacedOrderItems(placedOrdersEntity, serverLastUdpateTime);

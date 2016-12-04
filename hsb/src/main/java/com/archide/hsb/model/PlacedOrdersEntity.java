@@ -26,6 +26,7 @@ public class PlacedOrdersEntity {
 	public static final String DISCOUNT = "discount";
 	public static final String TOTAL_PRICE = "totalPrice";
 	public static final String SERVER_DATE_TIME = "serverDateTime";
+	public static final String USER_MOBILE_NUMBER = "userMobileNumber";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -52,13 +53,15 @@ public class PlacedOrdersEntity {
 	private double discount;
 	@Column(name = "TotalPrice")
 	private double totalPrice;
+	@Column(name = "UserMobileNumber")
+	private String userMobileNumber;
 	
 	public PlacedOrdersEntity(){
 		
 	}
 	
 	
-public PlacedOrdersEntity(PlaceOrdersJson placeOrdersJson){
+	public PlacedOrdersEntity(PlaceOrdersJson placeOrdersJson){
 		this.placeOrdersUUID = placeOrdersJson.getPlaceOrderUuid();
 		this.serverDateTime = ServiceUtil.getCurrentGmtTime();
 		this.orderDateTime = placeOrdersJson.getOrderDateTime();
@@ -68,6 +71,7 @@ public PlacedOrdersEntity(PlaceOrdersJson placeOrdersJson){
 		this.totalPrice = placeOrdersJson.getTotalPrice();
 		this.taxAmount = placeOrdersJson.getTaxAmount();
 		this.orderId = placeOrdersJson.getOrderId();
+		this.userMobileNumber = placeOrdersJson.getUserMobileNumber();
 	}
 	
 	
@@ -149,6 +153,18 @@ public PlacedOrdersEntity(PlaceOrdersJson placeOrdersJson){
 	}
 	public void setTotalPrice(double totalPrice) {
 		this.totalPrice = totalPrice;
+	}
+	
+	
+
+
+	public String getUserMobileNumber() {
+		return userMobileNumber;
+	}
+
+
+	public void setUserMobileNumber(String userMobileNumber) {
+		this.userMobileNumber = userMobileNumber;
 	}
 
 

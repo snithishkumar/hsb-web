@@ -51,7 +51,7 @@ public class MenuService {
 	 * @return
 	 */
 	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
-	public ResponseEntity<String> getMenuDetails(String lastServerSyncTimeTemp,String tableNumber){
+	public ResponseEntity<String> getMenuDetails(String lastServerSyncTimeTemp,String tableNumber,String mobileNumber){
 		try{
 			GetMenuDetails getMenuDetails = new GetMenuDetails();
 			long lastServerSyncTime = 0;
@@ -76,9 +76,9 @@ public class MenuService {
 			}
 			getMenuDetails.setMenuListJsonList(menuListJsonList);
 			TableList tableList =	tableListDao.getTables(tableNumber);
-			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList);
+			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,mobileNumber);
 			if(placedOrders != null){
-				PlaceOrdersJson placeOrdersJson =new PlaceOrdersJson(placedOrders);
+				PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrders);
 				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
 				for(PlacedOrderItems orderItems : placedOrderItemsList){
 					OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
@@ -94,7 +94,7 @@ public class MenuService {
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
 	
-	
+	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
 	public ResponseEntity<String> getUnAvailableMenuItems(long serverDateTime){
 		try{
 			List datas = menuListDao.getUnAvailableMenus(serverDateTime);
