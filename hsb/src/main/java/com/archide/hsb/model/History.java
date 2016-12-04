@@ -12,6 +12,9 @@ import javax.persistence.Table;
 @Entity
 @Table(name="history")
 public class History {
+	public static final String HISTORY_ID = "historyId";
+	public static final String HISTORY_UUID = "historyUUID";
+	public static final String ORDER_ID = "orderId";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,6 +27,10 @@ public class History {
 	@ManyToOne
 	@JoinColumn(name = "TableListId", referencedColumnName = "TableListId")
 	private TableList tableNumber;
+	@Column(name = "ServerDateTime")
+	private long serverDateTime;
+	@Column(name = "OrderDateTime")
+	private long orderDateTime;
 	@Column(name = "DateTime")
 	private long dateTime;
 	@Column(name = "Price")
@@ -34,6 +41,8 @@ public class History {
 	private double discount;
 	@Column(name = "TotalPrice")
 	private double totalPrice;
+	@Column(name = "UserMobileNumber")
+	private String userMobileNumber;
 	@Column(name = "Items")
 	private String items;
 	
@@ -43,12 +52,9 @@ public class History {
 	
 	public History(PlacedOrdersEntity placedOrders){
 		this.orderId = placedOrders.getOrderId();
-		this.dateTime = placedOrders.getOrderDateTime();
-		this.price = placedOrders.getPrice();
-		this.taxAmount = placedOrders.getTaxAmount();
-		this.discount = placedOrders.getDiscount();
-		this.totalPrice = placedOrders.getTotalPrice();
-		
+		this.orderDateTime = placedOrders.getOrderDateTime();
+		this.userMobileNumber = placedOrders.getUserMobileNumber();
+		//this.price = placedOrders.getPrice();
 	}
 	
 	

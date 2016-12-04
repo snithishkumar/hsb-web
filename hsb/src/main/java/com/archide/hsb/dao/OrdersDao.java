@@ -35,4 +35,10 @@ public interface OrdersDao {
 	void updateOrdersItems(PlacedOrderItems placedOrderItems);
 	
 	void ordersUpdate(PlacedOrdersEntity placedOrders);
+	
+	PlacedOrdersEntity getPlacedOrdersByMobile(String userMobileNumber);
+	
+	void removePlacedOrderItems(PlacedOrdersEntity placedOrdersEntity);
+	
+	boolean isHistory(String orderId);
 }

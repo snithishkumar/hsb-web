@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.archide.hsb.service.OrdersService;
@@ -34,6 +35,12 @@ public class OrdersController {
 	@RequestMapping(value="/mobile/getPreviousOrder")
 	public ResponseEntity<String> getPreviousOrder(@RequestBody String requestData){
 		return orderService.getPreviousOrder(requestData);
+	}
+	
+
+	@RequestMapping(value="/mobile/closeAnOrder")
+	public ResponseEntity<String> closeAnOrder(@RequestParam String tableNumber,@RequestParam String mobileNumber,@RequestParam String orderId){
+		return orderService.closeAnOrder(tableNumber,mobileNumber,orderId);
 	}
 
 }

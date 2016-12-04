@@ -16,6 +16,9 @@ public class OrderedMenuItems {
 	private FoodType foodType;
 	private OrderStatus orderStatus;
 	private int unAvailableCount;
+	// History
+	private String orderDateTime;
+	private String lastUpdatedDateTime;
 	
 	public OrderedMenuItems(){
 		
@@ -42,8 +45,37 @@ public class OrderedMenuItems {
 		this.categoryName = placedOrderItems.getMenuItem().getFoodCategory().getCategoryName()+"-"+placedOrderItems.getMenuItem().getMenuCourse().getCategoryName();
 	}
 	
+	public void convertHistory(PlacedOrderItems placedOrderItems){
+		this.name = placedOrderItems.getMenuItem().getName();
+		this.quantity = placedOrderItems.getQuantity();
+		this.itemCode = placedOrderItems.getMenuItem().getMenuItemCode();
+		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
+		this.foodType = placedOrderItems.getMenuItem().getFoodType();
+		this.orderStatus = placedOrderItems.getOrderStatus();
+		this.orderDateTime = String.valueOf(placedOrderItems.getOrderDateTime());
+		this.lastUpdatedDateTime = String.valueOf(placedOrderItems.getLastUpdatedTime());
+		this.categoryUuid = placedOrderItems.getMenuItem().getFoodCategory().getFoodCategoryUUID();
+		this.categoryName = placedOrderItems.getMenuItem().getFoodCategory().getCategoryName()+"-"+placedOrderItems.getMenuItem().getMenuCourse().getCategoryName();
+	}
 	
 	
+	
+	public String getOrderDateTime() {
+		return orderDateTime;
+	}
+
+	public void setOrderDateTime(String orderDateTime) {
+		this.orderDateTime = orderDateTime;
+	}
+
+	public String getLastUpdatedDateTime() {
+		return lastUpdatedDateTime;
+	}
+
+	public void setLastUpdatedDateTime(String lastUpdatedDateTime) {
+		this.lastUpdatedDateTime = lastUpdatedDateTime;
+	}
+
 	public int getUnAvailableCount() {
 		return unAvailableCount;
 	}

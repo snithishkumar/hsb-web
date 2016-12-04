@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
+import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.jsonmodel.AmountDetailsJson;
 import com.archide.hsb.jsonmodel.GetKitchenOrders;
@@ -113,7 +114,74 @@ public class OrdersService {
 		return null;
 	}
 	
-	public ResponseEntity<String> billing(String tableNumber){
+	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
+	public ResponseEntity<String> closeAnOrder(String tableNumber,String mobileNumber,String orderId){
+		try{
+			if(tableNumber != null){
+				TableList tableList =	tableListDao.getTables(tableNumber);
+				if(tableList == null){
+					// return Invalid TableNumber
+					return serviceUtil.getRestResponse(true, "Invalid table number.",404);
+				}
+				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,mobileNumber);
+				if(placedOrders == null){
+					boolean isResult = ordersDao.isHistory(orderId);
+					if(isResult){
+						return serviceUtil.getRestResponse(true, "Already in History",403);
+					}
+					
+				}
+				return generateBilling(placedOrders);
+			}else{
+				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrdersByMobile(mobileNumber);
+				return generateBilling(placedOrders);
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return serviceUtil.getRestResponse(false, "Invalid data",500);
+	}
+	
+	private ResponseEntity<String> generateBilling(PlacedOrdersEntity placedOrders){
+	    List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
+		double cost = 0;
+		List<OrderedMenuItems> menuHistoryList = new ArrayList<>();
+		List<OrderedMenuItems> billingList = new ArrayList<>();
+		for(PlacedOrderItems orderItems : placedOrderItemsList){
+			if(orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED) || orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED)){
+				return serviceUtil.getRestResponse(true,"Some Items not yet Delivered.",403);
+			}
+			OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+			OrderedMenuItems menuHistory = new OrderedMenuItems();
+			menuHistory.convertHistory(orderItems);
+			menuHistoryList.add(menuHistory);
+			billingList.add(orderedMenuItems);
+			if(!(orderedMenuItems.getUnAvailableCount() > 0)){
+				MenuEntity menuEntity =	menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
+				 cost =  cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
+				}
+		}
+		placedOrders.setPrice(cost);
+		placedOrders.setDiscount(0);
+		placedOrders.setTaxAmount(0);
+		placedOrders.setTotalPrice(cost);
+		placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+		placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
+		PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrders);
+		placeOrdersJson.getMenuItems().addAll(billingList);
+		History history = new History(placedOrders);
+		String menuHistoryItems = gson.toJson(menuHistoryList);
+		history.setItems(menuHistoryItems);
+		ordersDao.saveHistory(history);
+		ordersDao.removePlacedOrderItems(placedOrders);
+		String data = gson.toJson(placeOrdersJson);
+		return serviceUtil.getRestResponse(true,data,200);
+	}
+	
+	
+	
+	/*public ResponseEntity<String> billing(String tableNumber){
 		try{
 			TableList tableList = tableListDao.getTables(tableNumber);
 			if(tableList == null){
@@ -143,7 +211,7 @@ public class OrdersService {
 			e.printStackTrace();
 		}
 		return serviceUtil.getRestResponse(true, "Internal Server Error.",500);
-	}
+	}*/
 	
 	
 	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
