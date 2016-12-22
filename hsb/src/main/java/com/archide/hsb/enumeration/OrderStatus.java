@@ -1,5 +1,5 @@
 package com.archide.hsb.enumeration;
 
 public enum OrderStatus {
-	ORDERED,VIEWED,DELIVERED,UNAVAILABLE;
+	ORDERED,VIEWED,DELIVERED,UN_AVAILABLE;
 }

@@ -314,6 +314,7 @@ public class OrdersService {
 				PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(placeOrdersJson.getPlaceOrderUuid());
 				if(placedOrdersEntity != null){
 					KitchenOrderStatusSyncResponse statusSyncResponse = new KitchenOrderStatusSyncResponse();
+					placedOrderUuid.add(statusSyncResponse);
 					statusSyncResponse.setPlacedOrderUuid(placeOrdersJson.getPlaceOrderUuid());
 					List<OrderedMenuItems> menuItemsList =	placeOrdersJson.getMenuItems();
 					for(OrderedMenuItems menuItems : menuItemsList){
@@ -340,7 +341,8 @@ public class OrdersService {
 					ordersDao.ordersUpdate(placedOrdersEntity);
 				}
 			}
-			return serviceUtil.getRestResponse(true, placedOrderUuid);
+			String data = gson.toJson(placedOrderUuid);
+			return serviceUtil.getRestResponse(true, data,200);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

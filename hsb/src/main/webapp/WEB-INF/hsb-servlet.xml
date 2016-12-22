@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/tx/spring-tx-4.3.xsd ">
 
 	<context:component-scan base-package="com.archide.hsb"/>
-	 <context:property-placeholder location="classpath:hsb.properties"/>
+	 <context:property-placeholder location="file:///${catalina.home}/conf/hsb.properties"/>
 	<mvc:annotation-driven />
 	<tx:annotation-driven />
 
@@ -23,8 +23,8 @@
 		<property name="url"
 			value="jdbc:mysql://localhost/hsb?useSSL=false" />
 		<property name="username" value="root" />
- 	<property name="password" value="admin" />
-		<!--  <property name="password" value="Dec302013@" /> -->
+ 	     <property name="password" value="admin" />
+	  <!--   <property name="password" value="Dec302013@" /> -->
 		<property name="initialSize" value="20" />
 		<property name="maxTotal" value="100" />
         <!-- Production Conf // http://www.codingpedia.org/ama/tomcat-jdbc-connection-pool-configuration-for-production-and-development/ -->
