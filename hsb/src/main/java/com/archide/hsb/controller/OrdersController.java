@@ -21,12 +21,12 @@ public class OrdersController {
 	}
 
 
-	@RequestMapping(value="/mobile/getKitchenOrders")
+	@RequestMapping(value="/mobile/kitchen/getKitchenOrders")
 	public ResponseEntity<String> getKitchenOrderDetails(@RequestBody String requestData){
 		return orderService.getKitchenOrderDetails(requestData);
 	}
 	
-	@RequestMapping(value="/mobile/sendUnSyncedKitchenOrders")
+	@RequestMapping(value="/mobile/kitchen/sendUnSyncedKitchenOrders")
 	public ResponseEntity<String> sendUnSyncedKitchenOrders(@RequestBody String requestData){
 		return orderService.updateKitchenOrderStatus(requestData);
 	}
@@ -39,8 +39,8 @@ public class OrdersController {
 	
 
 	@RequestMapping(value="/mobile/closeAnOrder")
-	public ResponseEntity<String> closeAnOrder(@RequestParam String tableNumber,@RequestParam String mobileNumber,@RequestParam String orderId){
-		return orderService.closeAnOrder(tableNumber,mobileNumber,orderId);
+	public ResponseEntity<String> closeAnOrder(@RequestParam String tableNumber,@RequestParam String mobileNumber,@RequestParam String placedOrderUUid){
+		return orderService.closeAnOrder(tableNumber,mobileNumber,placedOrderUUid);
 	}
 
 }

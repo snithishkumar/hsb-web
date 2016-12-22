@@ -27,6 +27,7 @@ public class PlacedOrdersEntity {
 	public static final String TOTAL_PRICE = "totalPrice";
 	public static final String SERVER_DATE_TIME = "serverDateTime";
 	public static final String USER_MOBILE_NUMBER = "userMobileNumber";
+	public static final String IS_CLOSED = "isClosed";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -55,6 +56,8 @@ public class PlacedOrdersEntity {
 	private double totalPrice;
 	@Column(name = "UserMobileNumber")
 	private String userMobileNumber;
+	@Column(name = "IsClosed")
+	private boolean isClosed;
 	
 	public PlacedOrdersEntity(){
 		
@@ -75,6 +78,18 @@ public class PlacedOrdersEntity {
 	}
 	
 	
+	
+	
+	public boolean isClosed() {
+		return isClosed;
+	}
+
+
+	public void setClosed(boolean isClosed) {
+		this.isClosed = isClosed;
+	}
+
+
 	public int getPlaceOrdersId() {
 		return placeOrdersId;
 	}

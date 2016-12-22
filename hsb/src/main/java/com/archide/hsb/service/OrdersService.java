@@ -131,10 +131,10 @@ public class OrdersService {
 					}
 					
 				}
-				return generateBilling(placedOrders);
+				return generateBilling(placedOrders,tableList);
 			}else{
 				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrdersByMobile(mobileNumber);
-				return generateBilling(placedOrders);
+				return generateBilling(placedOrders,null);
 			}
 			
 		}catch(Exception e){
@@ -143,40 +143,57 @@ public class OrdersService {
 		return serviceUtil.getRestResponse(false, "Invalid data",500);
 	}
 	
-	private ResponseEntity<String> generateBilling(PlacedOrdersEntity placedOrders){
-	    List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
-		double cost = 0;
-		List<OrderedMenuItems> menuHistoryList = new ArrayList<>();
+	private ResponseEntity<String> generateBilling(PlacedOrdersEntity placedOrders, TableList tableNumber) {
 		List<OrderedMenuItems> billingList = new ArrayList<>();
-		for(PlacedOrderItems orderItems : placedOrderItemsList){
-			if(orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED) || orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED)){
-				return serviceUtil.getRestResponse(true,"Some Items not yet Delivered.",403);
-			}
-			OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
-			OrderedMenuItems menuHistory = new OrderedMenuItems();
-			menuHistory.convertHistory(orderItems);
-			menuHistoryList.add(menuHistory);
-			billingList.add(orderedMenuItems);
-			if(!(orderedMenuItems.getUnAvailableCount() > 0)){
-				MenuEntity menuEntity =	menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
-				 cost =  cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
+		if (!placedOrders.isClosed()) {
+			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
+			double cost = 0;
+			// List<OrderedMenuItems> menuHistoryList = new ArrayList<>();
+			for (PlacedOrderItems orderItems : placedOrderItemsList) {
+				if (orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED)
+						|| orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED)) {
+					return serviceUtil.getRestResponse(true, "Some Items not yet Delivered.", 403);
 				}
+				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+				// OrderedMenuItems menuHistory = new OrderedMenuItems();
+				// menuHistory.convertHistory(orderItems);
+				// menuHistoryList.add(menuHistory);
+				billingList.add(orderedMenuItems);
+				if (!(orderedMenuItems.getUnAvailableCount() > 0)) {
+					MenuEntity menuEntity = menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
+					cost = cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
+				}
+			}
+			placedOrders.setPrice(cost);
+			placedOrders.setDiscount(0);
+			placedOrders.setTaxAmount(0);
+			placedOrders.setTotalPrice(cost);
+			placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+			placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
+			placedOrders.setClosed(true);
+			ordersDao.ordersUpdate(placedOrders);
+		} else {
+			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
+			for (PlacedOrderItems orderItems : placedOrderItemsList) {
+				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+				billingList.add(orderedMenuItems);
+			}
 		}
-		placedOrders.setPrice(cost);
-		placedOrders.setDiscount(0);
-		placedOrders.setTaxAmount(0);
-		placedOrders.setTotalPrice(cost);
-		placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
-		placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
+
 		PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrders);
 		placeOrdersJson.getMenuItems().addAll(billingList);
-		History history = new History(placedOrders);
-		String menuHistoryItems = gson.toJson(menuHistoryList);
-		history.setItems(menuHistoryItems);
-		ordersDao.saveHistory(history);
-		ordersDao.removePlacedOrderItems(placedOrders);
+		/*
+		 * History history = new History(placedOrders);
+		 * history.setHistoryUUID(ServiceUtil.uuid());
+		 * history.setDateTime(placedOrders.getServerDateTime());
+		 * history.setTableNumber(tableNumber);
+		 * history.setServerDateTime(placedOrders.getServerDateTime()); String
+		 * menuHistoryItems = gson.toJson(menuHistoryList);
+		 * history.setItems(menuHistoryItems); ordersDao.saveHistory(history);
+		 * ordersDao.removePlacedOrderItems(placedOrders);
+		 */
 		String data = gson.toJson(placeOrdersJson);
-		return serviceUtil.getRestResponse(true,data,200);
+		return serviceUtil.getRestResponse(true, data, 200);
 	}
 	
 	
@@ -225,7 +242,7 @@ public class OrdersService {
 			for (GetKitchenOrders getKitchenOrders : getKitchenOrderList) {
 				orderIds.add(getKitchenOrders.getOrderId());
 				PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(getKitchenOrders.getPlacedOrdersUuid());
-				if (placedOrdersEntity != null) {
+				if (placedOrdersEntity != null && !placedOrdersEntity.isClosed()) {
 					processKitchenData(placedOrdersEntity, kitchenOrderListResponse.getPlaceOrdersJsonList(), getKitchenOrders.getServerDateTime());
 				} else {
 					kitchenOrderListResponse.getClosedOrders().add(getKitchenOrders.getOrderId());
@@ -286,7 +303,7 @@ public class OrdersService {
 			String mobileNumber = requestJson.get("mobileNumber").getAsString();
 			TableList tableList = tableListDao.getTables(requestJson.get("tableNumber").getAsString());
 			PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(tableList,mobileNumber);
-			if(placedOrdersEntity != null){
+			if(placedOrdersEntity != null && !placedOrdersEntity.isClosed()){
 				PlaceOrdersJson placeOrdersJson =new PlaceOrdersJson(placedOrdersEntity);
 				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPreviousPlacedOrderItems(placedOrdersEntity, serverLastUdpateTime);
 				for(PlacedOrderItems orderItems : placedOrderItemsList){

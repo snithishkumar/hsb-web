@@ -54,10 +54,38 @@ public class History {
 		this.orderId = placedOrders.getOrderId();
 		this.orderDateTime = placedOrders.getOrderDateTime();
 		this.userMobileNumber = placedOrders.getUserMobileNumber();
+	//	this.serverDateTime = placedOrders.getServerDateTime();
+		
 		//this.price = placedOrders.getPrice();
 	}
 	
 	
+	
+	
+	public long getServerDateTime() {
+		return serverDateTime;
+	}
+
+	public void setServerDateTime(long serverDateTime) {
+		this.serverDateTime = serverDateTime;
+	}
+
+	public long getOrderDateTime() {
+		return orderDateTime;
+	}
+
+	public void setOrderDateTime(long orderDateTime) {
+		this.orderDateTime = orderDateTime;
+	}
+
+	public String getUserMobileNumber() {
+		return userMobileNumber;
+	}
+
+	public void setUserMobileNumber(String userMobileNumber) {
+		this.userMobileNumber = userMobileNumber;
+	}
+
 	public int getHistoryId() {
 		return historyId;
 	}
