@@ -1,11 +1,10 @@
-package com.archide.hsb.jsonmodel;
+package com.archide.mobilepay.json;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.archide.hsb.enumeration.DeliveryOptions;
 import com.archide.hsb.model.PlacedOrdersEntity;
-
+import com.archide.mobilepay.enumeration.DeliveryOptions;
 
 
 public class PurchaseJson {
@@ -20,14 +19,13 @@ public class PurchaseJson {
 	private AmountDetailsJson amountDetails;
 	private String totalAmount;
 	
-	public PurchaseJson(PlacedOrdersEntity placedOrders){
-		this.billNumber = placedOrders.getOrderId();
-		this.purchaseUuid = placedOrders.getPlaceOrdersUUID();
-		this.purchaseDateTime = String.valueOf(placedOrders.getOrderDateTime());
-		//this.userMobile =
+	public PurchaseJson(PlacedOrdersEntity placedOrdersEntity){
+		this.billNumber = placedOrdersEntity.getOrderId();
+		this.purchaseDateTime = String.valueOf(placedOrdersEntity.getOrderDateTime());
+		this.userMobile = placedOrdersEntity.getUserMobileNumber();
 		this.deliveryOptions = DeliveryOptions.NONE;
-		this.isEditable  = false;
-		this.totalAmount = String.valueOf(placedOrders.getTotalPrice());
+		this.isEditable = false;
+		this.totalAmount = String.valueOf(placedOrdersEntity.getTotalPrice());
 	}
 	
 	public String getBillNumber() {

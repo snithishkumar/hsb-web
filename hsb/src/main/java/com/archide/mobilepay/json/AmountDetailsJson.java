@@ -1,7 +1,7 @@
-package com.archide.hsb.jsonmodel;
+package com.archide.mobilepay.json;
 
-import com.archide.hsb.enumeration.DiscountType;
 import com.archide.hsb.model.PlacedOrdersEntity;
+import com.archide.mobilepay.enumeration.DiscountType;
 
 public class AmountDetailsJson {
 	
@@ -11,13 +11,14 @@ public class AmountDetailsJson {
 	private String minimumAmount;
 	private String deliveryAmount;
 	
-	public AmountDetailsJson(PlacedOrdersEntity placedOrders){
-		this.deliveryAmount = "0";
+	public AmountDetailsJson(PlacedOrdersEntity placedOrdersEntity){
+		this.taxAmount = (float) placedOrdersEntity.getTaxAmount();
+		this.discountAmount = "0";
 		this.minimumAmount = "0";
-		this.taxAmount = (float) placedOrders.getTaxAmount();
+		this.deliveryAmount = "0";
 		this.discountType = DiscountType.NONE;
-		this.discountAmount = String.valueOf(placedOrders.getDiscount());
 	}
+	
 	public float getTaxAmount() {
 		return taxAmount;
 	}

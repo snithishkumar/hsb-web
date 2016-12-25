@@ -1,15 +1,17 @@
 package com.archide.hsb.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.archide.hsb.dao.MenuListDao;
@@ -17,21 +19,18 @@ import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
 import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.enumeration.Status;
-import com.archide.hsb.jsonmodel.AmountDetailsJson;
 import com.archide.hsb.jsonmodel.GetKitchenOrders;
-import com.archide.hsb.jsonmodel.HistoryMenuItem;
 import com.archide.hsb.jsonmodel.KitchenOrderListResponse;
 import com.archide.hsb.jsonmodel.KitchenOrderStatusSyncResponse;
 import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
-import com.archide.hsb.jsonmodel.PurchaseDetailsJson;
-import com.archide.hsb.jsonmodel.PurchaseJson;
-import com.archide.hsb.jsonmodel.ResponseData;
-import com.archide.hsb.model.History;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
+import com.archide.mobilepay.json.AmountDetailsJson;
+import com.archide.mobilepay.json.PurchaseDetailsJson;
+import com.archide.mobilepay.json.PurchaseJson;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -143,10 +142,28 @@ public class OrdersService {
 		return serviceUtil.getRestResponse(false, "Invalid data",500);
 	}
 	
+	private void sendData(PlacedOrdersEntity placedOrdersEntity,List<PurchaseDetailsJson> purchaseDetails){
+		PurchaseJson purchaseJson = new PurchaseJson(placedOrdersEntity);
+		AmountDetailsJson amountDetailsJson = new AmountDetailsJson(placedOrdersEntity);
+		purchaseJson.setAmountDetails(amountDetailsJson);
+		purchaseJson.setPurchaseDetails(purchaseDetails);
+		
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+		//headers.add("Authorization", "Basic " + base64Creds);
+		headers.add("Content-Type", "application/json");
+		headers.add("mobilePay", "merchant");
+		headers.add("accessToken", "merchant");
+		headers.add("serverToken", "merchant");
+		HttpEntity<PurchaseJson> request = new HttpEntity<PurchaseJson>(purchaseJson, headers);
+		
+		String response = restTemplate.postForObject("", request, String.class);
+	}
+	
 	private ResponseEntity<String> generateBilling(PlacedOrdersEntity placedOrders, TableList tableNumber) {
 		List<OrderedMenuItems> billingList = new ArrayList<>();
 		if (!placedOrders.isClosed()) {
 			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
+			List<PurchaseDetailsJson> purchaseDetails = new ArrayList<>();
 			double cost = 0;
 			// List<OrderedMenuItems> menuHistoryList = new ArrayList<>();
 			for (PlacedOrderItems orderItems : placedOrderItemsList) {
@@ -155,6 +172,8 @@ public class OrdersService {
 					return serviceUtil.getRestResponse(true, "Some Items not yet Delivered.", 403);
 				}
 				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+				PurchaseDetailsJson purchaseDetailsJson = new PurchaseDetailsJson(orderItems);
+				purchaseDetails.add(purchaseDetailsJson);
 				// OrderedMenuItems menuHistory = new OrderedMenuItems();
 				// menuHistory.convertHistory(orderItems);
 				// menuHistoryList.add(menuHistory);
@@ -172,6 +191,7 @@ public class OrdersService {
 			placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 			placedOrders.setClosed(true);
 			ordersDao.ordersUpdate(placedOrders);
+			sendData(placedOrders, purchaseDetails);
 		} else {
 			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
 			for (PlacedOrderItems orderItems : placedOrderItemsList) {
@@ -365,6 +385,8 @@ public class OrdersService {
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
+	
+	
 	
 	
 
