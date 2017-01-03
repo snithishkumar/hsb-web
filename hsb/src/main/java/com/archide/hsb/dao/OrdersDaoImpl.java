@@ -8,11 +8,16 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
+import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.History;
+import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
@@ -159,6 +164,47 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		query.setParameter("ID", placedOrdersEntity);
 		int result = query.executeUpdate();
 		removePlacedOrders(placedOrdersEntity);
+	}
+	
+	
+	public List getUnPaiedListPurchaseUUids(Session session){
+	  Criteria criteria =	session.createCriteria(PlacedOrdersEntity.class);
+	  criteria.add(Restrictions.isNull(PlacedOrdersEntity.PAYMENT_STATUS));
+	  criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PURCHASE_UUID));
+	  criteria.setProjection(Projections.property(PlacedOrdersEntity.PURCHASE_UUID));
+	  criteria.setResultTransformer(Transformers.TO_LIST);
+	  return  criteria.list();
+	}
+	
+	public Session openSession(){
+		return sessionFactory.openSession();
+	}
+	
+	public void closeSession(Session session){
+		if(session != null){
+			session.close();
+		}
+	}
+	
+	
+	public PlacedOrdersEntity getPlacedOrdersEntity(String purchaseUUIDs,Session session){
+		Criteria criteria =	session.createCriteria(PlacedOrdersEntity.class);
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.PURCHASE_UUID, purchaseUUIDs));
+		List<PlacedOrdersEntity> placedOrdersList = criteria.list();
+		if(placedOrdersList.size() > 0){
+			return placedOrdersList.get(0);
+		}
+		return null;
+	}
+	
+	
+	public void savePaymentDetails(PaymentDetails paymentDetails){
+		saveObject(paymentDetails);
+	}
+	
+	
+	public void saveDiscardEntity(DiscardEntity discardEntity){
+		saveObject(discardEntity);
 	}
 	
 	

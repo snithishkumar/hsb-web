@@ -2,7 +2,11 @@ package com.archide.hsb.dao;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
+import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.History;
+import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
@@ -41,4 +45,15 @@ public interface OrdersDao {
 	void removePlacedOrderItems(PlacedOrdersEntity placedOrdersEntity);
 	
 	boolean isHistory(String orderId);
+	
+	List getUnPaiedListPurchaseUUids(Session session);
+	
+	PlacedOrdersEntity getPlacedOrdersEntity(String purchaseUUIDs,Session session);
+	
+	void savePaymentDetails(PaymentDetails paymentDetails);
+	
+	void saveDiscardEntity(DiscardEntity discardEntity);
+	
+	Session openSession();
+	void closeSession(Session session);
 }

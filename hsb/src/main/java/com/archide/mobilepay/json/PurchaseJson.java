@@ -1,4 +1,4 @@
-package com.archide.mobilepay.json;
+/*package com.archide.mobilepay.json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,3 +93,4 @@ public class PurchaseJson {
 	
 
 }
+*/

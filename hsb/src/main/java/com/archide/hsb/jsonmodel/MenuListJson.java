@@ -10,11 +10,13 @@ public class MenuListJson {
 	private String menuCourseUuid;
 	private String categoryName;
 	private long dateTime;
+	private int displayOrder;
 	private List<FoodCategoryJson> categoryJsons = new ArrayList<FoodCategoryJson>();
 	public MenuListJson(MenuCourse menuCourse){
 		this.menuCourseUuid = menuCourse.getMenuCourseUUID();
 		this.categoryName = menuCourse.getCategoryName();
 		this.dateTime = menuCourse.getDateTime();
+		this.displayOrder = menuCourse.getDisplayOrder();
 	}
 	public String getMenuCourseUuid() {
 		return menuCourseUuid;

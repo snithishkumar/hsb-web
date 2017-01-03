@@ -11,6 +11,7 @@ import javax.persistence.Table;
 
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
 import com.archide.hsb.service.ServiceUtil;
+import com.archide.mobilepay.enumeration.PaymentStatus;
 
 @Entity
 @Table(name = "placedorders")
@@ -28,7 +29,8 @@ public class PlacedOrdersEntity {
 	public static final String SERVER_DATE_TIME = "serverDateTime";
 	public static final String USER_MOBILE_NUMBER = "userMobileNumber";
 	public static final String IS_CLOSED = "isClosed";
-	
+	public static final String PURCHASE_UUID = "purchaseUUID";
+	public static final String  PAYMENT_STATUS = "paymentStatus";
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "PlacedOrdersId")
@@ -58,6 +60,10 @@ public class PlacedOrdersEntity {
 	private String userMobileNumber;
 	@Column(name = "IsClosed")
 	private boolean isClosed;
+	@Column(name = "PurchaseUUID")
+	private String purchaseUUID;
+	@Column(name = "PaymentStatus")
+	private PaymentStatus paymentStatus;
 	
 	public PlacedOrdersEntity(){
 		
@@ -180,6 +186,28 @@ public class PlacedOrdersEntity {
 
 	public void setUserMobileNumber(String userMobileNumber) {
 		this.userMobileNumber = userMobileNumber;
+	}
+	
+	
+
+
+	public String getPurchaseUUID() {
+		return purchaseUUID;
+	}
+
+
+	public void setPurchaseUUID(String purchaseUUID) {
+		this.purchaseUUID = purchaseUUID;
+	}
+
+
+	public PaymentStatus getPaymentStatus() {
+		return paymentStatus;
+	}
+
+
+	public void setPaymentStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
 	}
 
 

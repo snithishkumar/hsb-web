@@ -1,4 +1,4 @@
-package com.archide.mobilepay.json;
+/*package com.archide.mobilepay.json;
 
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.mobilepay.enumeration.DiscountType;
@@ -58,3 +58,4 @@ public class AmountDetailsJson {
 	
 
 }
+*/

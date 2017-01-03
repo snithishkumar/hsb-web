@@ -18,6 +18,7 @@ public class FoodCategory {
 	public static final String CATEGORY_NAME = "categoryName";
 	public static final String DATE_TIME = "dateTime";
 	public static final String MENU_COURSE = "menuCourse";
+	public static final String DISPLAY_ORDER = "displayOrder";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,6 +30,9 @@ public class FoodCategory {
 	private String categoryName;
 	@Column(name = "DateTime")
 	private long dateTime;
+	
+	@Column(name = "DisplayOrder")
+	private int displayOrder;
 	
 	@ManyToOne
 	@JoinColumn(name = "MenuCourseId", referencedColumnName = "MenuCourseId")
@@ -61,6 +65,13 @@ public class FoodCategory {
 	
 	
 	
+	
+	public int getDisplayOrder() {
+		return displayOrder;
+	}
+	public void setDisplayOrder(int displayOrder) {
+		this.displayOrder = displayOrder;
+	}
 	public MenuCourse getMenuCourse() {
 		return menuCourse;
 	}

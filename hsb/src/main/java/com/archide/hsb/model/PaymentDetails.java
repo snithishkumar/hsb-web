@@ -5,9 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.archide.mobilepay.enumeration.DeliveryOptions;
+import com.archide.mobilepay.enumeration.OrderStatus;
+import com.archide.mobilepay.json.HistoryPurchaseData;
 
 @Entity
 @Table(name = "paymentdetails")
@@ -15,11 +17,12 @@ public class PaymentDetails {
 	
 	public static final String PAYMENT_DETAILS_ID = "paymentDetailsId";
 	public static final String PAYMENT_DETAILS_UUID = "paymentDetailsUUID";
-	public static final String HISTORY = "history";
-	public static final String AMOUNT = "amount";
-	public static final String PAYED_AMOUNT = "payedAmount";
-	public static final String TRANSACTION_ID = "transactionId";
+	public static final String PURCHASE_UUID = "purchaseUUID";
+	public static final String BILL_NUMBER = "billNumber";
+	public static final String ORDER_STATUS = "orderStatus";
 	public static final String PAYMENT_DATE_TIME = "paymentDateTime";
+	public static final String PURCHASE_ITEMS = "purchaseItems";
+	public static final String USER_DELIVERY_OPTIONS = "userDeliveryOptions";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,79 +30,106 @@ public class PaymentDetails {
 	private int paymentDetailsId;
 	@Column(name = "PaymentDetailsUuid")
 	private String paymentDetailsUUID;
-	@ManyToOne
-	@JoinColumn(name = "HistoryId", referencedColumnName = "HistoryId")
-	private History history;
-	@Column(name = "Amount")
-	private double amount;
-	@Column(name = "PayedAmount")
-	private double payedAmount;
-	@Column(name = "TransactionId")
-	private String transactionId;
+	@Column(name = "PurchaseUuid")
+	private String purchaseUUID;
+	@Column(name = "BillNumber")
+	private String billNumber;
+	@Column(name = "OrderStatus")
+	private OrderStatus orderStatus;
 	@Column(name = "PaymentDateTime")
 	private long paymentDateTime;
-
+	@Column(name = "PurchaseItems")
+	private String purchaseItems;
+	@Column(name = "UserDeliveryOptions")
+	private DeliveryOptions userDeliveryOptions;
+	@Column(name = "PayedAmount")
+	private double payedAmount;
+	@Column(name = "CalculatedAmounts")
+	private String calculatedAmounts;
+	
+	
+	public PaymentDetails(HistoryPurchaseData historyPurchaseData){
+		this.purchaseUUID = historyPurchaseData.getPurchaseUUID();
+		this.billNumber = historyPurchaseData.getBillNumber();
+		this.orderStatus = historyPurchaseData.getOrderStatus();
+		this.paymentDateTime = historyPurchaseData.getLastModifiedDate();
+		this.userDeliveryOptions = historyPurchaseData.getUserDeliveryOptions();
+		this.payedAmount = historyPurchaseData.getTotalAmount();
+		
+	}
+	
 	public int getPaymentDetailsId() {
 		return paymentDetailsId;
 	}
-
 	public void setPaymentDetailsId(int paymentDetailsId) {
 		this.paymentDetailsId = paymentDetailsId;
 	}
-
 	public String getPaymentDetailsUUID() {
 		return paymentDetailsUUID;
 	}
-
 	public void setPaymentDetailsUUID(String paymentDetailsUUID) {
 		this.paymentDetailsUUID = paymentDetailsUUID;
 	}
-
-	public History getHistory() {
-		return history;
+	public String getPurchaseUUID() {
+		return purchaseUUID;
 	}
-
-	public void setHistory(History history) {
-		this.history = history;
+	public void setPurchaseUUID(String purchaseUUID) {
+		this.purchaseUUID = purchaseUUID;
 	}
-
-	public double getAmount() {
-		return amount;
+	public String getBillNumber() {
+		return billNumber;
 	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
+	public void setBillNumber(String billNumber) {
+		this.billNumber = billNumber;
 	}
-
-	public double getPayedAmount() {
-		return payedAmount;
+	public OrderStatus getOrderStatus() {
+		return orderStatus;
 	}
-
-	public void setPayedAmount(double payedAmount) {
-		this.payedAmount = payedAmount;
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
 	}
-
-	public String getTransactionId() {
-		return transactionId;
-	}
-
-	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
-	}
-
 	public long getPaymentDateTime() {
 		return paymentDateTime;
 	}
-
 	public void setPaymentDateTime(long paymentDateTime) {
 		this.paymentDateTime = paymentDateTime;
 	}
-
+	public String getPurchaseItems() {
+		return purchaseItems;
+	}
+	public void setPurchaseItems(String purchaseItems) {
+		this.purchaseItems = purchaseItems;
+	}
+	public DeliveryOptions getUserDeliveryOptions() {
+		return userDeliveryOptions;
+	}
+	public void setUserDeliveryOptions(DeliveryOptions userDeliveryOptions) {
+		this.userDeliveryOptions = userDeliveryOptions;
+	}
+	public double getPayedAmount() {
+		return payedAmount;
+	}
+	public void setPayedAmount(double payedAmount) {
+		this.payedAmount = payedAmount;
+	}
+	public String getCalculatedAmounts() {
+		return calculatedAmounts;
+	}
+	public void setCalculatedAmounts(String calculatedAmounts) {
+		this.calculatedAmounts = calculatedAmounts;
+	}
 	@Override
 	public String toString() {
 		return "PaymentDetails [paymentDetailsId=" + paymentDetailsId + ", paymentDetailsUUID=" + paymentDetailsUUID
-				+ ", history=" + history + ", amount=" + amount + ", payedAmount=" + payedAmount + ", transactionId="
-				+ transactionId + ", paymentDateTime=" + paymentDateTime + "]";
+				+ ", purchaseUUID=" + purchaseUUID + ", billNumber=" + billNumber + ", orderStatus=" + orderStatus
+				+ ", paymentDateTime=" + paymentDateTime + ", purchaseItems=" + purchaseItems + ", userDeliveryOptions="
+				+ userDeliveryOptions + ", payedAmount=" + payedAmount + ", calculatedAmounts=" + calculatedAmounts
+				+ "]";
 	}
+	
+	
+	
+	
+	
 
 }

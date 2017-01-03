@@ -10,12 +10,14 @@ public class FoodCategoryJson {
 	private String foodCategoryUuid;
 	private String categoryName;
 	private long dateTime;
+	private int displayOrder;
 	private List<MenuItemJson> menuItems = new ArrayList<MenuItemJson>();
 	
 	public FoodCategoryJson(FoodCategory foodCategory){
 		this.foodCategoryUuid = foodCategory.getFoodCategoryUUID();
 		this.categoryName = foodCategory.getCategoryName();
 		this.dateTime = foodCategory.getDateTime();
+		this.displayOrder = foodCategory.getDisplayOrder();
 		
 	}
 	

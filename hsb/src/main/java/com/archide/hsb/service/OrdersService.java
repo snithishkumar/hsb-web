@@ -1,12 +1,15 @@
 package com.archide.hsb.service;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +27,20 @@ import com.archide.hsb.jsonmodel.KitchenOrderListResponse;
 import com.archide.hsb.jsonmodel.KitchenOrderStatusSyncResponse;
 import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
+import com.archide.hsb.jsonmodel.ResponseData;
+import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.MenuEntity;
+import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
-import com.archide.mobilepay.json.AmountDetailsJson;
-import com.archide.mobilepay.json.PurchaseDetailsJson;
-import com.archide.mobilepay.json.PurchaseJson;
+import com.archide.mobilepay.exception.ValidationException;
+import com.archide.mobilepay.json.AmountDetails;
+import com.archide.mobilepay.json.CreatePurchaseResponse;
+import com.archide.mobilepay.json.HistoryPurchaseData;
+import com.archide.mobilepay.json.MerchantPurchaseData;
+import com.archide.mobilepay.json.PurchaseItem;
+import com.archide.mobilepay.json.PurchaseStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -58,6 +68,8 @@ public class OrdersService {
 	private Gson gson;
 	@Autowired
 	private JsonParser jsonParser;
+	@Autowired
+	private RestUrls restUrls;
 	
 	private static final Logger logger = Logger.getLogger(OrdersService.class);
 	
@@ -124,10 +136,8 @@ public class OrdersService {
 				}
 				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,mobileNumber);
 				if(placedOrders == null){
-					boolean isResult = ordersDao.isHistory(orderId);
-					if(isResult){
-						return serviceUtil.getRestResponse(true, "Already in History",403);
-					}
+					
+					return serviceUtil.getRestResponse(true, "Already in History",404);
 					
 				}
 				return generateBilling(placedOrders,tableList);
@@ -142,41 +152,89 @@ public class OrdersService {
 		return serviceUtil.getRestResponse(false, "Invalid data",500);
 	}
 	
-	private void sendData(PlacedOrdersEntity placedOrdersEntity,List<PurchaseDetailsJson> purchaseDetails){
-		PurchaseJson purchaseJson = new PurchaseJson(placedOrdersEntity);
-		AmountDetailsJson amountDetailsJson = new AmountDetailsJson(placedOrdersEntity);
-		purchaseJson.setAmountDetails(amountDetailsJson);
-		purchaseJson.setPurchaseDetails(purchaseDetails);
+	private void sendData(PlacedOrdersEntity placedOrdersEntity,List<PurchaseItem> purchaseItems) throws ValidationException{
+		MerchantPurchaseData purchaseData = new MerchantPurchaseData(placedOrdersEntity);
+		AmountDetails amountDetails = new AmountDetails(placedOrdersEntity);
+		purchaseData.setAmountDetails(amountDetails);
+		purchaseData.setPurchaseItems(purchaseItems);
 		
+		List<MerchantPurchaseData> merchantPurchaseDatas = new ArrayList<>();
+		merchantPurchaseDatas.add(purchaseData);
+	//	String dataJson = gson.toJson(merchantPurchaseDatas);
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
 		//headers.add("Authorization", "Basic " + base64Creds);
-		headers.add("Content-Type", "application/json");
+		headers.add("content-type", "application/json");
 		headers.add("mobilePay", "merchant");
-		headers.add("accessToken", "merchant");
-		headers.add("serverToken", "merchant");
-		HttpEntity<PurchaseJson> request = new HttpEntity<PurchaseJson>(purchaseJson, headers);
+		headers.add("accessToken", restUrls.getAccessToken());
+		headers.add("serverToken", restUrls.getServerToken());
+		HttpEntity<List<MerchantPurchaseData>> request = new HttpEntity<List<MerchantPurchaseData>>(merchantPurchaseDatas, headers);
 		
-		String response = restTemplate.postForObject("", request, String.class);
+		String response = restTemplate.postForObject(restUrls.getServerUrl()+"/"+restUrls.getCreatePurchase(), request, String.class);
+		
+		ResponseData responseData = gson.fromJson(response, ResponseData.class);
+		
+		
+		if (responseData.getStatusCode() == 200) {
+			String responseString =  gson.toJson(responseData.getData());
+			Type listType = new TypeToken<ArrayList<CreatePurchaseResponse>>() {
+			}.getType();
+			List<CreatePurchaseResponse> createPurchaseResponses = gson.fromJson(responseString.toString(), listType);
+			CreatePurchaseResponse createPurchaseResponse = createPurchaseResponses.get(0);
+			if (createPurchaseResponse.getStatusCode() == 200) {
+				placedOrdersEntity.setPurchaseUUID(createPurchaseResponse.getPurchaseUUID());
+			} else {
+				throw new ValidationException(createPurchaseResponse.getStatusCode(),
+						createPurchaseResponse.getMessage());
+			}
+		}else{
+			String responseString = (String) responseData.getData();
+			throw new ValidationException(responseData.getStatusCode(),
+					responseString);
+		}
 	}
+	
+	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
+	public ResponseEntity<String> reSentBillDetails(String placedOrderUUID){
+		try{
+			PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(placedOrderUUID);
+			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity);
+			List<PurchaseItem> purchaseDetails = new ArrayList<>();
+			int statusCode = 600;
+			for (PlacedOrderItems orderItems : placedOrderItemsList) {
+				PurchaseItem purchaseItem = new PurchaseItem(orderItems);
+				purchaseDetails.add(purchaseItem);
+			}
+			
+			try {
+				sendData(placedOrdersEntity, purchaseDetails);
+			} catch (ValidationException e) {
+				statusCode = e.getCode() == 500 ? 602 : 601;
+				e.printStackTrace();
+			}
+			return serviceUtil.getRestResponse(true, "Success",statusCode);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return serviceUtil.getRestResponse(false, "Internal Server Error.",500);
+		
+	}
+	
 	
 	private ResponseEntity<String> generateBilling(PlacedOrdersEntity placedOrders, TableList tableNumber) {
 		List<OrderedMenuItems> billingList = new ArrayList<>();
+		int statusCode = 200;
 		if (!placedOrders.isClosed()) {
 			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
-			List<PurchaseDetailsJson> purchaseDetails = new ArrayList<>();
+			List<PurchaseItem> purchaseDetails = new ArrayList<>();
 			double cost = 0;
-			// List<OrderedMenuItems> menuHistoryList = new ArrayList<>();
 			for (PlacedOrderItems orderItems : placedOrderItemsList) {
 				if (orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED)
 						|| orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED)) {
 					return serviceUtil.getRestResponse(true, "Some Items not yet Delivered.", 403);
 				}
 				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
-				PurchaseDetailsJson purchaseDetailsJson = new PurchaseDetailsJson(orderItems);
-				purchaseDetails.add(purchaseDetailsJson);
-				// OrderedMenuItems menuHistory = new OrderedMenuItems();
-				// menuHistory.convertHistory(orderItems);
-				// menuHistoryList.add(menuHistory);
+				PurchaseItem purchaseItem = new PurchaseItem(orderItems);
+				purchaseDetails.add(purchaseItem);
 				billingList.add(orderedMenuItems);
 				if (!(orderedMenuItems.getUnAvailableCount() > 0)) {
 					MenuEntity menuEntity = menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
@@ -190,8 +248,13 @@ public class OrdersService {
 			placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 			placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 			placedOrders.setClosed(true);
+			try {
+				sendData(placedOrders, purchaseDetails);
+			} catch (ValidationException e) {
+				statusCode = e.getCode() == 500 ? 405 : 400;
+				e.printStackTrace();
+			}
 			ordersDao.ordersUpdate(placedOrders);
-			sendData(placedOrders, purchaseDetails);
 		} else {
 			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
 			for (PlacedOrderItems orderItems : placedOrderItemsList) {
@@ -202,18 +265,9 @@ public class OrdersService {
 
 		PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrders);
 		placeOrdersJson.getMenuItems().addAll(billingList);
-		/*
-		 * History history = new History(placedOrders);
-		 * history.setHistoryUUID(ServiceUtil.uuid());
-		 * history.setDateTime(placedOrders.getServerDateTime());
-		 * history.setTableNumber(tableNumber);
-		 * history.setServerDateTime(placedOrders.getServerDateTime()); String
-		 * menuHistoryItems = gson.toJson(menuHistoryList);
-		 * history.setItems(menuHistoryItems); ordersDao.saveHistory(history);
-		 * ordersDao.removePlacedOrderItems(placedOrders);
-		 */
+		
 		String data = gson.toJson(placeOrdersJson);
-		return serviceUtil.getRestResponse(true, data, 200);
+		return serviceUtil.getRestResponse(true, data, statusCode);
 	}
 	
 	
@@ -387,6 +441,93 @@ public class OrdersService {
 	}
 	
 	
+	@Scheduled(fixedDelay = 10000)
+	public void getPaymentStatus(){
+		Session session = null;
+		try {
+			session = ordersDao.openSession();
+			List<List<String>> unPaiedListUUids = ordersDao.getUnPaiedListPurchaseUUids(session);
+			int size = unPaiedListUUids.size();
+			if (size > 0) {
+				int quo = size / 200;
+				// int ream = size % 200;
+				for (int i = 0; i < quo; i++) {
+					List<List<String>> temp = unPaiedListUUids.subList(i * 200, i + 200);
+					List<String> unPaiedUUIDs = new ArrayList<>();
+					for (List<String> uuids : temp) {
+						unPaiedUUIDs.add(uuids.get(0));
+					}
+					getOrderStatus(unPaiedUUIDs, session);
+				}
+				List<List<String>> unPaiedUUIDsTemp = unPaiedListUUids.subList(quo * 200, size);
+				if (unPaiedUUIDsTemp.size() > 0) {
+					List<String> unPaiedUUIDs = new ArrayList<>();
+					for (List<String> uuids : unPaiedUUIDsTemp) {
+						unPaiedUUIDs.add(uuids.get(0));
+					}
+					getOrderStatus(unPaiedUUIDs, session);
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			ordersDao.closeSession(session);
+		}
+	}
+	
+	private void getOrderStatus(List<String> purchaseUUids,Session session){
+		
+		try{
+			session.getTransaction().begin();
+			MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+			//headers.add("Authorization", "Basic " + base64Creds);
+			headers.add("Content-Type", "application/json");
+			headers.add("mobilePay", "merchant");
+			headers.add("accessToken", restUrls.getAccessToken());
+			headers.add("serverToken", restUrls.getServerToken());
+			String requestBody = gson.toJson(purchaseUUids);
+			HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+			
+			String response = restTemplate.postForObject(restUrls.getServerUrl()+"/"+restUrls.getOrderStatus(), request, String.class);
+			ResponseData responseData = gson.fromJson(response, ResponseData.class);
+			if(responseData.getStatusCode() == 200){
+				String orderStatusList = gson.toJson(responseData.getData());
+				PurchaseStatus purchaseStatusList = gson.fromJson(orderStatusList, PurchaseStatus.class);
+				for(HistoryPurchaseData historyPurchaseData  : purchaseStatusList.getHistoryData()){
+					
+					PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrdersEntity(historyPurchaseData.getPurchaseUUID(),session);
+					if(placedOrdersEntity != null){
+						placedOrdersEntity.setPaymentStatus(historyPurchaseData.getPaymentStatus());
+					}
+					PaymentDetails paymentDetails = new PaymentDetails(historyPurchaseData);
+					
+					String purchaseItems = gson.toJson(historyPurchaseData.getPurchaseItem());
+					paymentDetails.setPurchaseItems(purchaseItems);
+					
+					String calculatedAmounts = gson.toJson(historyPurchaseData.getCalculatedAmounts());
+					paymentDetails.setCalculatedAmounts(calculatedAmounts);
+					
+					session.save(paymentDetails);
+					session.update(placedOrdersEntity);
+					//ordersDao.savePaymentDetails(paymentDetails);
+					//ordersDao.ordersUpdate(placedOrdersEntity);
+					
+					DiscardEntity discardEntity = historyPurchaseData.getDiscardDetails();
+					if(discardEntity != null){
+						discardEntity.setPaymentDetails(paymentDetails);
+						session.save(discardEntity);
+						//ordersDao.saveDiscardEntity(discardEntity);
+					}
+					
+				}
+			}
+			session.getTransaction().commit();
+		}catch(Exception e){
+			e.printStackTrace();
+			session.getTransaction().rollback();
+		}
+		
+	}
 	
 	
 

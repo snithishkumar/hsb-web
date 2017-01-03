@@ -13,6 +13,9 @@ public class MenuItemJson {
 	private Status status;
 	private long dateTime;
 	private long serverDateTime;
+	private int displayOrder;
+	private String description;
+	private String tasteType;
 	
 	public MenuItemJson(){
 		
@@ -26,6 +29,9 @@ public class MenuItemJson {
 		this.status = menuEntity.getStatus();
 		this.dateTime = menuEntity.getDateTime();
 		this.serverDateTime = menuEntity.getServerTime();
+		this.displayOrder = menuEntity.getDisplayOrder();
+		this.description = menuEntity.getDescription();
+		this.tasteType = menuEntity.getTasteType();
 	}
 	
 	

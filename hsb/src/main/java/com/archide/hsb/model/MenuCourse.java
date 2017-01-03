@@ -14,6 +14,7 @@ public class MenuCourse {
 	public static final String MENU_COURSE_UUID = "menuCourseUUID";
 	public static final String CATEGORY_NAME = "categoryName";
 	public static final String DATE_TIME = "dateTime";
+	public static final String DISPLAY_ORDER = "displayOrder";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,6 +26,9 @@ public class MenuCourse {
 	private String categoryName;
 	@Column(name = "DateTime")
 	private long dateTime;
+	@Column(name = "DisplayOrder")
+	private int displayOrder;
+	
 	public int getMenuCourseId() {
 		return menuCourseId;
 	}
@@ -48,6 +52,14 @@ public class MenuCourse {
 	}
 	public void setDateTime(long dateTime) {
 		this.dateTime = dateTime;
+	}
+	
+	
+	public int getDisplayOrder() {
+		return displayOrder;
+	}
+	public void setDisplayOrder(int displayOrder) {
+		this.displayOrder = displayOrder;
 	}
 	@Override
 	public String toString() {

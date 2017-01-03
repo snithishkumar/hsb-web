@@ -28,6 +28,9 @@ public class MenuEntity {
 	public static final String STATUS= "status";
 	public static final String DATE_TIME= "dateTime";
 	public static final String SERVER_TIME = "serverTime";
+	public static final String DISPLAY_ORDER = "displayOrder";
+	public static final String TASTE_TYPE = "tasteType";
+	public static final String DESCRIPTION = "description";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -60,81 +63,134 @@ public class MenuEntity {
 	@Column(name = "ServerTime")
 	private long serverTime;
 	
+	@Column(name = "DisplayOrder")
+	private int displayOrder;
 	
+	@Column(name = "Description",columnDefinition="TEXT")
+	private String description;
 	
-	public FoodType getFoodType() {
-		return foodType;
-	}
-	public void setFoodType(FoodType foodType) {
-		this.foodType = foodType;
-	}
-	public long getServerTime() {
-		return serverTime;
-	}
-	public void setServerTime(long serverTime) {
-		this.serverTime = serverTime;
-	}
+	@Column(name = "TasteType")
+	private String tasteType;
+
 	public int getMenuId() {
 		return menuId;
 	}
+
 	public void setMenuId(int menuId) {
 		this.menuId = menuId;
 	}
+
 	public String getMenuUUID() {
 		return menuUUID;
 	}
+
 	public void setMenuUUID(String menuUUID) {
 		this.menuUUID = menuUUID;
 	}
+
 	public String getMenuItemCode() {
 		return menuItemCode;
 	}
+
 	public void setMenuItemCode(String menuItemCode) {
 		this.menuItemCode = menuItemCode;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public FoodCategory getFoodCategory() {
 		return foodCategory;
 	}
+
 	public void setFoodCategory(FoodCategory foodCategory) {
 		this.foodCategory = foodCategory;
 	}
+
 	public MenuCourse getMenuCourse() {
 		return menuCourse;
 	}
+
 	public void setMenuCourse(MenuCourse menuCourse) {
 		this.menuCourse = menuCourse;
 	}
+
 	public double getPrice() {
 		return price;
 	}
+
 	public void setPrice(double price) {
 		this.price = price;
 	}
+
 	public Status getStatus() {
 		return status;
 	}
+
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	
-	
+
+	public FoodType getFoodType() {
+		return foodType;
+	}
+
+	public void setFoodType(FoodType foodType) {
+		this.foodType = foodType;
+	}
+
 	public long getDateTime() {
 		return dateTime;
 	}
+
 	public void setDateTime(long dateTime) {
 		this.dateTime = dateTime;
 	}
+
+	public long getServerTime() {
+		return serverTime;
+	}
+
+	public void setServerTime(long serverTime) {
+		this.serverTime = serverTime;
+	}
+
+	public int getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(int displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getTasteType() {
+		return tasteType;
+	}
+
+	public void setTasteType(String tasteType) {
+		this.tasteType = tasteType;
+	}
+
 	@Override
 	public String toString() {
 		return "MenuEntity [menuId=" + menuId + ", menuUUID=" + menuUUID + ", menuItemCode=" + menuItemCode + ", name="
 				+ name + ", foodCategory=" + foodCategory + ", menuCourse=" + menuCourse + ", price=" + price
-				+ ", status=" + status + "]";
+				+ ", status=" + status + ", foodType=" + foodType + ", dateTime=" + dateTime + ", serverTime="
+				+ serverTime + ", displayOrder=" + displayOrder + ", description=" + description + ", tasteType="
+				+ tasteType + "]";
 	}
 	
 	

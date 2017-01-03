@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:task="http://www.springframework.org/schema/task"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:p="http://www.springframework.org/schema/p" xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:tx="http://www.springframework.org/schema/tx"
@@ -10,6 +11,8 @@
         http://www.springframework.org/schema/context/spring-context-4.3.xsd
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-4.3.xsd
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx-4.3.xsd ">
 
@@ -17,6 +20,7 @@
 	 <context:property-placeholder location="file:///${catalina.home}/conf/hsb.properties"/>
 	<mvc:annotation-driven />
 	<tx:annotation-driven />
+	<task:annotation-driven />
 
 	<bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
@@ -61,6 +65,10 @@
 		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
+	
+	<bean id="restUrls" class="com.archide.hsb.service.RestUrls">
+        
+    </bean>
 	
 	<bean id ="restTemplate" class="org.springframework.web.client.RestTemplate"></bean>
 

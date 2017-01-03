@@ -42,5 +42,12 @@ public class OrdersController {
 	public ResponseEntity<String> closeAnOrder(@RequestParam String tableNumber,@RequestParam String mobileNumber,@RequestParam String placedOrderUUid){
 		return orderService.closeAnOrder(tableNumber,mobileNumber,placedOrderUUid);
 	}
+	
+	
+	@RequestMapping(value="/mobile/reSentBillDetails")
+	public ResponseEntity<String> reSentBillDetails(@RequestParam String placedOrderUUid){
+		return orderService.reSentBillDetails(placedOrderUUid);
+	}
+	
 
 }
