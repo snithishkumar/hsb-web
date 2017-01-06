@@ -120,7 +120,7 @@ public class OrdersService {
 			}
 			return serviceUtil.getRestResponse(true, "Invalid data",500);
 		}catch(Exception e){
-			logger.error("Error in placeAnOrder", e);
+			logger.error("Error in placeAnOrder,Params["+requestData+"]", e);
 		}
 		return null;
 	}
@@ -147,7 +147,7 @@ public class OrdersService {
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in closeAnOrder,Params["+tableNumber+""+mobileNumber+""+orderId+"]",e);
 		}
 		return serviceUtil.getRestResponse(false, "Invalid data",500);
 	}
@@ -213,7 +213,7 @@ public class OrdersService {
 			}
 			return serviceUtil.getRestResponse(true, "Success",statusCode);
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in reSentBillDetails,Params["+placedOrderUUID+"]",e);
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.",500);
 		
@@ -354,7 +354,7 @@ public class OrdersService {
 			String data = gson.toJson(kitchenOrderListResponse);
 			return serviceUtil.getRestResponse(true, data);
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in getKitchenOrderDetails,Params["+requestData+"]", e);
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
@@ -389,7 +389,7 @@ public class OrdersService {
 			}
 			return serviceUtil.getRestResponse(true, "",404);
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in getPreviousOrder,Params["+requestData+"]", e);
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
@@ -435,7 +435,7 @@ public class OrdersService {
 			String data = gson.toJson(placedOrderUuid);
 			return serviceUtil.getRestResponse(true, data,200);
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in updateKitchenOrderStatus,Prams["+requestData+"]",e);
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
@@ -469,7 +469,7 @@ public class OrdersService {
 				}
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in getPaymentStatus", e);
 		}finally{
 			ordersDao.closeSession(session);
 		}
@@ -523,7 +523,7 @@ public class OrdersService {
 			}
 			session.getTransaction().commit();
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in getOrderStatus", e);
 			session.getTransaction().rollback();
 		}
 		

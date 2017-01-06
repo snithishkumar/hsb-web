@@ -2,6 +2,8 @@ package com.archide.hsb.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,7 +34,7 @@ public class PlacedOrdersEntity {
 	public static final String PURCHASE_UUID = "purchaseUUID";
 	public static final String  PAYMENT_STATUS = "paymentStatus";
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "PlacedOrdersId")
 	private int placeOrdersId;
 	@Column(name = "PlacedOrdersUuid")
@@ -40,7 +42,7 @@ public class PlacedOrdersEntity {
 	@Column(name = "OrderId")
 	private String orderId;
 	@ManyToOne
-	@JoinColumn(name = "TableListId", referencedColumnName = "TableListId")
+	@JoinColumn(name = "TableListId",referencedColumnName = "TableListId")
 	private TableList tableNumber;
 	@Column(name = "ServerDateTime")
 	private long serverDateTime;
@@ -63,6 +65,7 @@ public class PlacedOrdersEntity {
 	@Column(name = "PurchaseUUID")
 	private String purchaseUUID;
 	@Column(name = "PaymentStatus")
+	@Enumerated(EnumType.STRING)
 	private PaymentStatus paymentStatus;
 	
 	public PlacedOrdersEntity(){

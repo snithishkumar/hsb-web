@@ -15,7 +15,7 @@ public class TableList {
 	public static final String TABLE_NUMBER = "tableNumber";
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "TableListId")
 	private int tableListId;
 	@Column(name = "TableNumber")

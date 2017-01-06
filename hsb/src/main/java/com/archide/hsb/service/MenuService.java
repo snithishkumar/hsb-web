@@ -46,6 +46,7 @@ public class MenuService {
 	private Gson gson;
 	
 	
+	
 	/**
 	 * Get Table List
 	 * @return
@@ -89,7 +90,7 @@ public class MenuService {
 			String data = gson.toJson(getMenuDetails);
 			return serviceUtil.getRestResponse(true, data);
 		}catch(Exception e){
-			logger.error("Error in getMenuDetails",e);
+			logger.error("Error in getMenuDetails, Params["+lastServerSyncTimeTemp+","+tableNumber+","+mobileNumber+"]",e);
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
@@ -104,7 +105,7 @@ public class MenuService {
 				return serviceUtil.getRestResponse(true, "",404);
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in getUnAvailableMenuItems, Params["+serverDateTime+"]",e);
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}

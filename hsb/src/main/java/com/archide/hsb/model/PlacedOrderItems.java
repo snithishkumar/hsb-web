@@ -2,6 +2,8 @@ package com.archide.hsb.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,13 +30,13 @@ public class PlacedOrderItems {
 	public static final String SERVER_LAST_UPDATED_TIME = "serverLastUpdatedTime";
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "PlacedOrderItemsId")
 	private int placedOrderItemsId;
 	@Column(name = "PlacedOrderItemsUuid")
 	private String placedOrderItemsUUID;
 	@ManyToOne
-	@JoinColumn(name = "MenuId", referencedColumnName = "MenuId")
+	@JoinColumn(name = "MenuId",referencedColumnName = "MenuId")
 	private MenuEntity menuItem;
 	@Column(name = "Quantity")
 	private int quantity;
@@ -55,10 +57,11 @@ public class PlacedOrderItems {
 	private int unAvailableCount;
 	
 	@ManyToOne
-	@JoinColumn(name = "PlacedOrdersId", referencedColumnName = "PlacedOrdersId")
+	@JoinColumn(name = "PlacedOrdersId")
 	private PlacedOrdersEntity placedOrders;
 	
 	@Column(name = "OrderStatus")
+	@Enumerated(EnumType.STRING)
 	private OrderStatus orderStatus;
 	
 	public int getPlacedOrderItemsId() {

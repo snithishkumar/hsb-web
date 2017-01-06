@@ -17,7 +17,7 @@ public class History {
 	public static final String ORDER_ID = "orderId";
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "HistoryId")
 	private int historyId;
 	@Column(name = "HistoryUuid")
@@ -25,7 +25,7 @@ public class History {
 	@Column(name = "OrderId")
 	private String orderId;
 	@ManyToOne
-	@JoinColumn(name = "TableListId", referencedColumnName = "TableListId")
+	@JoinColumn(name = "TableListId")
 	private TableList tableNumber;
 	@Column(name = "ServerDateTime")
 	private long serverDateTime;
@@ -43,7 +43,7 @@ public class History {
 	private double totalPrice;
 	@Column(name = "UserMobileNumber")
 	private String userMobileNumber;
-	@Column(name = "Items")
+	@Column(name = "Items",columnDefinition="TEXT")
 	private String items;
 	
 	public History(){

@@ -2,6 +2,8 @@ package com.archide.hsb.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,18 +18,19 @@ import com.archide.mobilepay.enumeration.DiscardBy;
 public class DiscardEntity {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "DiscardId")
 	private int discardId;
 	@Column(name = "Reason")
 	private String reason;
 	@Column(name = "DiscardBy")
+	@Enumerated(EnumType.STRING)
 	private DiscardBy discardBy;
 	@Column(name = "CreatedDateTime")
 	private long createdDateTime;
 	
 	@ManyToOne
-	@JoinColumn(name = "PaymentDetailsId", referencedColumnName = "PaymentDetailsId")
+	@JoinColumn(name = "PaymentDetailsId",referencedColumnName="PaymentDetailsId")
 	private PaymentDetails paymentDetails;
 	
 	public int getDiscardId() {

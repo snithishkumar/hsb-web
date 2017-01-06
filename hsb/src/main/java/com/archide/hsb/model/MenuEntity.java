@@ -2,6 +2,7 @@ package com.archide.hsb.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,7 +34,7 @@ public class MenuEntity {
 	public static final String DESCRIPTION = "description";
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "MenuId")
 	private int menuId;
 	@Column(name = "MenuUuid")
@@ -43,18 +44,18 @@ public class MenuEntity {
 	@Column(name = "Name")
 	private String name;
 	@ManyToOne
-	@JoinColumn(name = "FoodCategoryId", referencedColumnName = "FoodCategoryId")
+	@JoinColumn(name = "FoodCategoryId",referencedColumnName="FoodCategoryId")
 	private FoodCategory foodCategory;
 	@ManyToOne
-	@JoinColumn(name = "MenuCourseId", referencedColumnName = "MenuCourseId")
+	@JoinColumn(name = "MenuCourseId",referencedColumnName = "MenuCourseId")
 	private MenuCourse menuCourse;
 	@Column(name = "Price")
 	private double price;
 	@Column(name = "Status")
-	@Enumerated
+	@Enumerated(EnumType.STRING)
 	private Status status;
 	@Column(name = "FoodType")
-	@Enumerated
+	@Enumerated(EnumType.STRING)
 	private FoodType foodType;
 	
 	@Column(name = "DateTime")

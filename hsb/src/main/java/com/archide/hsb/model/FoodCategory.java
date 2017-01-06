@@ -21,7 +21,7 @@ public class FoodCategory {
 	public static final String DISPLAY_ORDER = "displayOrder";
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "FoodCategoryId")
 	private int foodCategoryId;
 	@Column(name = "FoodCategoryUuid")
@@ -35,7 +35,7 @@ public class FoodCategory {
 	private int displayOrder;
 	
 	@ManyToOne
-	@JoinColumn(name = "MenuCourseId", referencedColumnName = "MenuCourseId")
+	@JoinColumn(name = "MenuCourseId",referencedColumnName="MenuCourseId")
 	private MenuCourse menuCourse;
 	
 	public int getFoodCategoryId() {

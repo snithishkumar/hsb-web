@@ -17,7 +17,7 @@ public class MenuCourse {
 	public static final String DISPLAY_ORDER = "displayOrder";
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "MenuCourseId")
 	private int menuCourseId;
 	@Column(name = "MenuCourseUuid")
