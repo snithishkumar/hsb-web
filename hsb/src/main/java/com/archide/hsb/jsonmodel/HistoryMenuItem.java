@@ -1,31 +1,36 @@
 package com.archide.hsb.jsonmodel;
 
-import com.archide.hsb.model.PlacedOrderItems;
+import com.archide.hsb.enumeration.FoodType;
+import com.archide.hsb.enumeration.Status;
 
 public class HistoryMenuItem {
 	
-	private String itemCode;
+	private String menuItemCode;
 	private String name;
-	private int  quantity;
-	private String desc;
-	private String menuCourse;
-	private String foodCategory;
-	private double cost;
+	private double price;
+	private Status status;
+	private FoodType foodType;
+	private long dateTime;
+	private long serverTime;
+	private String description;
+	private String tasteType;
 	
-	public HistoryMenuItem(PlacedOrderItems placedOrderItems){
-		this.itemCode = placedOrderItems.getItemCode();
-		this.name = placedOrderItems.getName();
-		this.quantity = placedOrderItems.getQuantity();
-		//this.desc = placedOrderItems.getMenuItem().get
-		this.menuCourse = placedOrderItems.getMenuItem().getMenuCourse().getCategoryName();
-		this.foodCategory = placedOrderItems.getMenuItem().getFoodCategory().getCategoryName();
-		this.cost = placedOrderItems.getMenuItem().getPrice();
+	public HistoryMenuItem(OrderedMenuItems orderedMenuItems){
+		this.menuItemCode = orderedMenuItems.getItemCode();
+		this.name = orderedMenuItems.getName();
+		//this.price = orderedMenuItems.get
+		//this.status = orderedMenuItems.getOrderStatus().toString();
+		//this.foodType = orderedMenuItems.getFoodType();
+		//this.dateTime = orderedMenuItems.getOrderDateTime();
+		//this.serverTime = orderedMenuItems.getLastUpdatedDateTime();
+		//this.description = orderedMenuItems.get
 	}
-	public String getItemCode() {
-		return itemCode;
+	
+	public String getMenuItemCode() {
+		return menuItemCode;
 	}
-	public void setItemCode(String itemCode) {
-		this.itemCode = itemCode;
+	public void setMenuItemCode(String menuItemCode) {
+		this.menuItemCode = menuItemCode;
 	}
 	public String getName() {
 		return name;
@@ -33,42 +38,56 @@ public class HistoryMenuItem {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public int getQuantity() {
-		return quantity;
+	public double getPrice() {
+		return price;
 	}
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+	public void setPrice(double price) {
+		this.price = price;
 	}
-	public String getDesc() {
-		return desc;
+	public Status getStatus() {
+		return status;
 	}
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setStatus(Status status) {
+		this.status = status;
 	}
-	public String getMenuCourse() {
-		return menuCourse;
+	public FoodType getFoodType() {
+		return foodType;
 	}
-	public void setMenuCourse(String menuCourse) {
-		this.menuCourse = menuCourse;
+	public void setFoodType(FoodType foodType) {
+		this.foodType = foodType;
 	}
-	public String getFoodCategory() {
-		return foodCategory;
+	public long getDateTime() {
+		return dateTime;
 	}
-	public void setFoodCategory(String foodCategory) {
-		this.foodCategory = foodCategory;
+	public void setDateTime(long dateTime) {
+		this.dateTime = dateTime;
 	}
-	public double getCost() {
-		return cost;
+	public long getServerTime() {
+		return serverTime;
 	}
-	public void setCost(double cost) {
-		this.cost = cost;
+	public void setServerTime(long serverTime) {
+		this.serverTime = serverTime;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public String getTasteType() {
+		return tasteType;
+	}
+	public void setTasteType(String tasteType) {
+		this.tasteType = tasteType;
 	}
 	@Override
 	public String toString() {
-		return "HistoryMenuItem [itemCode=" + itemCode + ", name=" + name + ", quantity=" + quantity + ", desc=" + desc
-				+ ", menuCourse=" + menuCourse + ", foodCategory=" + foodCategory + ", cost=" + cost + "]";
+		return "HistoryMenuItem [menuItemCode=" + menuItemCode + ", name=" + name + ", price=" + price + ", status="
+				+ status + ", foodType=" + foodType + ", dateTime=" + dateTime + ", serverTime=" + serverTime
+				+ ", description=" + description + ", tasteType=" + tasteType + "]";
 	}
 	
+
 	
 
 }

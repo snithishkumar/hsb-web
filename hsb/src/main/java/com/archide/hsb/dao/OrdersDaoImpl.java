@@ -126,7 +126,7 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		CriteriaQuery<PlacedOrderItems> criteriaQuery = builder.createQuery(PlacedOrderItems.class);
 		Root<PlacedOrderItems> root = criteriaQuery.from(PlacedOrderItems.class);
 		criteriaQuery.select(root);
-		criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders),builder.and(builder.gt(root.get(PlacedOrderItems.SERVER_LAST_UPDATED_TIME), serverLastUdpateTime)));
+		criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders),builder.and(builder.gt(root.get(PlacedOrderItems.SERVER_SYNC_TIME), serverLastUdpateTime)));
 		Query<PlacedOrderItems> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
 		List<PlacedOrderItems> placeOrderItemsList =  q.getResultList();
 		return placeOrderItemsList;
@@ -174,6 +174,14 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	  criteria.setProjection(Projections.property(PlacedOrdersEntity.PURCHASE_UUID));
 	  criteria.setResultTransformer(Transformers.TO_LIST);
 	  return  criteria.list();
+	}
+	
+	public List<PlacedOrdersEntity> getPreviousDayOrders(Session session,long startOfDayInMilli){
+		Criteria criteria = session.createCriteria(PlacedOrdersEntity.class);
+		criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PAYMENT_STATUS));
+		criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PURCHASE_UUID));
+		criteria.add(Restrictions.lt(PlacedOrdersEntity.SERVER_DATE_TIME, startOfDayInMilli));
+		return criteria.list();
 	}
 	
 	public Session openSession(){

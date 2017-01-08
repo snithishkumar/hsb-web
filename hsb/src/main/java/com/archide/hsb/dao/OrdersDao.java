@@ -14,46 +14,48 @@ import com.archide.hsb.model.TableList;
 public interface OrdersDao {
 
 	void placeAnOrders(PlacedOrdersEntity placedOrders);
-	
+
 	PlacedOrdersEntity getPlacedOrders(String placeOrdersUuid);
-	
-	
+
 	PlacedOrderItems getPlacedOrderItems(String placeOrderItemsUuid);
-	
+
 	void placeOrdersItems(PlacedOrderItems placedOrderItems);
-	
-	PlacedOrdersEntity getPlacedOrders(TableList tableList,String mobileNumber);
-	
+
+	PlacedOrdersEntity getPlacedOrders(TableList tableList, String mobileNumber);
+
 	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders);
-	
-	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,long serverSyncTime);
-	
-	List<PlacedOrderItems> getPreviousPlacedOrderItems(PlacedOrdersEntity placedOrders,long serverLastUdpateTime);
-	
+
+	List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders, long serverSyncTime);
+
+	List<PlacedOrderItems> getPreviousPlacedOrderItems(PlacedOrdersEntity placedOrders, long serverLastUdpateTime);
+
 	void saveHistory(History history);
-	
+
 	List<PlacedOrdersEntity> getPlacedOrders(List<String> orderIds);
-	
+
 	List<PlacedOrdersEntity> getPlacedOrders();
-	
+
 	void updateOrdersItems(PlacedOrderItems placedOrderItems);
-	
+
 	void ordersUpdate(PlacedOrdersEntity placedOrders);
-	
+
 	PlacedOrdersEntity getPlacedOrdersByMobile(String userMobileNumber);
-	
+
 	void removePlacedOrderItems(PlacedOrdersEntity placedOrdersEntity);
-	
+
 	boolean isHistory(String orderId);
-	
+
 	List getUnPaiedListPurchaseUUids(Session session);
-	
-	PlacedOrdersEntity getPlacedOrdersEntity(String purchaseUUIDs,Session session);
-	
+
+	PlacedOrdersEntity getPlacedOrdersEntity(String purchaseUUIDs, Session session);
+
 	void savePaymentDetails(PaymentDetails paymentDetails);
-	
+
 	void saveDiscardEntity(DiscardEntity discardEntity);
-	
+
 	Session openSession();
+
 	void closeSession(Session session);
+
+	List<PlacedOrdersEntity> getPreviousDayOrders(Session session, long startOfDayInMilli);
 }

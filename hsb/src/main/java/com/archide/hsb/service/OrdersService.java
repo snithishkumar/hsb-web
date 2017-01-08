@@ -1,6 +1,8 @@
 package com.archide.hsb.service;
 
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
 import com.archide.hsb.jsonmodel.ResponseData;
 import com.archide.hsb.model.DiscardEntity;
+import com.archide.hsb.model.History;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
@@ -96,20 +99,21 @@ public class OrdersService {
 				for(OrderedMenuItems menuItems : menuItemsList){
 					MenuEntity menuEntity = menuListDao.getMenuEntity(menuItems.getMenuUuid());
 					if(menuEntity != null){
-						PlacedOrderItems placedOrderItems = ordersDao.getPlacedOrderItems(menuItems.getMenuUuid());
+						PlacedOrderItems placedOrderItems = ordersDao.getPlacedOrderItems(menuItems.getPlacedOrderItemsUUID());
 						if(placedOrderItems == null){
 							placedOrderItems = new PlacedOrderItems();
 							placedOrderItems.setQuantity(menuItems.getQuantity());
 							placedOrderItems.setMenuItem(menuEntity);
 							placedOrderItems.setName(menuItems.getName());
 							placedOrderItems.setItemCode(menuItems.getItemCode());
-							placedOrderItems.setPlacedOrderItemsUUID(ServiceUtil.uuid());
+							placedOrderItems.setPlacedOrderItemsUUID(menuItems.getPlacedOrderItemsUUID());
 							placedOrderItems.setPlacedOrders(placedOrders);
 							placedOrderItems.setLastUpdatedTime(placedOrders.getServerDateTime());
 							placedOrderItems.setOrderDateTime(placedOrders.getServerDateTime());
 							placedOrderItems.setServerSyncTime(placedOrders.getServerDateTime());
-							placedOrderItems.setServerLastUpdatedTime(placedOrders.getServerDateTime());
 							placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
+							placedOrderItems.setFoodCategoryName(menuEntity.getFoodCategory().getCategoryName());
+							placedOrderItems.setMenuCourseName(menuEntity.getMenuCourse().getCategoryName());
 							ordersDao.placeOrdersItems(placedOrderItems);
 						}
 						
@@ -271,40 +275,6 @@ public class OrdersService {
 	}
 	
 	
-	
-	/*public ResponseEntity<String> billing(String tableNumber){
-		try{
-			TableList tableList = tableListDao.getTables(tableNumber);
-			if(tableList == null){
-				//return 
-			}
-			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,null);
-			List<PlacedOrderItems> orderItems  = ordersDao.getPlacedOrderItems(placedOrders);
-			PurchaseJson purchaseJson = new PurchaseJson(placedOrders);
-			AmountDetailsJson amountDetailsJson = new AmountDetailsJson(placedOrders);
-			List<HistoryMenuItem> historyMenuItems = new ArrayList<>();
-			for(PlacedOrderItems placedOrderItems : orderItems){
-				PurchaseDetailsJson purchaseDetailsJson = new PurchaseDetailsJson(placedOrderItems);
-				HistoryMenuItem historyMenuItem = new HistoryMenuItem(placedOrderItems);
-				historyMenuItems.add(historyMenuItem);
-				purchaseJson.getPurchaseDetails().add(purchaseDetailsJson);
-			}
-			purchaseJson.setAmountDetails(amountDetailsJson);
-			// itemcode,name,quantity,desc,menu course,food category,price
-			History history = new History(placedOrders);
-			history.setHistoryUUID(ServiceUtil.uuid());
-			history.setItems(gson.toJson(historyMenuItems));
-			ordersDao.saveHistory(history);
-			String responseDataJson = restTemplate.postForObject("", placedOrders, String.class);
-			ResponseData responseData = gson.fromJson(responseDataJson, ResponseData.class);
-			return serviceUtil.getRestResponse(true,responseData.getData(),responseData.getStatusCode());
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return serviceUtil.getRestResponse(true, "Internal Server Error.",500);
-	}*/
-	
-	
 	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
 	public ResponseEntity<String> getKitchenOrderDetails(String requestData){
 		try {
@@ -414,7 +384,7 @@ public class OrdersService {
 							placedOrderItems.setUnAvailableCount(menuItems.getUnAvailableCount());
 							placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
 							placedOrderItems.setLastUpdatedTime(ServiceUtil.getCurrentGmtTime());
-							placedOrderItems.setServerLastUpdatedTime(ServiceUtil.getCurrentGmtTime());
+							placedOrderItems.setServerSyncTime(ServiceUtil.getCurrentGmtTime());
 							placedOrderItems.setQuantity(menuItems.getQuantity());
 							ordersDao.updateOrdersItems(placedOrderItems);
 							statusSyncResponse.getPlacedOrderItemsUuid().add(menuItems.getPlacedOrderItemsUUID());
@@ -422,7 +392,7 @@ public class OrdersService {
 								MenuEntity menuEntity = menuListDao.getMenuEntity(menuItems.getMenuUuid());
 								if(menuEntity != null){
 									menuEntity.setStatus(Status.UN_AVAILABLE);
-									menuEntity.setServerTime(placedOrderItems.getServerLastUpdatedTime());
+									menuEntity.setServerTime(placedOrderItems.getServerSyncTime());
 									menuListDao.udpateMenuEntity(menuEntity);
 								}
 							}
@@ -527,6 +497,26 @@ public class OrdersService {
 			session.getTransaction().rollback();
 		}
 		
+	}
+	
+	
+	public void moveHistory(){
+		Session session = null;
+		try{
+			session = ordersDao.openSession();
+			LocalDateTime localDateTime = LocalDateTime.now();
+			LocalDateTime startOfDay = localDateTime.toLocalDate().atStartOfDay();
+			long startOfDayInMilli = startOfDay.toInstant(ZoneOffset.UTC).toEpochMilli();
+			List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPreviousDayOrders(session, startOfDayInMilli);
+			for(PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities){
+				History history = new History(placedOrdersEntity);
+				ordersDao.getPlacedOrderItems(placedOrdersEntity);
+			}
+		}catch(Exception e){
+			logger.error("Error in moveHistory", e);
+		}finally{
+			ordersDao.closeSession(session);
+		}
 	}
 	
 	

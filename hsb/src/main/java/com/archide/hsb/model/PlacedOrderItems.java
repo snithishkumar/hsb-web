@@ -27,7 +27,6 @@ public class PlacedOrderItems {
 	public static final String LAST_UPDTED_TIME = "lastUpdatedTime";
 	public static final String ORDER_STATUS = "orderStatus";
 	public static final String UN_AVAILABLE_COUNT = "unAvailableCount";
-	public static final String SERVER_LAST_UPDATED_TIME = "serverLastUpdatedTime";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,19 +49,19 @@ public class PlacedOrderItems {
 	private long orderDateTime;
 	@Column(name = "LastUpdatedTime")
 	private long lastUpdatedTime;
-	@Column(name = "ServerLastUpdatedTime")
-	private long serverLastUpdatedTime;
-	
 	@Column(name = "UnAvailableCount")
 	private int unAvailableCount;
-	
+	@Column(name = "MenuCourseName")
+	private String menuCourseName;
+	@Column(name = "FoodCategoryName")
+	private String foodCategoryName;
 	@ManyToOne
 	@JoinColumn(name = "PlacedOrdersId")
 	private PlacedOrdersEntity placedOrders;
-	
 	@Column(name = "OrderStatus")
 	@Enumerated(EnumType.STRING)
 	private OrderStatus orderStatus;
+	
 	
 	public int getPlacedOrderItemsId() {
 		return placedOrderItemsId;
@@ -91,12 +90,24 @@ public class PlacedOrderItems {
 	
 	
 	
-	public long getServerLastUpdatedTime() {
+	public String getMenuCourseName() {
+		return menuCourseName;
+	}
+	public void setMenuCourseName(String menuCourseName) {
+		this.menuCourseName = menuCourseName;
+	}
+	public String getFoodCategoryName() {
+		return foodCategoryName;
+	}
+	public void setFoodCategoryName(String foodCategoryName) {
+		this.foodCategoryName = foodCategoryName;
+	}
+	/*public long getServerLastUpdatedTime() {
 		return serverLastUpdatedTime;
 	}
 	public void setServerLastUpdatedTime(long serverLastUpdatedTime) {
 		this.serverLastUpdatedTime = serverLastUpdatedTime;
-	}
+	}*/
 	public int getUnAvailableCount() {
 		return unAvailableCount;
 	}
