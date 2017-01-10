@@ -94,8 +94,8 @@ public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
 			criteria.add(Restrictions.ge(MenuEntity.SERVER_TIME, serverDateTime));
 		}
 		ProjectionList projectionList = Projections.projectionList();
-		projectionList.add(Projections.property(MenuEntity.SERVER_TIME), MenuItemJson.MENU_UUDI);
-		projectionList.add(Projections.property(MenuEntity.MENU_UUID), MenuItemJson.SERVER_DATE_TIME);
+		projectionList.add(Projections.property(MenuEntity.SERVER_TIME), MenuItemJson.SERVER_DATE_TIME);
+		projectionList.add(Projections.property(MenuEntity.MENU_UUID), MenuItemJson.MENU_UUDI);
 		
 		criteria.setProjection(projectionList);
 		criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
@@ -104,7 +104,7 @@ public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
 
 	@Override
 	public void udpateMenuEntity(MenuEntity menuEntity) {
-		udpateMenuEntity(menuEntity);
+		updateObject(menuEntity);
 	}
 
 }

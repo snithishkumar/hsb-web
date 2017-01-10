@@ -100,7 +100,8 @@ public class MenuService {
 		try{
 			List datas = menuListDao.getUnAvailableMenus(serverDateTime);
 			if(datas.size() > 0){
-				return serviceUtil.getRestResponse(true, datas,200);
+				String data = gson.toJson(datas);
+				return serviceUtil.getRestResponse(true, data,200);
 			}else{
 				return serviceUtil.getRestResponse(true, "",404);
 			}

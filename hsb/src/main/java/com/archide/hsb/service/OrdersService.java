@@ -389,7 +389,7 @@ public class OrdersService {
 							ordersDao.updateOrdersItems(placedOrderItems);
 							statusSyncResponse.getPlacedOrderItemsUuid().add(menuItems.getPlacedOrderItemsUUID());
 							if(menuItems.getUnAvailableCount() > 0){
-								MenuEntity menuEntity = menuListDao.getMenuEntity(menuItems.getMenuUuid());
+								MenuEntity menuEntity = placedOrderItems.getMenuItem();
 								if(menuEntity != null){
 									menuEntity.setStatus(Status.UN_AVAILABLE);
 									menuEntity.setServerTime(placedOrderItems.getServerSyncTime());
