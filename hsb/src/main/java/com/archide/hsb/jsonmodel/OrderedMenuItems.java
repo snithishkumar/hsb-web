@@ -41,6 +41,7 @@ public class OrderedMenuItems {
 		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
 		this.foodType = placedOrderItems.getMenuItem().getFoodType();
 		this.orderStatus = placedOrderItems.getOrderStatus();
+		this.lastUpdatedDateTime = String.valueOf(placedOrderItems.getServerSyncTime());
 		this.categoryUuid = placedOrderItems.getMenuItem().getFoodCategory().getFoodCategoryUUID();
 		this.categoryName = placedOrderItems.getMenuItem().getFoodCategory().getCategoryName()+"-"+placedOrderItems.getMenuItem().getMenuCourse().getCategoryName();
 	}

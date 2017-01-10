@@ -384,7 +384,7 @@ public class OrdersService {
 							placedOrderItems.setUnAvailableCount(menuItems.getUnAvailableCount());
 							placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
 							placedOrderItems.setLastUpdatedTime(ServiceUtil.getCurrentGmtTime());
-							placedOrderItems.setServerSyncTime(ServiceUtil.getCurrentGmtTime());
+							//placedOrderItems.setServerSyncTime(ServiceUtil.getCurrentGmtTime());
 							placedOrderItems.setQuantity(menuItems.getQuantity());
 							ordersDao.updateOrdersItems(placedOrderItems);
 							statusSyncResponse.getPlacedOrderItemsUuid().add(menuItems.getPlacedOrderItemsUUID());
