@@ -25,11 +25,13 @@ import com.archide.hsb.dao.TableListDao;
 import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.jsonmodel.GetKitchenOrders;
+import com.archide.hsb.jsonmodel.KitchenCookingComments;
 import com.archide.hsb.jsonmodel.KitchenOrderListResponse;
 import com.archide.hsb.jsonmodel.KitchenOrderStatusSyncResponse;
 import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
 import com.archide.hsb.jsonmodel.ResponseData;
+import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.History;
 import com.archide.hsb.model.MenuEntity;
@@ -95,6 +97,14 @@ public class OrdersService {
 					placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 					placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 				}
+				
+				CookingCommentsEntity cookingComments = new CookingCommentsEntity();
+				cookingComments.setCookingComments(placeOrdersJson.getComments());
+				cookingComments.setCookingCommentsUUID(ServiceUtil.uuid());
+				cookingComments.setDateTime(ServiceUtil.getCurrentGmtTime());
+				cookingComments.setPlacedOrders(placedOrders);
+				ordersDao.saveCookingComments(cookingComments);
+				
 				List<OrderedMenuItems> menuItemsList = placeOrdersJson.getMenuItems();
 				for(OrderedMenuItems menuItems : menuItemsList){
 					MenuEntity menuEntity = menuListDao.getMenuEntity(menuItems.getMenuUuid());
@@ -336,6 +346,11 @@ public class OrdersService {
 			for(PlacedOrderItems placedOrderItems : placedOrderItemsList){
 				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(placedOrderItems,true);
 				placeOrdersJson.getMenuItems().add(orderedMenuItems);
+			}
+			List<CookingCommentsEntity> commentsEntities = ordersDao.getCookingComments(placedOrdersEntity, lastServerTime);
+			for(CookingCommentsEntity cookingCommentsEntity : commentsEntities){
+				KitchenCookingComments kitchenCookingComments = new KitchenCookingComments(cookingCommentsEntity);
+				placeOrdersJson.getCookingCommentsList().add(kitchenCookingComments);
 			}
 	}
 	

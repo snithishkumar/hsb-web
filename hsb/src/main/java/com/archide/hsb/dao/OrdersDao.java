@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.History;
 import com.archide.hsb.model.PaymentDetails;
@@ -58,4 +59,8 @@ public interface OrdersDao {
 	void closeSession(Session session);
 
 	List<PlacedOrdersEntity> getPreviousDayOrders(Session session, long startOfDayInMilli);
+	
+	void saveCookingComments(CookingCommentsEntity commentsEntity);
+	
+	List<CookingCommentsEntity> getCookingComments(PlacedOrdersEntity placedOrders,long serverSyncTime);
 }

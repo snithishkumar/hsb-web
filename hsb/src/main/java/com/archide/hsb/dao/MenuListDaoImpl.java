@@ -68,7 +68,7 @@ public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(MenuEntity.class);
 		criteria.add(Restrictions.eq(MenuEntity.FOOD_CATEGORY, foodCategory));
 		criteria.add(Restrictions.eq(MenuEntity.MENU_COURSE, menuCourse));
-		criteria.add(Restrictions.gt(MenuEntity.DATE_TIME, lastUpdatedTime));
+		criteria.add(Restrictions.gt(MenuEntity.SERVER_TIME, lastUpdatedTime));
 		return criteria.list();
 	}
 

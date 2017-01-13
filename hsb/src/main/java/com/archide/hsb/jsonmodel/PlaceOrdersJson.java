@@ -20,6 +20,9 @@ public class PlaceOrdersJson {
 	private long orderDateTime;
 	private long lastUpdatedDateTime;
 	
+	private List<KitchenCookingComments> cookingCommentsList = new ArrayList<>();
+	private String comments;
+	
 	public PlaceOrdersJson(){
 		
 	}
@@ -139,6 +142,22 @@ public class PlaceOrdersJson {
 	}
 	public void setOrderId(String orderId) {
 		this.orderId = orderId;
+	}
+
+	public List<KitchenCookingComments> getCookingCommentsList() {
+		return cookingCommentsList;
+	}
+
+	public void setCookingCommentsList(List<KitchenCookingComments> cookingCommentsList) {
+		this.cookingCommentsList = cookingCommentsList;
+	}
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
 	}
 
 

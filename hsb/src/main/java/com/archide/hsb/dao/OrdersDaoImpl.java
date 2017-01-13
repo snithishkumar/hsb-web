@@ -15,6 +15,7 @@ import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.History;
 import com.archide.hsb.model.PaymentDetails;
@@ -147,6 +148,18 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		return placeOrderItemsList;
 	}
 	
+	@Override
+	public List<CookingCommentsEntity> getCookingComments(PlacedOrdersEntity placedOrders,long dateTime){
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<CookingCommentsEntity> criteriaQuery = builder.createQuery(CookingCommentsEntity.class);
+		Root<CookingCommentsEntity> root = criteriaQuery.from(CookingCommentsEntity.class);
+		criteriaQuery.select(root);
+		criteriaQuery.where(builder.equal(root.get(CookingCommentsEntity.PLACED_ORDERS), placedOrders),builder.and(builder.gt(root.get(CookingCommentsEntity.DATE_TIME), dateTime)));
+		Query<CookingCommentsEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
+		List<CookingCommentsEntity> cookingCommentsList =  q.getResultList();
+		return cookingCommentsList;
+	}
+	
 	
 	@Override
 	public boolean isHistory(String orderId) {
@@ -210,6 +223,10 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	
 	public void savePaymentDetails(PaymentDetails paymentDetails){
 		saveObject(paymentDetails);
+	}
+	
+	public void saveCookingComments(CookingCommentsEntity commentsEntity){
+		saveObject(commentsEntity);
 	}
 	
 	
