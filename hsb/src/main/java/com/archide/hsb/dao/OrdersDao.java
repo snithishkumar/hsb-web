@@ -63,4 +63,6 @@ public interface OrdersDao {
 	void saveCookingComments(CookingCommentsEntity commentsEntity);
 	
 	List<CookingCommentsEntity> getCookingComments(PlacedOrdersEntity placedOrders,long serverSyncTime);
+	
+	PlacedOrderItems getDeliveredItems(PlacedOrdersEntity placedOrdersEntity,String itemCode);
 }

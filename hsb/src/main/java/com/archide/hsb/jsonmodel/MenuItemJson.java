@@ -1,5 +1,6 @@
 package com.archide.hsb.jsonmodel;
 
+import com.archide.hsb.enumeration.FoodType;
 import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.model.MenuEntity;
 
@@ -16,6 +17,7 @@ public class MenuItemJson {
 	private int displayOrder;
 	private String description;
 	private String tasteType;
+	private FoodType foodType;
 	
 	public MenuItemJson(){
 		
@@ -32,6 +34,7 @@ public class MenuItemJson {
 		this.displayOrder = menuEntity.getDisplayOrder();
 		this.description = menuEntity.getDescription();
 		this.tasteType = menuEntity.getTasteType();
+		this.foodType = menuEntity.getFoodType();
 	}
 	
 	

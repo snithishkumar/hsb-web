@@ -396,6 +396,16 @@ public class OrdersService {
 					for(OrderedMenuItems menuItems : menuItemsList){
 						PlacedOrderItems placedOrderItems =	ordersDao.getPlacedOrderItems(menuItems.getPlacedOrderItemsUUID());
 						if(placedOrderItems != null){
+							if(menuItems.getOrderStatus().toString().equals(OrderStatus.DELIVERED.toString())){
+								PlacedOrderItems previousPlacedOrderItems =	 ordersDao.getDeliveredItems(placedOrdersEntity, menuItems.getItemCode());
+								if(previousPlacedOrderItems != null){
+									previousPlacedOrderItems.setQuantity(previousPlacedOrderItems.getQuantity() + menuItems.getQuantity());
+									previousPlacedOrderItems.setLastUpdatedTime(ServiceUtil.getCurrentGmtTime());
+									placedOrderItems.setDeleted(true);
+									ordersDao.updateOrdersItems(previousPlacedOrderItems);
+								}
+							}
+							
 							placedOrderItems.setUnAvailableCount(menuItems.getUnAvailableCount());
 							placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
 							placedOrderItems.setLastUpdatedTime(ServiceUtil.getCurrentGmtTime());

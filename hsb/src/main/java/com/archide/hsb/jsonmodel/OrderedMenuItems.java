@@ -20,6 +20,8 @@ public class OrderedMenuItems {
 	private String orderDateTime;
 	private String lastUpdatedDateTime;
 	
+	private boolean isDeleted;
+	
 	public OrderedMenuItems(){
 		
 	}
@@ -31,6 +33,7 @@ public class OrderedMenuItems {
 		this.itemCode = placedOrderItems.getMenuItem().getMenuItemCode();
 		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
 		this.orderStatus = placedOrderItems.getOrderStatus();
+		this.isDeleted = placedOrderItems.isDeleted();
 	}
 	
 	public OrderedMenuItems(PlacedOrderItems placedOrderItems,boolean isKitchen){

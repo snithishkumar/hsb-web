@@ -27,6 +27,7 @@ public class PlacedOrderItems {
 	public static final String LAST_UPDTED_TIME = "lastUpdatedTime";
 	public static final String ORDER_STATUS = "orderStatus";
 	public static final String UN_AVAILABLE_COUNT = "unAvailableCount";
+	public static final String ITEM_CODE = "itemCode";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,7 +63,18 @@ public class PlacedOrderItems {
 	@Enumerated(EnumType.STRING)
 	private OrderStatus orderStatus;
 	
+	@Column(name = "IsDeleted")
+	private boolean isDeleted;
 	
+	
+	
+	
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
 	public int getPlacedOrderItemsId() {
 		return placedOrderItemsId;
 	}

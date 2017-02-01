@@ -9,12 +9,14 @@ import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.History;
@@ -70,17 +72,27 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		return placeOrderItemsList.size() > 0 ? placeOrderItemsList.get(0) : null;
 	}
 	
+	
+	public PlacedOrderItems getDeliveredItems(PlacedOrdersEntity placedOrdersEntity,String itemCode){
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PlacedOrderItems.class);
+		criteria.add(Restrictions.eq(PlacedOrderItems.PLACED_ORDERS, placedOrdersEntity));
+		criteria.add(Restrictions.eq(PlacedOrderItems.ORDER_STATUS, OrderStatus.DELIVERED));
+		criteria.add(Restrictions.eq(PlacedOrderItems.ITEM_CODE, itemCode));
+		List<PlacedOrderItems> placedOrderItems = criteria.list();
+		if(placedOrderItems.size() > 0){
+			return placedOrderItems.get(0);
+		}
+		return null;
+	}
+	
 	@Override
-	public PlacedOrdersEntity getPlacedOrders(TableList tableList,String userMobileNumber) {
-		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
-		CriteriaQuery<PlacedOrdersEntity> criteriaQuery = builder.createQuery(PlacedOrdersEntity.class);
-		Root<PlacedOrdersEntity> root = criteriaQuery.from(PlacedOrdersEntity.class);
-		criteriaQuery.select(root);
-		Predicate predicate = builder.and(builder.equal(root.get(PlacedOrdersEntity.TABLE_NUMBER), tableList),
-				builder.equal(root.get(PlacedOrdersEntity.USER_MOBILE_NUMBER), userMobileNumber));
-		criteriaQuery.where(predicate);
-		Query<PlacedOrdersEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
-		List<PlacedOrdersEntity> placeOrdersList =  q.getResultList();
+	public PlacedOrdersEntity getPlacedOrders(TableList tableList, String userMobileNumber) {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PlacedOrdersEntity.class);
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.TABLE_NUMBER, tableList));
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.USER_MOBILE_NUMBER, userMobileNumber));
+		criteria.addOrder(Order.desc(PlacedOrdersEntity.ORDER_DATE_TIME));
+		criteria.setMaxResults(1);
+		List<PlacedOrdersEntity> placeOrdersList = criteria.list();
 		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
 	}
 	

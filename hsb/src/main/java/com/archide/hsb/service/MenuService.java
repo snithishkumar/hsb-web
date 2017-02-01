@@ -78,7 +78,7 @@ public class MenuService {
 			getMenuDetails.setMenuListJsonList(menuListJsonList);
 			TableList tableList =	tableListDao.getTables(tableNumber);
 			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,mobileNumber);
-			if(placedOrders != null){
+			if(placedOrders != null && !placedOrders.isClosed()){
 				PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrders);
 				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
 				for(PlacedOrderItems orderItems : placedOrderItemsList){
