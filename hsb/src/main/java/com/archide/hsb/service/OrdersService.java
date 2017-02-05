@@ -242,8 +242,8 @@ public class OrdersService {
 			List<PurchaseItem> purchaseDetails = new ArrayList<>();
 			double cost = 0;
 			for (PlacedOrderItems orderItems : placedOrderItemsList) {
-				if (orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED)
-						|| orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED)) {
+				if (orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED.toString())
+						|| orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED.toString())) {
 					return serviceUtil.getRestResponse(true, "Some Items not yet Delivered.", 403);
 				}
 				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
@@ -397,7 +397,7 @@ public class OrdersService {
 						PlacedOrderItems placedOrderItems =	ordersDao.getPlacedOrderItems(menuItems.getPlacedOrderItemsUUID());
 						if(placedOrderItems != null){
 							if(menuItems.getOrderStatus().toString().equals(OrderStatus.DELIVERED.toString())){
-								PlacedOrderItems previousPlacedOrderItems =	 ordersDao.getDeliveredItems(placedOrdersEntity, menuItems.getItemCode());
+								PlacedOrderItems previousPlacedOrderItems =	 ordersDao.getDeliveredItems(placedOrdersEntity, placedOrderItems.getItemCode());
 								if(previousPlacedOrderItems != null){
 									previousPlacedOrderItems.setQuantity(previousPlacedOrderItems.getQuantity() + menuItems.getQuantity());
 									previousPlacedOrderItems.setLastUpdatedTime(ServiceUtil.getCurrentGmtTime());
