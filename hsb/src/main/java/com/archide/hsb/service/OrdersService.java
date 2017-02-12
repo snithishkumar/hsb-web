@@ -88,15 +88,23 @@ public class OrdersService {
 					// return Invalid TableNumber
 					return serviceUtil.getRestResponse(true, "Invalid table number.",404);
 				}
+				double totalAmount = 0;
+				boolean isUpdate = true;
 				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(placeOrdersJson.getPlaceOrderUuid());
 				if(placedOrders == null){
 					 placedOrders = new PlacedOrdersEntity(placeOrdersJson);
 					 placedOrders.setTableNumber(tableList);
 					 ordersDao.placeAnOrders(placedOrders);
-				}else{
+					
+					 isUpdate = false;
+				}/*else{
 					placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 					placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
-				}
+					ordersDao.ordersUpdate(placedOrders);
+				}*/
+				 totalAmount = placedOrders.getTotalPrice();
+				placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+				placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 				
 				CookingCommentsEntity cookingComments = new CookingCommentsEntity();
 				cookingComments.setCookingComments(placeOrdersJson.getComments());
@@ -124,10 +132,19 @@ public class OrdersService {
 							placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
 							placedOrderItems.setFoodCategoryName(menuEntity.getFoodCategory().getCategoryName());
 							placedOrderItems.setMenuCourseName(menuEntity.getMenuCourse().getCategoryName());
+							totalAmount = totalAmount + (menuItems.getQuantity() * menuEntity.getPrice());
 							ordersDao.placeOrdersItems(placedOrderItems);
 						}
 						
 					}
+				}
+				
+				if(isUpdate){
+					placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+					placedOrders.setTotalPrice(totalAmount);
+					placedOrders.setPrice(totalAmount);
+					placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
+					ordersDao.ordersUpdate(placedOrders);
 				}
 				
 				return serviceUtil.getRestResponse(true,placedOrders.getServerDateTime(),200);
@@ -248,11 +265,12 @@ public class OrdersService {
 				}
 				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
 				PurchaseItem purchaseItem = new PurchaseItem(orderItems);
-				purchaseDetails.add(purchaseItem);
+				
 				billingList.add(orderedMenuItems);
-				if (!(orderedMenuItems.getUnAvailableCount() > 0)) {
+				if (!(orderedMenuItems.getUnAvailableCount() > 0) && !orderItems.isDeleted()) {
 					MenuEntity menuEntity = menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
 					cost = cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
+					purchaseDetails.add(purchaseItem);
 				}
 			}
 			placedOrders.setPrice(cost);
