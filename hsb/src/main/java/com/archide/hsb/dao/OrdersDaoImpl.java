@@ -99,13 +99,11 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	
 	@Override
 	public PlacedOrdersEntity getPlacedOrdersByMobile(String userMobileNumber) {
-		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
-		CriteriaQuery<PlacedOrdersEntity> criteriaQuery = builder.createQuery(PlacedOrdersEntity.class);
-		Root<PlacedOrdersEntity> root = criteriaQuery.from(PlacedOrdersEntity.class);
-		criteriaQuery.select(root);
-		criteriaQuery.where(builder.equal(root.get(PlacedOrdersEntity.USER_MOBILE_NUMBER), userMobileNumber));
-		Query<PlacedOrdersEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
-		List<PlacedOrdersEntity> placeOrdersList =  q.getResultList();
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PlacedOrdersEntity.class);
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.USER_MOBILE_NUMBER, userMobileNumber));
+		criteria.addOrder(Order.desc(PlacedOrdersEntity.ORDER_DATE_TIME));
+		criteria.setMaxResults(1);
+		List<PlacedOrdersEntity> placeOrdersList = criteria.list();
 		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
 	}
 	

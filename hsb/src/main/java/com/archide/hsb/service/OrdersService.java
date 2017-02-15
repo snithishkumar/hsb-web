@@ -165,8 +165,8 @@ public class OrdersService {
 					// return Invalid TableNumber
 					return serviceUtil.getRestResponse(true, "Invalid table number.",404);
 				}
-				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,mobileNumber);
-				if(placedOrders == null){
+				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrdersByMobile( mobileNumber);
+				if(placedOrders == null || placedOrders.isClosed()){
 					
 					return serviceUtil.getRestResponse(true, "Already in History",404);
 					
@@ -174,6 +174,11 @@ public class OrdersService {
 				return generateBilling(placedOrders,tableList);
 			}else{
 				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrdersByMobile(mobileNumber);
+                if(placedOrders == null || placedOrders.isClosed()){
+					
+					return serviceUtil.getRestResponse(true, "Already in History",404);
+					
+				}
 				return generateBilling(placedOrders,null);
 			}
 			
