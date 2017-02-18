@@ -97,7 +97,12 @@ public class OrdersService {
 					 ordersDao.placeAnOrders(placedOrders);
 					
 					 isUpdate = false;
-				}/*else{
+				}else if(placedOrders.isClosed()){
+					return serviceUtil.getRestResponse(true, "Your order has been closed",403);
+				}
+				
+				
+				/*else{
 					placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 					placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 					ordersDao.ordersUpdate(placedOrders);
@@ -122,6 +127,7 @@ public class OrdersService {
 							placedOrderItems = new PlacedOrderItems();
 							placedOrderItems.setQuantity(menuItems.getQuantity());
 							placedOrderItems.setMenuItem(menuEntity);
+							placedOrderItems.setTableNumber(tableList.getTableNumber());
 							placedOrderItems.setName(menuItems.getName());
 							placedOrderItems.setItemCode(menuItems.getItemCode());
 							placedOrderItems.setPlacedOrderItemsUUID(menuItems.getPlacedOrderItemsUUID());
@@ -156,36 +162,9 @@ public class OrdersService {
 		return null;
 	}
 	
-	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
-	public ResponseEntity<String> closeAnOrder(String tableNumber,String mobileNumber,String orderId){
-		try{
-			if(tableNumber != null){
-				TableList tableList =	tableListDao.getTables(tableNumber);
-				if(tableList == null){
-					// return Invalid TableNumber
-					return serviceUtil.getRestResponse(true, "Invalid table number.",404);
-				}
-				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrdersByMobile( mobileNumber);
-				if(placedOrders == null || placedOrders.isClosed()){
-					
-					return serviceUtil.getRestResponse(true, "Already in History",404);
-					
-				}
-				return generateBilling(placedOrders,tableList);
-			}else{
-				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrdersByMobile(mobileNumber);
-                if(placedOrders == null || placedOrders.isClosed()){
-					
-					return serviceUtil.getRestResponse(true, "Already in History",404);
-					
-				}
-				return generateBilling(placedOrders,null);
-			}
-			
-		}catch(Exception e){
-			logger.error("Error in closeAnOrder,Params["+tableNumber+""+mobileNumber+""+orderId+"]",e);
-		}
-		return serviceUtil.getRestResponse(false, "Invalid data",500);
+	@Transactional(rollbackFor = ValidationException.class,propagation=Propagation.REQUIRED,readOnly=false)
+	public ResponseEntity<String> closeAnOrder(String tableNumber,String mobileNumber,String orderUUID) throws ValidationException{
+		 return generateBilling(tableNumber, mobileNumber,orderUUID);
 	}
 	
 	private void sendData(PlacedOrdersEntity placedOrdersEntity,List<PurchaseItem> purchaseItems) throws ValidationException{
@@ -255,6 +234,124 @@ public class OrdersService {
 		
 	}
 	
+	
+	private ResponseEntity<String> generateBilling(String tableNumber,String mobileNumber,String orderUUID)throws ValidationException{
+		PlacedOrdersEntity closingPlacedOrder = ordersDao.getPlacedOrders(orderUUID);
+		if(closingPlacedOrder == null || closingPlacedOrder.isClosed()){
+			return serviceUtil.getRestResponse(true, "Already in History",404);
+		}
+		
+		List<PlacedOrdersEntity> placedOrdersList = ordersDao.getPlacedOrdersByMobile(mobileNumber);
+		
+		for(PlacedOrdersEntity placedOrdersEntity : placedOrdersList){
+			boolean isClosingPlacedOrder = placedOrdersEntity.getPlaceOrdersId() == closingPlacedOrder.getPlaceOrdersId();
+			if(isClosingPlacedOrder){
+				continue;
+			}
+			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity);
+			for (PlacedOrderItems orderItems : placedOrderItemsList) {
+				if (orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED.toString())
+						|| orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED.toString())) {
+					throw new ValidationException(403,"Some Items not yet Delivered.");
+					//return serviceUtil.getRestResponse(true, "Some Items not yet Delivered.", 403);
+				}
+				
+				if (!(orderItems.getUnAvailableCount() > 0) && !orderItems.isDeleted()) {
+					orderItems.setPlacedOrders(closingPlacedOrder);
+					ordersDao.updateOrdersItems(orderItems);
+				}
+			}
+			if(!isClosingPlacedOrder){
+				placedOrdersEntity.setClosed(true);
+				placedOrdersEntity.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+				placedOrdersEntity.setLastUpdatedDateTime(closingPlacedOrder.getServerDateTime());
+				ordersDao.ordersUpdate(placedOrdersEntity);
+			}
+			
+		}
+		List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(closingPlacedOrder);
+		List<PurchaseItem> purchaseDetails = new ArrayList<>();
+		List<OrderedMenuItems> billingList = new ArrayList<>();
+		double cost = 0;
+		int statusCode = 200;
+		
+		for (PlacedOrderItems orderItems : placedOrderItemsList) {
+			if (orderItems.getOrderStatus().toString().equals(OrderStatus.ORDERED.toString())
+					|| orderItems.getOrderStatus().toString().equals(OrderStatus.VIEWED.toString())) {
+				throw new ValidationException(403,"Some Items not yet Delivered.");
+				//return serviceUtil.getRestResponse(true, "Some Items not yet Delivered.", 403);
+			}
+			if (!(orderItems.getUnAvailableCount() > 0) && !orderItems.isDeleted()) {
+				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+				PurchaseItem purchaseItem = new PurchaseItem(orderItems);
+				MenuEntity menuEntity = menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
+				cost = cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
+				billingList.add(orderedMenuItems);
+				int pos = purchaseDetails.indexOf(purchaseItem);
+				if(pos != -1){
+					PurchaseItem previousPurchaseItem = purchaseDetails.get(pos);
+					previousPurchaseItem.setQuantity(previousPurchaseItem.getQuantity() + purchaseItem.getQuantity());
+					previousPurchaseItem.setAmount(previousPurchaseItem.getQuantity() * previousPurchaseItem.getUnitPrice());
+				}else{
+					purchaseDetails.add(purchaseItem);
+				}
+			}
+		}
+		
+		/*	
+				if (!(orderItems.getUnAvailableCount() > 0) && !orderItems.isDeleted()) {
+					OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+					PurchaseItem purchaseItem = new PurchaseItem(orderItems);
+					MenuEntity menuEntity = menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
+					cost = cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
+					billingList.add(orderedMenuItems);
+					int pos = purchaseDetails.indexOf(purchaseItem);
+					if(pos != -1){
+						PurchaseItem previousPurchaseItem = purchaseDetails.get(pos);
+						previousPurchaseItem.setQuantity(previousPurchaseItem.getQuantity() + purchaseItem.getQuantity());
+						previousPurchaseItem.setAmount(previousPurchaseItem.getUnitPrice() * previousPurchaseItem.getUnitPrice());
+					}else{
+						purchaseDetails.add(purchaseItem);
+					}
+					
+					if(!isClosingPlacedOrder){
+						orderItems.setPlacedOrders(closingPlacedOrder);
+						//objects.add(orderItems);
+						ordersDao.updateOrdersItems(orderItems);
+					}
+				}
+				
+			}
+			if(!isClosingPlacedOrder){
+				placedOrdersEntity.setClosed(true);
+				placedOrdersEntity.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+				placedOrdersEntity.setLastUpdatedDateTime(closingPlacedOrder.getServerDateTime());
+				ordersDao.ordersUpdate(placedOrdersEntity);
+				//objects.add(placedOrdersEntity);
+			}
+		}*/
+		
+		closingPlacedOrder.setPrice(cost);
+		closingPlacedOrder.setDiscount(0);
+		closingPlacedOrder.setTaxAmount(0);
+		closingPlacedOrder.setTotalPrice(cost);
+		closingPlacedOrder.setServerDateTime(ServiceUtil.getCurrentGmtTime());
+		closingPlacedOrder.setLastUpdatedDateTime(closingPlacedOrder.getServerDateTime());
+		closingPlacedOrder.setClosed(true);
+		try {
+			sendData(closingPlacedOrder, purchaseDetails);
+		} catch (ValidationException e) {
+			statusCode = e.getCode() == 500 ? 405 : 400;
+			e.printStackTrace();
+		}
+		//ordersDao.updates(objects);
+		ordersDao.ordersUpdate(closingPlacedOrder);
+		PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(closingPlacedOrder);
+		placeOrdersJson.getMenuItems().addAll(billingList);
+		
+		String data = gson.toJson(placeOrdersJson);
+		return serviceUtil.getRestResponse(true, data, statusCode);
+	}
 	
 	private ResponseEntity<String> generateBilling(PlacedOrdersEntity placedOrders, TableList tableNumber) {
 		List<OrderedMenuItems> billingList = new ArrayList<>();

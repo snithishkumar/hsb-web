@@ -40,7 +40,7 @@ public interface OrdersDao {
 
 	void ordersUpdate(PlacedOrdersEntity placedOrders);
 
-	PlacedOrdersEntity getPlacedOrdersByMobile(String userMobileNumber);
+	List<PlacedOrdersEntity> getPlacedOrdersByMobile(String userMobileNumber);
 
 	void removePlacedOrderItems(PlacedOrdersEntity placedOrdersEntity);
 
@@ -65,4 +65,6 @@ public interface OrdersDao {
 	List<CookingCommentsEntity> getCookingComments(PlacedOrdersEntity placedOrders,long serverSyncTime);
 	
 	PlacedOrderItems getDeliveredItems(PlacedOrdersEntity placedOrdersEntity,String itemCode);
+	
+	void updates(List<Object> objectsList);
 }

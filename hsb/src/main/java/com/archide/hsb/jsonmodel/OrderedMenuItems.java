@@ -11,6 +11,8 @@ public class OrderedMenuItems {
 	private String placedOrderItemsUUID;
 	private String menuUuid;
 	private String itemCode;
+	
+
 	private String categoryName;
 	private String categoryUuid;
 	private FoodType foodType;
@@ -159,6 +161,7 @@ public class OrderedMenuItems {
 	public void setMenuUuid(String menuUuid) {
 		this.menuUuid = menuUuid;
 	}
+
 	
 	
 

@@ -38,6 +38,12 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		
 	}
 	
+	public void updates(List<Object> objectsList){
+		for(Object object : objectsList){
+			updateObject(object);
+		}
+	}
+	
 	public void saveHistory(History history){
 		saveObject(history);
 	}
@@ -98,13 +104,12 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	
 	
 	@Override
-	public PlacedOrdersEntity getPlacedOrdersByMobile(String userMobileNumber) {
+	public List<PlacedOrdersEntity> getPlacedOrdersByMobile(String userMobileNumber) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PlacedOrdersEntity.class);
 		criteria.add(Restrictions.eq(PlacedOrdersEntity.USER_MOBILE_NUMBER, userMobileNumber));
 		criteria.addOrder(Order.desc(PlacedOrdersEntity.ORDER_DATE_TIME));
-		criteria.setMaxResults(1);
-		List<PlacedOrdersEntity> placeOrdersList = criteria.list();
-		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.IS_CLOSED, false));
+		return criteria.list();
 	}
 	
 	

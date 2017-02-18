@@ -28,6 +28,7 @@ public class PlacedOrderItems {
 	public static final String ORDER_STATUS = "orderStatus";
 	public static final String UN_AVAILABLE_COUNT = "unAvailableCount";
 	public static final String ITEM_CODE = "itemCode";
+	public static final String TABLE_NUMBER = "tableNumber";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,8 +68,18 @@ public class PlacedOrderItems {
 	private boolean isDeleted;
 	
 	
+	@Column(name = "TableNumber")
+	private String tableNumber;
 	
 	
+	
+	
+	public String getTableNumber() {
+		return tableNumber;
+	}
+	public void setTableNumber(String tableNumber) {
+		this.tableNumber = tableNumber;
+	}
 	public boolean isDeleted() {
 		return isDeleted;
 	}
