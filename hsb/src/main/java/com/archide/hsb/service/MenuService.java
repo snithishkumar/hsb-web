@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
+import com.archide.hsb.enumeration.UserType;
 import com.archide.hsb.jsonmodel.FoodCategoryJson;
 import com.archide.hsb.jsonmodel.GetMenuDetails;
 import com.archide.hsb.jsonmodel.MenuItemJson;
@@ -20,6 +21,7 @@ import com.archide.hsb.jsonmodel.MenuListJson;
 import com.archide.hsb.jsonmodel.OrderedMenuItems;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
 import com.archide.hsb.model.FoodCategory;
+import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.MenuCourse;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
@@ -51,9 +53,25 @@ public class MenuService {
 	 * Get Table List
 	 * @return
 	 */
-	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
-	public ResponseEntity<String> getMenuDetails(String lastServerSyncTimeTemp,String tableNumber,String mobileNumber){
+	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
+	public ResponseEntity<String> getMenuDetails(String lastServerSyncTimeTemp,String tableNumber,String mobileNumber,String userType){
 		try{
+			if(userType != null){
+				LoginUsersEntity loginUsersEntity = menuListDao.getLoginUsers(mobileNumber);
+				if(loginUsersEntity != null && 
+						loginUsersEntity.getUserType().toString().equals(UserType.INDIVIDUAL.toString()) &&
+						!loginUsersEntity.getTableNumber().equals(tableNumber)){
+					return serviceUtil.getRestResponse(true, loginUsersEntity.getTableNumber(),404);
+				}
+				else if(loginUsersEntity == null){
+				    loginUsersEntity = new LoginUsersEntity();
+					loginUsersEntity.setMobileNumber(mobileNumber);
+					loginUsersEntity.setTableNumber(tableNumber);
+					loginUsersEntity.setUserType(UserType.valueOf(userType));
+					menuListDao.createLoginUsers(loginUsersEntity);
+				}
+			}
+			
 			GetMenuDetails getMenuDetails = new GetMenuDetails();
 			long lastServerSyncTime = 0;
 			if(lastServerSyncTimeTemp != null){

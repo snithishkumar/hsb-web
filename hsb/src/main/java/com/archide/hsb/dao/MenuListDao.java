@@ -3,6 +3,7 @@ package com.archide.hsb.dao;
 import java.util.List;
 
 import com.archide.hsb.model.FoodCategory;
+import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.MenuCourse;
 import com.archide.hsb.model.MenuEntity;
 
@@ -17,4 +18,12 @@ public interface MenuListDao {
     void udpateMenuEntity(MenuEntity menuEntity);
     
     List<String> getUnAvailableMenus(long serverDateTime);
+    
+    boolean isLoggedIn(String mobileNumber);
+    
+    void createLoginUsers(LoginUsersEntity loginUsersEntity);
+    
+    LoginUsersEntity getLoginUsers(String mobileNumber);
+    
+    void deleteLoginUser(String mobileNumber);
 }

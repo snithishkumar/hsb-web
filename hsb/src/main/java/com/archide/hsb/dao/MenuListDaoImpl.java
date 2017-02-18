@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.jsonmodel.MenuItemJson;
 import com.archide.hsb.model.FoodCategory;
+import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.MenuCourse;
 import com.archide.hsb.model.MenuEntity;
 
@@ -105,6 +106,37 @@ public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
 	@Override
 	public void udpateMenuEntity(MenuEntity menuEntity) {
 		updateObject(menuEntity);
+	}
+	
+	@Override
+	public boolean isLoggedIn(String mobileNumber){
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(LoginUsersEntity.class);
+		criteria.add(Restrictions.eq(LoginUsersEntity.MOBILE_NUMBER, mobileNumber));
+		return criteria.list().size() > 0;
+	}
+	
+	@Override
+	public LoginUsersEntity getLoginUsers(String mobileNumber){
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(LoginUsersEntity.class);
+		criteria.add(Restrictions.eq(LoginUsersEntity.MOBILE_NUMBER, mobileNumber));
+		List<LoginUsersEntity> logginUsers = criteria.list();
+		if(logginUsers.size() > 0){
+			return logginUsers.get(0);
+		}
+		return null;
+	}
+	
+	@Override
+	public void deleteLoginUser(String mobileNumber){
+		Query query = sessionFactory.getCurrentSession().createQuery("delete LoginUsersEntity where mobileNumber = :mobileNumber");
+		query.setParameter("mobileNumber", mobileNumber);
+		int result = query.executeUpdate();
+		
+	}
+	
+	@Override
+	public void createLoginUsers(LoginUsersEntity loginUsersEntity){
+        saveObject(loginUsersEntity);		
 	}
 
 }

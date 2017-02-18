@@ -346,6 +346,7 @@ public class OrdersService {
 		}
 		//ordersDao.updates(objects);
 		ordersDao.ordersUpdate(closingPlacedOrder);
+		menuListDao.deleteLoginUser(closingPlacedOrder.getUserMobileNumber());
 		PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(closingPlacedOrder);
 		placeOrdersJson.getMenuItems().addAll(billingList);
 		

@@ -15,8 +15,9 @@ public class MenuController {
 	private MenuService menuService;
 	
 	@RequestMapping(value="/mobile/getMenuItems")
-	public ResponseEntity<String> getMenuLists(@RequestParam String lastServerSyncTime,@RequestParam String tableNumber,@RequestParam String mobileNumber){
-		return menuService.getMenuDetails(lastServerSyncTime,tableNumber,mobileNumber);
+	public ResponseEntity<String> getMenuLists(@RequestParam String lastServerSyncTime,@RequestParam String tableNumber,
+			@RequestParam String mobileNumber,@RequestParam(required =false) String userType){
+		return menuService.getMenuDetails(lastServerSyncTime,tableNumber,mobileNumber,userType);
 	}
 	
 	
