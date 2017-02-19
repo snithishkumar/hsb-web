@@ -668,8 +668,74 @@ public class OrdersService {
 	}
 	
 	
+	private void processHistory(PlacedOrdersEntity placedOrdersEntityTemp){
+		Session session = null;
+		try{
+			session = ordersDao.openSession();
+			session.getTransaction().begin();
+			PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(session,placedOrdersEntityTemp.getPlaceOrdersUUID());
+			HistoryEntity history = new HistoryEntity(placedOrdersEntity);
+			
+			List<CookingCommentsEntity> cookingCommentsEntities = ordersDao.getCookingCommentsEntity(session, placedOrdersEntity);
+			List<CookingCommentsJson> cookingCommentsList = new ArrayList<>();
+			for(CookingCommentsEntity commentsEntity : cookingCommentsEntities){
+				CookingCommentsJson commentsJson =  new CookingCommentsJson(commentsEntity);
+				cookingCommentsList.add(commentsJson);
+				session.delete(commentsEntity);
+			}
+			String cookingComments  = gson.toJson(cookingCommentsList);
+			history.setCookingComments(cookingComments);
+			session.save(history);
+			//save
+			List<PlacedOrderItems>  placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity,session);
+			for(PlacedOrderItems placedOrderItems : placedOrderItemsList){
+				HistoryMenuItem historyMenuItem = new HistoryMenuItem(placedOrderItems);
+				String historyData = gson.toJson(historyMenuItem);
+				HistoryDetailsEntity historyDetailsEntity = new HistoryDetailsEntity();
+				historyDetailsEntity.setItemDetails(historyData);
+				historyDetailsEntity.setHistoryUUID(ServiceUtil.uuid());
+				historyDetailsEntity.setHistoryEntity(history);
+				session.save(historyDetailsEntity);
+				session.delete(placedOrderItems);
+				//save
+			}
+			if(placedOrdersEntity.getPurchaseUUID() != null){
+				List<PaymentDetails>  paymentDetailsList =	ordersDao.getPaymentDetails(session, placedOrdersEntity.getPurchaseUUID());
+				for(PaymentDetails paymentDetails : paymentDetailsList){
+					PaymentDetailsHistory paymentDetailsHistory = new PaymentDetailsHistory(paymentDetails);
+					paymentDetailsHistory.setHistoryEntity(history);
+					List<DiscardEntity> discardEntities = ordersDao.getDiscardEntity(session, paymentDetails);
+					JsonArray jsonArray = new JsonArray();
+					for(DiscardEntity discardEntity : discardEntities){
+						JsonObject jsonObject = new JsonObject();
+						jsonObject.addProperty("reason", discardEntity.getReason());
+						jsonObject.addProperty("discardBy", discardEntity.getReason());
+						jsonObject.addProperty("createdDateTime", discardEntity.getReason());
+						jsonArray.add(jsonObject);
+						session.delete(discardEntity);
+					}
+					paymentDetailsHistory.setDiscardDetails(jsonArray.toString());
+					session.save(paymentDetailsHistory);
+					session.delete(paymentDetails);
+					//save
+				}
+				
+			}
+			session.delete(placedOrdersEntity);
+			session.getTransaction().commit();
+			// Delete
+		}catch(Exception e){
+			session.getTransaction().rollback();
+			e.printStackTrace();
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+	}
 	
 	
+	@Scheduled(fixedDelay = 10000)
 	public void moveHistory(){
 		Session session = null;
 		try{
@@ -678,55 +744,10 @@ public class OrdersService {
 			LocalDateTime startOfDay = localDateTime.toLocalDate().atStartOfDay();
 			long startOfDayInMilli = startOfDay.toInstant(ZoneOffset.UTC).toEpochMilli();
 			List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPreviousDayOrders(session, startOfDayInMilli);
+			ordersDao.closeSession(session);
+			session = null;
 			for(PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities){
-				HistoryEntity history = new HistoryEntity(placedOrdersEntity);
-				
-				List<CookingCommentsEntity> cookingCommentsEntities = ordersDao.getCookingCommentsEntity(session, placedOrdersEntity);
-				List<CookingCommentsJson> cookingCommentsList = new ArrayList<>();
-				for(CookingCommentsEntity commentsEntity : cookingCommentsEntities){
-					CookingCommentsJson commentsJson =  new CookingCommentsJson(commentsEntity);
-					cookingCommentsList.add(commentsJson);
-				}
-				String cookingComments  = gson.toJson(cookingCommentsList);
-				history.setCookingComments(cookingComments);
-				session.save(history);
-				//save
-				List<PlacedOrderItems>  placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity);
-				for(PlacedOrderItems placedOrderItems : placedOrderItemsList){
-					HistoryMenuItem historyMenuItem = new HistoryMenuItem(placedOrderItems);
-					String historyData = gson.toJson(historyMenuItem);
-					HistoryDetailsEntity historyDetailsEntity = new HistoryDetailsEntity();
-					historyDetailsEntity.setItemDetails(historyData);
-					historyDetailsEntity.setHistoryUUID(ServiceUtil.uuid());
-					historyDetailsEntity.setHistoryEntity(history);
-					session.save(historyDetailsEntity);
-					session.delete(placedOrderItems);
-					//save
-				}
-				if(placedOrdersEntity.getPurchaseUUID() != null){
-					List<PaymentDetails>  paymentDetailsList =	ordersDao.getPaymentDetails(session, placedOrdersEntity.getPurchaseUUID());
-					for(PaymentDetails paymentDetails : paymentDetailsList){
-						PaymentDetailsHistory paymentDetailsHistory = new PaymentDetailsHistory(paymentDetails);
-						paymentDetailsHistory.setHistoryEntity(history);
-						List<DiscardEntity> discardEntities = ordersDao.getDiscardEntity(session, paymentDetails);
-						JsonArray jsonArray = new JsonArray();
-						for(DiscardEntity discardEntity : discardEntities){
-							JsonObject jsonObject = new JsonObject();
-							jsonObject.addProperty("reason", discardEntity.getReason());
-							jsonObject.addProperty("discardBy", discardEntity.getReason());
-							jsonObject.addProperty("createdDateTime", discardEntity.getReason());
-							jsonArray.add(jsonObject);
-							session.delete(discardEntity);
-						}
-						paymentDetailsHistory.setDiscardDetails(jsonArray.toString());
-						session.save(paymentDetailsHistory);
-						session.delete(paymentDetails);
-						//save
-					}
-					
-				}
-				session.delete(placedOrdersEntity);
-				// Delete
+				processHistory(placedOrdersEntity);
 			}
 		}catch(Exception e){
 			logger.error("Error in moveHistory", e);

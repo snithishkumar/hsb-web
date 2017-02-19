@@ -19,7 +19,7 @@ public class HistoryDetailsEntity {
 	private int historyDeailsId;
 	@Column(name = "HistoryGuid")
 	private String historyUUID;
-	@Column(name = "ItemDetails")
+	@Column(name = "ItemDetails",columnDefinition = "LONGTEXT")
 	private String itemDetails;
 	@ManyToOne
 	@JoinColumn(name = "HistoryId",referencedColumnName="HistoryId")

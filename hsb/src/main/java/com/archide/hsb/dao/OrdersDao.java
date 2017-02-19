@@ -76,4 +76,8 @@ public interface OrdersDao {
 	List<DiscardEntity> getDiscardEntity(Session session,PaymentDetails paymentDetails);
 	
 	 List<LoginUsersEntity> getLoginUsersEntity(Session session , long time);
+	 
+	 List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,Session session);
+	 
+	 PlacedOrdersEntity getPlacedOrders(Session session,String placeOrdersUuid);
 }

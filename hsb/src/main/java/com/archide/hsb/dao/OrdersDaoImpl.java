@@ -66,6 +66,15 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		List<PlacedOrdersEntity> placeOrdersList =  q.getResultList();
 		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
 	}
+	
+	@Override
+	public PlacedOrdersEntity getPlacedOrders(Session session,String placeOrdersUuid) {
+		Criteria criteria = session.createCriteria(PlacedOrdersEntity.class);
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.PLACED_ORDERS_UUID, placeOrdersUuid));
+		List<PlacedOrdersEntity> placeOrdersList = criteria.list();
+		
+		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
+	}
 
 	public PlacedOrderItems getPlacedOrderItems(String placeOrderItemsUuid) {
 		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
@@ -139,6 +148,15 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	}
 	
 	
+	public List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,Session session) {
+		Criteria builder =  session.createCriteria(PlacedOrderItems.class);
+		builder.add(Restrictions.eq(PlacedOrderItems.PLACED_ORDERS, placedOrders));
+		List<PlacedOrderItems> placeOrderItemsList =  builder.list();
+		
+		return placeOrderItemsList;
+	}
+	
+	
 	public List<PlacedOrderItems> getPreviousPlacedOrderItems(PlacedOrdersEntity placedOrders,long serverLastUdpateTime) {
 		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
 		CriteriaQuery<PlacedOrderItems> criteriaQuery = builder.createQuery(PlacedOrderItems.class);
@@ -208,9 +226,10 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	
 	public List<PlacedOrdersEntity> getPreviousDayOrders(Session session,long startOfDayInMilli){
 		Criteria criteria = session.createCriteria(PlacedOrdersEntity.class);
-		criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PAYMENT_STATUS));
-		criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PURCHASE_UUID));
-		criteria.add(Restrictions.lt(PlacedOrdersEntity.SERVER_DATE_TIME, startOfDayInMilli));
+		//criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PAYMENT_STATUS));
+		//criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PURCHASE_UUID));
+		//criteria.add(Restrictions.lt(PlacedOrdersEntity.SERVER_DATE_TIME, startOfDayInMilli));
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.IS_CLOSED, true));
 		return criteria.list();
 	}
 	

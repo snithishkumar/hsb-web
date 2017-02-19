@@ -105,7 +105,7 @@ public class PlacedOrdersEntity {
 
 
 	public Double getAmountPaid() {
-		return amountPaid;
+		return amountPaid != null ? amountPaid : 0;
 	}
 
 

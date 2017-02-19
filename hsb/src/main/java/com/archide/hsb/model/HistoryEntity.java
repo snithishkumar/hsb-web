@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.archide.hsb.service.ServiceUtil;
+import com.archide.mobilepay.enumeration.PaymentStatus;
 
 @Entity
 @Table(name = "history")
@@ -48,6 +49,12 @@ public class HistoryEntity {
 	private String userMobileNumber;
 	@Column(name = "CookingComments",columnDefinition = "TEXT")
 	private String cookingComments;
+	@Column(name = "IsMerged")
+	private boolean isMerged;
+	@Column(name = "AmountPaid")
+	private double amountPaid;
+	@Column(name = "PaymentStatus")
+	private PaymentStatus paymentStatus;
 
 	public HistoryEntity(PlacedOrdersEntity placedOrdersEntity) {
 		this.historyUUID = ServiceUtil.uuid();
@@ -63,7 +70,9 @@ public class HistoryEntity {
 		this.discount = placedOrdersEntity.getDiscount();
 		this.totalPrice = placedOrdersEntity.getTotalPrice();
 		this.userMobileNumber = placedOrdersEntity.getUserMobileNumber();
-		
+		this.isMerged = placedOrdersEntity.isMerged();
+		this.amountPaid = placedOrdersEntity.getAmountPaid();
+		this.paymentStatus = placedOrdersEntity.getPaymentStatus();
 	}
 
 	
