@@ -6,7 +6,8 @@ import org.hibernate.Session;
 
 import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
-import com.archide.hsb.model.History;
+import com.archide.hsb.model.HistoryEntity;
+import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
@@ -30,7 +31,7 @@ public interface OrdersDao {
 
 	List<PlacedOrderItems> getPreviousPlacedOrderItems(PlacedOrdersEntity placedOrders, long serverLastUdpateTime);
 
-	void saveHistory(History history);
+	void saveHistory(HistoryEntity history);
 
 	List<PlacedOrdersEntity> getPlacedOrders(List<String> orderIds);
 
@@ -67,4 +68,12 @@ public interface OrdersDao {
 	PlacedOrderItems getDeliveredItems(PlacedOrdersEntity placedOrdersEntity,String itemCode);
 	
 	void updates(List<Object> objectsList);
+	
+	List<PaymentDetails> getPaymentDetails(Session session,String purchaseUUID);
+	
+	List<CookingCommentsEntity> getCookingCommentsEntity(Session session,PlacedOrdersEntity placedOrdersEntity);
+	
+	List<DiscardEntity> getDiscardEntity(Session session,PaymentDetails paymentDetails);
+	
+	 List<LoginUsersEntity> getLoginUsersEntity(Session session , long time);
 }

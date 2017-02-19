@@ -24,7 +24,9 @@ import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
 import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.enumeration.Status;
+import com.archide.hsb.jsonmodel.CookingCommentsJson;
 import com.archide.hsb.jsonmodel.GetKitchenOrders;
+import com.archide.hsb.jsonmodel.HistoryMenuItem;
 import com.archide.hsb.jsonmodel.KitchenCookingComments;
 import com.archide.hsb.jsonmodel.KitchenOrderListResponse;
 import com.archide.hsb.jsonmodel.KitchenOrderStatusSyncResponse;
@@ -33,12 +35,15 @@ import com.archide.hsb.jsonmodel.PlaceOrdersJson;
 import com.archide.hsb.jsonmodel.ResponseData;
 import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
-import com.archide.hsb.model.History;
+import com.archide.hsb.model.HistoryDetailsEntity;
+import com.archide.hsb.model.HistoryEntity;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PaymentDetails;
+import com.archide.hsb.model.PaymentDetailsHistory;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
+import com.archide.mobilepay.enumeration.PaymentStatus;
 import com.archide.mobilepay.exception.ValidationException;
 import com.archide.mobilepay.json.AmountDetails;
 import com.archide.mobilepay.json.CreatePurchaseResponse;
@@ -47,6 +52,7 @@ import com.archide.mobilepay.json.MerchantPurchaseData;
 import com.archide.mobilepay.json.PurchaseItem;
 import com.archide.mobilepay.json.PurchaseStatus;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -234,6 +240,19 @@ public class OrdersService {
 		
 	}
 	
+	@Transactional(readOnly = false,propagation = Propagation.REQUIRED)
+	public ResponseEntity<String> removeLoginedUser(String mobileNumber,String tableNumber){
+		try{
+			List<PlacedOrdersEntity> placedOrdersEntities =	ordersDao.getPlacedOrdersByMobile(mobileNumber);
+			if(placedOrdersEntities.size() < 1){
+				menuListDao.deleteLoginUser(mobileNumber, tableNumber);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return serviceUtil.getRestResponse(true, "Success.",200);
+	}
+	
 	
 	private ResponseEntity<String> generateBilling(String tableNumber,String mobileNumber,String orderUUID)throws ValidationException{
 		PlacedOrdersEntity closingPlacedOrder = ordersDao.getPlacedOrders(orderUUID);
@@ -263,6 +282,7 @@ public class OrdersService {
 			}
 			if(!isClosingPlacedOrder){
 				placedOrdersEntity.setClosed(true);
+				placedOrdersEntity.setMerged(true);
 				placedOrdersEntity.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 				placedOrdersEntity.setLastUpdatedDateTime(closingPlacedOrder.getServerDateTime());
 				ordersDao.ordersUpdate(placedOrdersEntity);
@@ -624,17 +644,19 @@ public class OrdersService {
 					paymentDetails.setCalculatedAmounts(calculatedAmounts);
 					
 					session.save(paymentDetails);
-					session.update(placedOrdersEntity);
+					
 					//ordersDao.savePaymentDetails(paymentDetails);
 					//ordersDao.ordersUpdate(placedOrdersEntity);
 					
 					DiscardEntity discardEntity = historyPurchaseData.getDiscardDetails();
 					if(discardEntity != null){
+						placedOrdersEntity.setPaymentStatus(PaymentStatus.CANCELLED);
 						discardEntity.setPaymentDetails(paymentDetails);
 						session.save(discardEntity);
 						//ordersDao.saveDiscardEntity(discardEntity);
 					}
 					
+					session.update(placedOrdersEntity);
 				}
 			}
 			session.getTransaction().commit();
@@ -646,6 +668,8 @@ public class OrdersService {
 	}
 	
 	
+	
+	
 	public void moveHistory(){
 		Session session = null;
 		try{
@@ -655,8 +679,54 @@ public class OrdersService {
 			long startOfDayInMilli = startOfDay.toInstant(ZoneOffset.UTC).toEpochMilli();
 			List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPreviousDayOrders(session, startOfDayInMilli);
 			for(PlacedOrdersEntity placedOrdersEntity : placedOrdersEntities){
-				History history = new History(placedOrdersEntity);
-				ordersDao.getPlacedOrderItems(placedOrdersEntity);
+				HistoryEntity history = new HistoryEntity(placedOrdersEntity);
+				
+				List<CookingCommentsEntity> cookingCommentsEntities = ordersDao.getCookingCommentsEntity(session, placedOrdersEntity);
+				List<CookingCommentsJson> cookingCommentsList = new ArrayList<>();
+				for(CookingCommentsEntity commentsEntity : cookingCommentsEntities){
+					CookingCommentsJson commentsJson =  new CookingCommentsJson(commentsEntity);
+					cookingCommentsList.add(commentsJson);
+				}
+				String cookingComments  = gson.toJson(cookingCommentsList);
+				history.setCookingComments(cookingComments);
+				session.save(history);
+				//save
+				List<PlacedOrderItems>  placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity);
+				for(PlacedOrderItems placedOrderItems : placedOrderItemsList){
+					HistoryMenuItem historyMenuItem = new HistoryMenuItem(placedOrderItems);
+					String historyData = gson.toJson(historyMenuItem);
+					HistoryDetailsEntity historyDetailsEntity = new HistoryDetailsEntity();
+					historyDetailsEntity.setItemDetails(historyData);
+					historyDetailsEntity.setHistoryUUID(ServiceUtil.uuid());
+					historyDetailsEntity.setHistoryEntity(history);
+					session.save(historyDetailsEntity);
+					session.delete(placedOrderItems);
+					//save
+				}
+				if(placedOrdersEntity.getPurchaseUUID() != null){
+					List<PaymentDetails>  paymentDetailsList =	ordersDao.getPaymentDetails(session, placedOrdersEntity.getPurchaseUUID());
+					for(PaymentDetails paymentDetails : paymentDetailsList){
+						PaymentDetailsHistory paymentDetailsHistory = new PaymentDetailsHistory(paymentDetails);
+						paymentDetailsHistory.setHistoryEntity(history);
+						List<DiscardEntity> discardEntities = ordersDao.getDiscardEntity(session, paymentDetails);
+						JsonArray jsonArray = new JsonArray();
+						for(DiscardEntity discardEntity : discardEntities){
+							JsonObject jsonObject = new JsonObject();
+							jsonObject.addProperty("reason", discardEntity.getReason());
+							jsonObject.addProperty("discardBy", discardEntity.getReason());
+							jsonObject.addProperty("createdDateTime", discardEntity.getReason());
+							jsonArray.add(jsonObject);
+							session.delete(discardEntity);
+						}
+						paymentDetailsHistory.setDiscardDetails(jsonArray.toString());
+						session.save(paymentDetailsHistory);
+						session.delete(paymentDetails);
+						//save
+					}
+					
+				}
+				session.delete(placedOrdersEntity);
+				// Delete
 			}
 		}catch(Exception e){
 			logger.error("Error in moveHistory", e);

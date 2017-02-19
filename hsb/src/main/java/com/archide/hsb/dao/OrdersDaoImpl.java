@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
@@ -19,7 +18,8 @@ import org.springframework.stereotype.Repository;
 import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
-import com.archide.hsb.model.History;
+import com.archide.hsb.model.HistoryEntity;
+import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
@@ -44,7 +44,7 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		}
 	}
 	
-	public void saveHistory(History history){
+	public void saveHistory(HistoryEntity history){
 		saveObject(history);
 	}
 
@@ -179,12 +179,12 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	@Override
 	public boolean isHistory(String orderId) {
 		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
-		CriteriaQuery<History> criteriaQuery = builder.createQuery(History.class);
-		Root<History> root = criteriaQuery.from(History.class);
+		CriteriaQuery<HistoryEntity> criteriaQuery = builder.createQuery(HistoryEntity.class);
+		Root<HistoryEntity> root = criteriaQuery.from(HistoryEntity.class);
 		criteriaQuery.select(root);
-		criteriaQuery.where(builder.equal(root.get(History.ORDER_ID), orderId));
-		Query<History> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
-		List<History> placeOrderItemsList =  q.getResultList();
+		criteriaQuery.where(builder.equal(root.get(HistoryEntity.ORDER_ID), orderId));
+		Query<HistoryEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
+		List<HistoryEntity> placeOrderItemsList =  q.getResultList();
 		return placeOrderItemsList.size() > 0;
 	}
 	
@@ -211,6 +211,25 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PAYMENT_STATUS));
 		criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PURCHASE_UUID));
 		criteria.add(Restrictions.lt(PlacedOrdersEntity.SERVER_DATE_TIME, startOfDayInMilli));
+		return criteria.list();
+	}
+	
+	public List<PaymentDetails> getPaymentDetails(Session session,String purchaseUUID){
+		Criteria criteria = session.createCriteria(PaymentDetails.class);
+		criteria.add(Restrictions.eq(PaymentDetails.PURCHASE_UUID, purchaseUUID));
+		return criteria.list();
+	}
+	
+	public List<DiscardEntity> getDiscardEntity(Session session,PaymentDetails paymentDetails){
+		Criteria criteria = session.createCriteria(DiscardEntity.class);
+		criteria.add(Restrictions.eq(DiscardEntity.PAYMENT_DETAILS, paymentDetails));
+		return criteria.list();
+	}
+	
+	
+	public List<CookingCommentsEntity> getCookingCommentsEntity(Session session,PlacedOrdersEntity placedOrdersEntity){
+		Criteria criteria = session.createCriteria(CookingCommentsEntity.class);
+		criteria.add(Restrictions.eq(CookingCommentsEntity.PLACED_ORDERS, placedOrdersEntity));
 		return criteria.list();
 	}
 	
@@ -253,6 +272,14 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	private void removePlacedOrders(PlacedOrdersEntity placedOrdersEntity){
 		sessionFactory.getCurrentSession().delete(placedOrdersEntity);
 	}
+	
+	
+	public List<LoginUsersEntity> getLoginUsersEntity(Session session , long time){
+		Criteria criteria =	session.createCriteria(LoginUsersEntity.class);
+		criteria.add(Restrictions.le(LoginUsersEntity.CREATED_DATE_TIME, time));
+		return criteria.list();
+	}
+	
 	
 	
 

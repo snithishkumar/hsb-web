@@ -55,6 +55,8 @@ public class PlacedOrdersEntity {
 	private double price;
 	@Column(name = "TaxAmount")
 	private double taxAmount;
+	@Column(name = "AmountPaid")
+	private Double amountPaid;
 	@Column(name = "Discount")
 	private double discount;
 	@Column(name = "TotalPrice")
@@ -63,6 +65,8 @@ public class PlacedOrdersEntity {
 	private String userMobileNumber;
 	@Column(name = "IsClosed")
 	private boolean isClosed;
+	@Column(name = "IsMerged")
+	private boolean isMerged;
 	@Column(name = "PurchaseUUID")
 	private String purchaseUUID;
 	@Column(name = "PaymentStatus")
@@ -90,6 +94,26 @@ public class PlacedOrdersEntity {
 	
 	
 	
+	public boolean isMerged() {
+		return isMerged;
+	}
+
+
+	public void setMerged(boolean isMerged) {
+		this.isMerged = isMerged;
+	}
+
+
+	public Double getAmountPaid() {
+		return amountPaid;
+	}
+
+
+	public void setAmountPaid(Double amountPaid) {
+		this.amountPaid = amountPaid;
+	}
+
+
 	public boolean isClosed() {
 		return isClosed;
 	}

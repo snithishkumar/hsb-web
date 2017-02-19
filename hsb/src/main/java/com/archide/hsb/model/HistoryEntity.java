@@ -11,7 +11,7 @@ import com.archide.hsb.service.ServiceUtil;
 
 @Entity
 @Table(name = "history")
-public class History {
+public class HistoryEntity {
 	public static final String HISTORY_ID = "historyId";
 	public static final String HISTORY_UUID = "historyUUID";
 	public static final String ORDER_ID = "orderId";
@@ -22,6 +22,8 @@ public class History {
 	private int historyId;
 	@Column(name = "HistoryUuid")
 	private String historyUUID;
+	@Column(name = "PlaceOrdersUUID")
+	private String placeOrdersUUID;
 	@Column(name = "PurchaseUuid")
 	private String purchaseUUID;
 	@Column(name = "OrderId")
@@ -44,21 +46,18 @@ public class History {
 	private double totalPrice;
 	@Column(name = "UserMobileNumber")
 	private String userMobileNumber;
-	@Column(name = "Items", columnDefinition = "TEXT")
-	private String items;
-	@Column(name = "PaymentDetails", columnDefinition = "TEXT")
-	private String paymentDetails;
-	@Column(name = "DiscardDetails", columnDefinition = "TEXT")
-	private String discardDetails;
+	@Column(name = "CookingComments",columnDefinition = "TEXT")
+	private String cookingComments;
 
-	public History(PlacedOrdersEntity placedOrdersEntity) {
+	public HistoryEntity(PlacedOrdersEntity placedOrdersEntity) {
 		this.historyUUID = ServiceUtil.uuid();
+		this.placeOrdersUUID = placedOrdersEntity.getPlaceOrdersUUID();
 		this.orderId = placedOrdersEntity.getOrderId();
 		this.tableNumber = placedOrdersEntity.getTableNumber().getTableNumber();
 		this.purchaseUUID = placedOrdersEntity.getPurchaseUUID();
 		this.serverDateTime = placedOrdersEntity.getServerDateTime();
 		this.orderDateTime = placedOrdersEntity.getOrderDateTime();
-		this.dateTime = placedOrdersEntity.getOrderDateTime();
+		this.dateTime = placedOrdersEntity.getLastUpdatedDateTime();
 		this.price = placedOrdersEntity.getPrice();
 		this.taxAmount = placedOrdersEntity.getTaxAmount();
 		this.discount = placedOrdersEntity.getDiscount();
@@ -67,21 +66,19 @@ public class History {
 		
 	}
 
-	public String getPaymentDetails() {
-		return paymentDetails;
+	
+
+	public String getCookingComments() {
+		return cookingComments;
 	}
 
-	public void setPaymentDetails(String paymentDetails) {
-		this.paymentDetails = paymentDetails;
+
+
+	public void setCookingComments(String cookingComments) {
+		this.cookingComments = cookingComments;
 	}
 
-	public String getDiscardDetails() {
-		return discardDetails;
-	}
 
-	public void setDiscardDetails(String discardDetails) {
-		this.discardDetails = discardDetails;
-	}
 
 	public void setTableNumber(String tableNumber) {
 		this.tableNumber = tableNumber;
@@ -176,19 +173,17 @@ public class History {
 		this.totalPrice = totalPrice;
 	}
 
-	public String getItems() {
-		return items;
-	}
 
-	public void setItems(String items) {
-		this.items = items;
-	}
 
 	@Override
 	public String toString() {
-		return "History [historyId=" + historyId + ", historyUUID=" + historyUUID + ", orderId=" + orderId
-				+ ", tableNumber=" + tableNumber + ", dateTime=" + dateTime + ", price=" + price + ", taxAmount="
-				+ taxAmount + ", discount=" + discount + ", totalPrice=" + totalPrice + ", items=" + items + "]";
+		return "HistoryEntity [historyId=" + historyId + ", historyUUID=" + historyUUID + ", placeOrdersUUID="
+				+ placeOrdersUUID + ", purchaseUUID=" + purchaseUUID + ", orderId=" + orderId + ", tableNumber="
+				+ tableNumber + ", serverDateTime=" + serverDateTime + ", orderDateTime=" + orderDateTime
+				+ ", dateTime=" + dateTime + ", price=" + price + ", taxAmount=" + taxAmount + ", discount=" + discount
+				+ ", totalPrice=" + totalPrice + ", userMobileNumber=" + userMobileNumber + "]";
 	}
+
+	
 
 }

@@ -17,6 +17,8 @@ import com.archide.mobilepay.enumeration.DiscardBy;
 @Table(name = "discard")
 public class DiscardEntity {
 	
+	public static final String PAYMENT_DETAILS = "paymentDetails";
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "DiscardId")

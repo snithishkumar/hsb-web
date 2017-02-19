@@ -68,7 +68,15 @@ public class MenuService {
 					loginUsersEntity.setMobileNumber(mobileNumber);
 					loginUsersEntity.setTableNumber(tableNumber);
 					loginUsersEntity.setUserType(UserType.valueOf(userType));
+					loginUsersEntity.setCreatedDateTime(ServiceUtil.getCurrentGmtTime());
 					menuListDao.createLoginUsers(loginUsersEntity);
+				}else if(loginUsersEntity != null && !loginUsersEntity.getTableNumber().equals(tableNumber)){
+					LoginUsersEntity loginUser = new LoginUsersEntity();
+					loginUser.setMobileNumber(mobileNumber);
+					loginUser.setTableNumber(tableNumber);
+					loginUser.setUserType(UserType.valueOf(userType));
+					loginUser.setCreatedDateTime(ServiceUtil.getCurrentGmtTime());
+					menuListDao.createLoginUsers(loginUser);
 				}
 			}
 			

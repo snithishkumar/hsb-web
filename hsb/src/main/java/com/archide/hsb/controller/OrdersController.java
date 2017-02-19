@@ -63,6 +63,12 @@ public class OrdersController {
 		return serviceUtil.getRestResponse(false, "Invalid data", 500);
 	}
 	
+
+	@RequestMapping(value="/mobile/logout")
+	public ResponseEntity<String> removeLoginedUser(@RequestParam String tableNumber, @RequestParam String mobileNumber){
+		return orderService.removeLoginedUser(mobileNumber,tableNumber);
+	}
+	
 	
 	@RequestMapping(value="/mobile/reSentBillDetails")
 	public ResponseEntity<String> reSentBillDetails(@RequestParam String placedOrderUUid){

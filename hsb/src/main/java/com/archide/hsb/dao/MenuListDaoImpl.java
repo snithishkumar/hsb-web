@@ -135,6 +135,15 @@ public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
 	}
 	
 	@Override
+	public void deleteLoginUser(String mobileNumber,String tableNumber){
+		Query query = sessionFactory.getCurrentSession().createQuery("delete LoginUsersEntity where mobileNumber = :mobileNumber and tableNumber = :tableNumber");
+		query.setParameter("mobileNumber", mobileNumber);
+		query.setParameter("tableNumber", tableNumber);
+		int result = query.executeUpdate();
+		
+	}
+	
+	@Override
 	public void createLoginUsers(LoginUsersEntity loginUsersEntity){
         saveObject(loginUsersEntity);		
 	}

@@ -2,7 +2,7 @@ package com.archide.mobilepay.enumeration;
 
 public enum PaymentStatus {
 
-	NOT_PAID(1), PAID(2), SUCCESS(3), FAILURE(4);
+	NOT_PAID(1), PAID(2), SUCCESS(3), FAILURE(4), CANCELLED(5);
 
 	private int paymentStatusType;
 

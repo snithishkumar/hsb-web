@@ -1,31 +1,47 @@
 package com.archide.hsb.jsonmodel;
 
-import com.archide.hsb.enumeration.FoodType;
-import com.archide.hsb.enumeration.Status;
+import com.archide.hsb.enumeration.OrderStatus;
+import com.archide.hsb.model.PlacedOrderItems;
 
 public class HistoryMenuItem {
 	
+	private String placedOrderItemsUUID;
 	private String menuItemCode;
 	private String name;
 	private double price;
-	private Status status;
-	private FoodType foodType;
-	private long dateTime;
-	private long serverTime;
+	private String foodCategory;
+	private String menuCourse;
 	private String description;
-	private String tasteType;
+	private long serverSyncTime;
+	private long orderDateTime;
+	private long lastUpdatedTime;
+	private int unAvailableCount;
+	private int quantity;
+	private String tableNumber;
+	private OrderStatus orderStatus;
 	
-	public HistoryMenuItem(OrderedMenuItems orderedMenuItems){
-		this.menuItemCode = orderedMenuItems.getItemCode();
-		this.name = orderedMenuItems.getName();
-		//this.price = orderedMenuItems.get
-		//this.status = orderedMenuItems.getOrderStatus().toString();
-		//this.foodType = orderedMenuItems.getFoodType();
-		//this.dateTime = orderedMenuItems.getOrderDateTime();
-		//this.serverTime = orderedMenuItems.getLastUpdatedDateTime();
-		//this.description = orderedMenuItems.get
+	public HistoryMenuItem(PlacedOrderItems placedOrderItems){
+		this.placedOrderItemsUUID = placedOrderItems.getPlacedOrderItemsUUID();
+		this.menuItemCode = placedOrderItems.getItemCode();
+		this.name = placedOrderItems.getName();
+		this.price = placedOrderItems.getMenuItem().getPrice();
+		this.foodCategory = placedOrderItems.getFoodCategoryName();
+		this.menuCourse = placedOrderItems.getMenuCourseName();
+		this.description = placedOrderItems.getMenuItem().getDescription();
+		this.serverSyncTime = placedOrderItems.getServerSyncTime();
+		this.orderDateTime = placedOrderItems.getOrderDateTime();
+		this.lastUpdatedTime = placedOrderItems.getLastUpdatedTime();
+		this.unAvailableCount = placedOrderItems.getUnAvailableCount();
+		this.quantity = placedOrderItems.getQuantity();
+		this.tableNumber = placedOrderItems.getTableNumber();
 	}
 	
+	public String getPlacedOrderItemsUUID() {
+		return placedOrderItemsUUID;
+	}
+	public void setPlacedOrderItemsUUID(String placedOrderItemsUUID) {
+		this.placedOrderItemsUUID = placedOrderItemsUUID;
+	}
 	public String getMenuItemCode() {
 		return menuItemCode;
 	}
@@ -44,29 +60,17 @@ public class HistoryMenuItem {
 	public void setPrice(double price) {
 		this.price = price;
 	}
-	public Status getStatus() {
-		return status;
+	public String getFoodCategory() {
+		return foodCategory;
 	}
-	public void setStatus(Status status) {
-		this.status = status;
+	public void setFoodCategory(String foodCategory) {
+		this.foodCategory = foodCategory;
 	}
-	public FoodType getFoodType() {
-		return foodType;
+	public String getMenuCourse() {
+		return menuCourse;
 	}
-	public void setFoodType(FoodType foodType) {
-		this.foodType = foodType;
-	}
-	public long getDateTime() {
-		return dateTime;
-	}
-	public void setDateTime(long dateTime) {
-		this.dateTime = dateTime;
-	}
-	public long getServerTime() {
-		return serverTime;
-	}
-	public void setServerTime(long serverTime) {
-		this.serverTime = serverTime;
+	public void setMenuCourse(String menuCourse) {
+		this.menuCourse = menuCourse;
 	}
 	public String getDescription() {
 		return description;
@@ -74,18 +78,58 @@ public class HistoryMenuItem {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public String getTasteType() {
-		return tasteType;
+	public long getServerSyncTime() {
+		return serverSyncTime;
 	}
-	public void setTasteType(String tasteType) {
-		this.tasteType = tasteType;
+	public void setServerSyncTime(long serverSyncTime) {
+		this.serverSyncTime = serverSyncTime;
+	}
+	public long getOrderDateTime() {
+		return orderDateTime;
+	}
+	public void setOrderDateTime(long orderDateTime) {
+		this.orderDateTime = orderDateTime;
+	}
+	public long getLastUpdatedTime() {
+		return lastUpdatedTime;
+	}
+	public void setLastUpdatedTime(long lastUpdatedTime) {
+		this.lastUpdatedTime = lastUpdatedTime;
+	}
+	public int getUnAvailableCount() {
+		return unAvailableCount;
+	}
+	public void setUnAvailableCount(int unAvailableCount) {
+		this.unAvailableCount = unAvailableCount;
+	}
+	public int getQuantity() {
+		return quantity;
+	}
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	public String getTableNumber() {
+		return tableNumber;
+	}
+	public void setTableNumber(String tableNumber) {
+		this.tableNumber = tableNumber;
+	}
+	public OrderStatus getOrderStatus() {
+		return orderStatus;
+	}
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
 	}
 	@Override
 	public String toString() {
-		return "HistoryMenuItem [menuItemCode=" + menuItemCode + ", name=" + name + ", price=" + price + ", status="
-				+ status + ", foodType=" + foodType + ", dateTime=" + dateTime + ", serverTime=" + serverTime
-				+ ", description=" + description + ", tasteType=" + tasteType + "]";
+		return "HistoryMenuItem [placedOrderItemsUUID=" + placedOrderItemsUUID + ", menuItemCode=" + menuItemCode
+				+ ", name=" + name + ", price=" + price + ", foodCategory=" + foodCategory + ", menuCourse="
+				+ menuCourse + ", description=" + description + ", serverSyncTime=" + serverSyncTime
+				+ ", orderDateTime=" + orderDateTime + ", lastUpdatedTime=" + lastUpdatedTime + ", unAvailableCount="
+				+ unAvailableCount + ", quantity=" + quantity + ", tableNumber=" + tableNumber + ", orderStatus="
+				+ orderStatus + "]";
 	}
+	
 	
 
 	
