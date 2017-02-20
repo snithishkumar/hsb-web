@@ -50,6 +50,10 @@ public class PaymentDetailsHistory {
 	@JoinColumn(name = "HistoryId",referencedColumnName = "HistoryId")
 	private HistoryEntity historyEntity;
 	
+	public PaymentDetailsHistory(){
+		
+	}
+	
 	public PaymentDetailsHistory(PaymentDetails paymentDetails){
 		this.paymentDetailsHistoryUUID = ServiceUtil.uuid();
 		this.purchaseUUID = paymentDetails.getPurchaseUUID();

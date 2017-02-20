@@ -50,7 +50,9 @@ public class PaymentDetails {
 	private double payedAmount;
 	@Column(name = "CalculatedAmounts")
 	private String calculatedAmounts;
-	
+	public PaymentDetails(){
+		
+	}
 	
 	public PaymentDetails(HistoryPurchaseData historyPurchaseData){
 		this.purchaseUUID = historyPurchaseData.getPurchaseUUID();

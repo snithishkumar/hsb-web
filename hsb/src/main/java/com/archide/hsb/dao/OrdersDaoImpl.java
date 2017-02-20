@@ -226,9 +226,9 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	
 	public List<PlacedOrdersEntity> getPreviousDayOrders(Session session,long startOfDayInMilli){
 		Criteria criteria = session.createCriteria(PlacedOrdersEntity.class);
-		//criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PAYMENT_STATUS));
+		criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PAYMENT_STATUS));
 		//criteria.add(Restrictions.isNotNull(PlacedOrdersEntity.PURCHASE_UUID));
-		//criteria.add(Restrictions.lt(PlacedOrdersEntity.SERVER_DATE_TIME, startOfDayInMilli));
+		criteria.add(Restrictions.lt(PlacedOrdersEntity.SERVER_DATE_TIME, startOfDayInMilli));
 		criteria.add(Restrictions.eq(PlacedOrdersEntity.IS_CLOSED, true));
 		return criteria.list();
 	}
@@ -299,6 +299,16 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		return criteria.list();
 	}
 	
+	
+	@Override
+	public PlacedOrdersEntity getPlacedOrders(Session session,String mobileNumber,String tableNumber) {
+		Criteria criteria = session.createCriteria(PlacedOrdersEntity.class);
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.USER_MOBILE_NUMBER, mobileNumber));
+		criteria.add(Restrictions.eq(PlacedOrdersEntity.TABLE_NUMBER, tableNumber));
+		List<PlacedOrdersEntity> placeOrdersList = criteria.list();
+		
+		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
+	}
 	
 	
 

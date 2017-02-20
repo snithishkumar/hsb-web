@@ -248,7 +248,7 @@ public class OrdersService {
 				menuListDao.deleteLoginUser(mobileNumber, tableNumber);
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("Error in removeLoginedUser,mobileNumber["+mobileNumber+"],tableNumber["+tableNumber+"]", e);
 		}
 		return serviceUtil.getRestResponse(true, "Success.",200);
 	}
@@ -725,7 +725,10 @@ public class OrdersService {
 			session.getTransaction().commit();
 			// Delete
 		}catch(Exception e){
-			session.getTransaction().rollback();
+			if(session != null){
+				session.getTransaction().rollback();
+			}
+			
 			e.printStackTrace();
 		}finally{
 			if(session != null){
@@ -740,9 +743,11 @@ public class OrdersService {
 		Session session = null;
 		try{
 			session = ordersDao.openSession();
-			LocalDateTime localDateTime = LocalDateTime.now();
+		/*	LocalDateTime localDateTime = LocalDateTime.now();
 			LocalDateTime startOfDay = localDateTime.toLocalDate().atStartOfDay();
-			long startOfDayInMilli = startOfDay.toInstant(ZoneOffset.UTC).toEpochMilli();
+			
+			long startOfDayInMilli = startOfDay.toInstant(ZoneOffset.UTC).toEpochMilli() - 600000;*/
+			long startOfDayInMilli = System.currentTimeMillis() - 600000;
 			List<PlacedOrdersEntity> placedOrdersEntities = ordersDao.getPreviousDayOrders(session, startOfDayInMilli);
 			ordersDao.closeSession(session);
 			session = null;

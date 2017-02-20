@@ -47,20 +47,13 @@ public interface OrdersDao {
 
 	boolean isHistory(String orderId);
 
-	List getUnPaiedListPurchaseUUids(Session session);
-
-	PlacedOrdersEntity getPlacedOrdersEntity(String purchaseUUIDs, Session session);
+	
 
 	void savePaymentDetails(PaymentDetails paymentDetails);
 
 	void saveDiscardEntity(DiscardEntity discardEntity);
-
-	Session openSession();
-
-	void closeSession(Session session);
-
-	List<PlacedOrdersEntity> getPreviousDayOrders(Session session, long startOfDayInMilli);
 	
+		
 	void saveCookingComments(CookingCommentsEntity commentsEntity);
 	
 	List<CookingCommentsEntity> getCookingComments(PlacedOrdersEntity placedOrders,long serverSyncTime);
@@ -68,6 +61,17 @@ public interface OrdersDao {
 	PlacedOrderItems getDeliveredItems(PlacedOrdersEntity placedOrdersEntity,String itemCode);
 	
 	void updates(List<Object> objectsList);
+	
+	List getUnPaiedListPurchaseUUids(Session session);
+
+	PlacedOrdersEntity getPlacedOrdersEntity(String purchaseUUIDs, Session session);
+
+	Session openSession();
+
+	void closeSession(Session session);
+
+	List<PlacedOrdersEntity> getPreviousDayOrders(Session session, long startOfDayInMilli);
+
 	
 	List<PaymentDetails> getPaymentDetails(Session session,String purchaseUUID);
 	
@@ -80,4 +84,6 @@ public interface OrdersDao {
 	 List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,Session session);
 	 
 	 PlacedOrdersEntity getPlacedOrders(Session session,String placeOrdersUuid);
+	 
+	 PlacedOrdersEntity getPlacedOrders(Session session,String mobileNumber,String tableNumber);
 }
