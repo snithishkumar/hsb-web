@@ -75,5 +75,11 @@ public class OrdersController {
 		return orderService.reSentBillDetails(placedOrderUUid);
 	}
 	
+	
+	@RequestMapping(value="/mobile/discardData")
+	public ResponseEntity<String> discardData(@RequestParam String placedOrderUUid){
+		return orderService.discardData(placedOrderUUid);
+	}
+	
 
 }

@@ -14,6 +14,9 @@ public class RestUrls {
 	private String createPurchase;
 	@Value("${webservice.url.getorderstatus}")
 	private String orderStatus;
+	@Value("${webservice.url.updateorderstatus}")
+	private String updateOrderStatus;
+	
 	public String getServerUrl() {
 		return serverUrl;
 	}
@@ -44,6 +47,14 @@ public class RestUrls {
 	public void setOrderStatus(String orderStatus) {
 		this.orderStatus = orderStatus;
 	}
+	public String getUpdateOrderStatus() {
+		return updateOrderStatus;
+	}
+	public void setUpdateOrderStatus(String updateOrderStatus) {
+		this.updateOrderStatus = updateOrderStatus;
+	}
+	
+	
 	
 
 }

@@ -1,8 +1,6 @@
 package com.archide.hsb.service;
 
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +47,7 @@ import com.archide.mobilepay.json.AmountDetails;
 import com.archide.mobilepay.json.CreatePurchaseResponse;
 import com.archide.mobilepay.json.HistoryPurchaseData;
 import com.archide.mobilepay.json.MerchantPurchaseData;
+import com.archide.mobilepay.json.OrderStatusUpdate;
 import com.archide.mobilepay.json.PurchaseItem;
 import com.archide.mobilepay.json.PurchaseStatus;
 import com.google.gson.Gson;
@@ -171,6 +170,38 @@ public class OrdersService {
 	@Transactional(rollbackFor = ValidationException.class,propagation=Propagation.REQUIRED,readOnly=false)
 	public ResponseEntity<String> closeAnOrder(String tableNumber,String mobileNumber,String orderUUID) throws ValidationException{
 		 return generateBilling(tableNumber, mobileNumber,orderUUID);
+	}
+	
+	@Transactional(readOnly = false,propagation = Propagation.REQUIRED)
+	public ResponseEntity<String> discardData(String placedOrderUUID){
+		try{
+			PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(placedOrderUUID);
+			OrderStatusUpdate orderStatusUpdate = new OrderStatusUpdate();
+			orderStatusUpdate.setDeclineReason("Paid by Cash");
+			orderStatusUpdate.setOrderStatus(com.archide.mobilepay.enumeration.OrderStatus.CANCELLED);
+			orderStatusUpdate.setPurchaseUUID(placedOrdersEntity.getPurchaseUUID());
+			//com.archide.mobilepay.json.OrderStatusUpdate 
+			
+			List<OrderStatusUpdate> orderStatusUpdates = new ArrayList<>();
+			orderStatusUpdates.add(orderStatusUpdate);
+			
+			MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+			//headers.add("Authorization", "Basic " + base64Creds);
+			headers.add("content-type", "application/json");
+			headers.add("mobilePay", "merchant");
+			headers.add("accessToken", restUrls.getAccessToken());
+			headers.add("serverToken", restUrls.getServerToken());
+			HttpEntity<List<OrderStatusUpdate>> request = new HttpEntity<List<OrderStatusUpdate>>(orderStatusUpdates, headers);
+			String response = restTemplate.postForObject(restUrls.getServerUrl()+"/"+restUrls.getOrderStatus(), request, String.class);
+			ResponseData responseData = gson.fromJson(response, ResponseData.class);
+			if (responseData.getStatusCode() == 200) {
+				return serviceUtil.getRestResponse(true,"success",200);
+			}
+		}catch(Exception e){
+			logger.error("Error in discardData,Params["+placedOrderUUID+"]", e);
+		}
+		return serviceUtil.getRestResponse(true, "Invalid data",500);
+		
 	}
 	
 	private void sendData(PlacedOrdersEntity placedOrdersEntity,List<PurchaseItem> purchaseItems) throws ValidationException{
@@ -634,6 +665,8 @@ public class OrdersService {
 					PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrdersEntity(historyPurchaseData.getPurchaseUUID(),session);
 					if(placedOrdersEntity != null){
 						placedOrdersEntity.setPaymentStatus(historyPurchaseData.getPaymentStatus());
+						placedOrdersEntity.setAmountPaid(historyPurchaseData.getTotalAmount());
+						placedOrdersEntity.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 					}
 					PaymentDetails paymentDetails = new PaymentDetails(historyPurchaseData);
 					
