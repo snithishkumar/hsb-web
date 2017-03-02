@@ -24,6 +24,8 @@ public class HistoryDetailsEntity {
 	@ManyToOne
 	@JoinColumn(name = "HistoryId",referencedColumnName="HistoryId")
 	private HistoryEntity historyEntity;
+	@Column(name = "IsDeleted")
+	private boolean isDeleted;
 	
 	public int getHistoryDeailsId() {
 		return historyDeailsId;
@@ -48,6 +50,14 @@ public class HistoryDetailsEntity {
 	}
 	public void setHistoryEntity(HistoryEntity historyEntity) {
 		this.historyEntity = historyEntity;
+	}
+	
+	
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 	@Override
 	public String toString() {

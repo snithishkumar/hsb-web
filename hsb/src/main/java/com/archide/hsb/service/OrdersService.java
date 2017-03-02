@@ -332,12 +332,14 @@ public class OrdersService {
 				throw new ValidationException(403,"Some Items not yet Delivered.");
 				//return serviceUtil.getRestResponse(true, "Some Items not yet Delivered.", 403);
 			}
+			OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+			billingList.add(orderedMenuItems);
 			if (!(orderItems.getUnAvailableCount() > 0) && !orderItems.isDeleted()) {
-				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+				
 				PurchaseItem purchaseItem = new PurchaseItem(orderItems);
 				MenuEntity menuEntity = menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
 				cost = cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
-				billingList.add(orderedMenuItems);
+				
 				int pos = purchaseDetails.indexOf(purchaseItem);
 				if(pos != -1){
 					PurchaseItem previousPurchaseItem = purchaseDetails.get(pos);
@@ -728,6 +730,7 @@ public class OrdersService {
 				historyDetailsEntity.setItemDetails(historyData);
 				historyDetailsEntity.setHistoryUUID(ServiceUtil.uuid());
 				historyDetailsEntity.setHistoryEntity(history);
+				historyDetailsEntity.setDeleted(placedOrderItems.isDeleted());
 				session.save(historyDetailsEntity);
 				session.delete(placedOrderItems);
 				//save

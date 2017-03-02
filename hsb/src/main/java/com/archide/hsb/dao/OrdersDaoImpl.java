@@ -152,7 +152,6 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		Criteria builder =  session.createCriteria(PlacedOrderItems.class);
 		builder.add(Restrictions.eq(PlacedOrderItems.PLACED_ORDERS, placedOrders));
 		List<PlacedOrderItems> placeOrderItemsList =  builder.list();
-		
 		return placeOrderItemsList;
 	}
 	
