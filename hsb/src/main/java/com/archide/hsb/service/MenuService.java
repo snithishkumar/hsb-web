@@ -13,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
+import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.enumeration.UserType;
 import com.archide.hsb.jsonmodel.FoodCategoryJson;
 import com.archide.hsb.jsonmodel.GetMenuDetails;
+import com.archide.hsb.jsonmodel.KitchenMenuItems;
 import com.archide.hsb.jsonmodel.MenuItemJson;
 import com.archide.hsb.jsonmodel.MenuListJson;
 import com.archide.hsb.jsonmodel.OrderedMenuItems;
@@ -28,6 +30,7 @@ import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.TableList;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 public class MenuService {
@@ -120,6 +123,54 @@ public class MenuService {
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
+	
+	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
+	public ResponseEntity<String> processKitchenMenuUpdates(String requestData){
+		try{
+			 List<KitchenMenuItems> menuItemList = gson.fromJson(requestData,
+                     new TypeToken<List<KitchenMenuItems>>() {}.getType());
+			 for(KitchenMenuItems kitchenMenuItems : menuItemList){
+				 MenuEntity menuEntity = menuListDao.getMenuEntity(kitchenMenuItems.getMenuUUID());
+				 menuEntity.setMaxCount(kitchenMenuItems.getMaxCount());
+				 menuEntity.setServerTime(ServiceUtil.getCurrentGmtTime());
+				 if(menuEntity.getCurrentCount() >= menuEntity.getMaxCount()){
+					 menuEntity.setStatus(Status.UN_AVAILABLE);
+				 }
+				 menuListDao.udpateMenuEntity(menuEntity);
+			 }
+				return serviceUtil.getRestResponse(true, "Success");
+		}catch(Exception e){
+			logger.error("Error in processKitchenMenuUpdates", e);
+		}
+		return serviceUtil.getRestResponse(false, "Internal Server Error.");
+	}
+	
+	
+	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
+	public ResponseEntity<String> getMenuDetails(){
+		try{
+			List<KitchenMenuItems> kitchenMenuItemList = new ArrayList<>();
+			List<MenuCourse> menuCourses = menuListDao.getMenuCourse();
+			for(MenuCourse menuCourse : menuCourses){
+				List<FoodCategory> foodCategories = menuListDao.getFoodCategory(menuCourse);
+				for(FoodCategory foodCategory : foodCategories){
+					List<MenuEntity> menuEntities = menuListDao.getMenuEntity(menuCourse, foodCategory,0);
+					for(MenuEntity menuEntity : menuEntities){
+						KitchenMenuItems kitchenMenuItems = new KitchenMenuItems(menuEntity);
+						kitchenMenuItems.setFoodCategory(foodCategory.getCategoryName());
+						kitchenMenuItems.setMenuCourse(menuCourse.getCategoryName());
+						kitchenMenuItemList.add(kitchenMenuItems);
+					}
+				}
+			}
+			String data = gson.toJson(kitchenMenuItemList);
+			return serviceUtil.getRestResponse(true, data);
+		}catch(Exception e){
+			logger.error("Error in getMenuDetails", e);
+		}
+		return serviceUtil.getRestResponse(false, "Internal Server Error.");
+	}
+	
 	
 	@Transactional(readOnly = true,propagation=Propagation.REQUIRED)
 	public ResponseEntity<String> getUnAvailableMenuItems(long serverDateTime){
