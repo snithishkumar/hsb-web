@@ -135,6 +135,8 @@ public class MenuService {
 				 menuEntity.setServerTime(ServiceUtil.getCurrentGmtTime());
 				 if(menuEntity.getCurrentCount() >= menuEntity.getMaxCount()){
 					 menuEntity.setStatus(Status.UN_AVAILABLE);
+				 }else{
+					 menuEntity.setStatus(Status.AVAILABLE);
 				 }
 				 menuListDao.udpateMenuEntity(menuEntity);
 			 }

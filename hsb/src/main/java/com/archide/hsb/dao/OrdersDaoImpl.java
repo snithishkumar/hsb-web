@@ -16,6 +16,7 @@ import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 import com.archide.hsb.enumeration.OrderStatus;
+import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.HistoryEntity;
@@ -307,6 +308,24 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		List<PlacedOrdersEntity> placeOrdersList = criteria.list();
 		
 		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
+	}
+	
+	public int updateCurrentCount(String menuUUID,long serverDateTime,int quantity){
+		Query query = sessionFactory.getCurrentSession().createQuery("update MenuEntity set currentCount = currentCount + "+ quantity+", serverTime =:serverTime  where currentCount <= maxCount and menuUUID =:menuUUID");
+		query.setParameter("menuUUID", menuUUID);
+		query.setParameter("serverTime", serverDateTime);
+		int result = query.executeUpdate();
+		return result;
+	}
+	
+	
+	public int updateOrderStatus(String menuUUID,long serverDateTime){
+		Query query = sessionFactory.getCurrentSession().createQuery("update MenuEntity set status =:status , serverTime =:serverTime  where maxCount <= currentCount  and menuUUID =:menuUUID");
+		query.setParameter("menuUUID", menuUUID);
+		query.setParameter("serverTime", serverDateTime);
+		query.setParameter("status", Status.UN_AVAILABLE);
+		int result = query.executeUpdate();
+		return result;
 	}
 	
 	

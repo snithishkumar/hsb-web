@@ -86,4 +86,8 @@ public interface OrdersDao {
 	 PlacedOrdersEntity getPlacedOrders(Session session,String placeOrdersUuid);
 	 
 	 PlacedOrdersEntity getPlacedOrders(Session session,String mobileNumber,String tableNumber);
+	 
+	 int updateCurrentCount(String menuUUID, long serverDateTime,int quantity);
+	 
+	 int updateOrderStatus(String menuUUID,long serverDateTime);
 }
