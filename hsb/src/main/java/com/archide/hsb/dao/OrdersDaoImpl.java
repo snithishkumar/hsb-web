@@ -311,7 +311,7 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	}
 	
 	public int updateCurrentCount(String menuUUID,long serverDateTime,int quantity){
-		Query query = sessionFactory.getCurrentSession().createQuery("update MenuEntity set currentCount = currentCount + "+ quantity+", serverTime =:serverTime  where currentCount <= maxCount and menuUUID =:menuUUID");
+		Query query = sessionFactory.getCurrentSession().createQuery("update MenuEntity set currentCount = currentCount + "+ quantity+", serverTime =:serverTime  where ( currentCount + "+ quantity+" ) <= maxCount and menuUUID =:menuUUID");
 		query.setParameter("menuUUID", menuUUID);
 		query.setParameter("serverTime", serverDateTime);
 		int result = query.executeUpdate();
