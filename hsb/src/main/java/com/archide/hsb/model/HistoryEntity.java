@@ -56,6 +56,7 @@ public class HistoryEntity {
 	@Column(name = "PaymentStatus")
 	private PaymentStatus paymentStatus;
 
+
 	public HistoryEntity(PlacedOrdersEntity placedOrdersEntity) {
 		this.historyUUID = ServiceUtil.uuid();
 		this.placeOrdersUUID = placedOrdersEntity.getPlaceOrdersUUID();
@@ -73,9 +74,11 @@ public class HistoryEntity {
 		this.isMerged = placedOrdersEntity.isMerged();
 		this.amountPaid = placedOrdersEntity.getAmountPaid();
 		this.paymentStatus = placedOrdersEntity.getPaymentStatus();
+		
 	}
 
 	
+
 
 	public String getCookingComments() {
 		return cookingComments;

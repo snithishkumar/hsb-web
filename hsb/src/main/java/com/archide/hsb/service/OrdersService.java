@@ -163,24 +163,26 @@ public class OrdersService {
 						if(menuEntity.getStatus().toString().equals(Status.UN_AVAILABLE.toString())){
 							unAvailableMenuDetails.getUnAvailableMenuDetails().add(menuItems.getPlacedOrderItemsUUID());
 						} else {
-							placedOrderItems = new PlacedOrderItems();
-							placedOrderItems.setQuantity(menuItems.getQuantity());
-							placedOrderItems.setMenuItem(menuEntity);
-							placedOrderItems.setTableNumber(tableList.getTableNumber());
-							placedOrderItems.setName(menuItems.getName());
-							placedOrderItems.setItemCode(menuItems.getItemCode());
-							placedOrderItems.setPlacedOrderItemsUUID(menuItems.getPlacedOrderItemsUUID());
-							placedOrderItems.setPlacedOrders(placedOrders);
-							placedOrderItems.setLastUpdatedTime(placedOrders.getServerDateTime());
-							placedOrderItems.setOrderDateTime(placedOrders.getServerDateTime());
-							placedOrderItems.setServerSyncTime(placedOrders.getServerDateTime());
-							placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
-							placedOrderItems.setFoodCategoryName(menuEntity.getFoodCategory().getCategoryName());
-							placedOrderItems.setMenuCourseName(menuEntity.getMenuCourse().getCategoryName());
-							totalAmount = totalAmount + (menuItems.getQuantity() * menuEntity.getPrice());
 							int res = ordersDao.updateCurrentCount(menuEntity.getMenuUUID(),
 									placedOrders.getServerDateTime(), menuItems.getQuantity());
 							if (res > 0) {
+								placedOrderItems = new PlacedOrderItems();
+								placedOrderItems.setQuantity(menuItems.getQuantity());
+								placedOrderItems.setMenuItem(menuEntity);
+								placedOrderItems.setTableNumber(tableList.getTableNumber());
+								placedOrderItems.setName(menuItems.getName());
+								placedOrderItems.setItemCode(menuItems.getItemCode());
+								placedOrderItems.setPlacedOrderItemsUUID(menuItems.getPlacedOrderItemsUUID());
+								placedOrderItems.setPlacedOrders(placedOrders);
+								placedOrderItems.setLastUpdatedTime(placedOrders.getServerDateTime());
+								placedOrderItems.setOrderDateTime(placedOrders.getServerDateTime());
+								placedOrderItems.setServerSyncTime(placedOrders.getServerDateTime());
+								placedOrderItems.setOrderStatus(menuItems.getOrderStatus());
+								placedOrderItems.setFoodCategoryName(menuEntity.getFoodCategory().getCategoryName());
+								placedOrderItems.setMenuCourseName(menuEntity.getMenuCourse().getCategoryName());
+								
+								double amt = serviceUtil.roundOff(menuItems.getQuantity() * menuEntity.getPrice());
+								totalAmount = totalAmount + amt;
 								ordersDao.updateOrderStatus(menuEntity.getMenuUUID(), placedOrders.getServerDateTime());
 								ordersDao.placeOrdersItems(placedOrderItems);
 							} else {
@@ -385,13 +387,14 @@ public class OrdersService {
 				
 				PurchaseItem purchaseItem = new PurchaseItem(orderItems);
 				MenuEntity menuEntity = menuListDao.getMenuEntity(orderedMenuItems.getMenuUuid());
-				cost = cost + menuEntity.getPrice() * orderedMenuItems.getQuantity();
+				double amt = serviceUtil.roundOff(menuEntity.getPrice() * orderedMenuItems.getQuantity());
+				cost = cost + amt;
 				
 				int pos = purchaseDetails.indexOf(purchaseItem);
 				if(pos != -1){
 					PurchaseItem previousPurchaseItem = purchaseDetails.get(pos);
 					previousPurchaseItem.setQuantity(previousPurchaseItem.getQuantity() + purchaseItem.getQuantity());
-					previousPurchaseItem.setAmount(previousPurchaseItem.getQuantity() * previousPurchaseItem.getUnitPrice());
+					previousPurchaseItem.setAmount(serviceUtil.roundOff(previousPurchaseItem.getQuantity() * previousPurchaseItem.getUnitPrice()));
 				}else{
 					purchaseDetails.add(purchaseItem);
 				}
