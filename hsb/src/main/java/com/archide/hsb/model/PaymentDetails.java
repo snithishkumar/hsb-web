@@ -41,7 +41,7 @@ public class PaymentDetails {
 	private OrderStatus orderStatus;
 	@Column(name = "PaymentDateTime")
 	private long paymentDateTime;
-	@Column(name = "PurchaseItems")
+	@Column(name = "PurchaseItems",columnDefinition = "TEXT")
 	private String purchaseItems;
 	@Column(name = "UserDeliveryOptions")
 	@Enumerated(EnumType.STRING)

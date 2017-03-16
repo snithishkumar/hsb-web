@@ -2,8 +2,8 @@ package com.archide.hsb.service;
 
 import java.lang.reflect.Type;
 import java.security.Key;
-import java.security.Principal;
 import java.security.SecureRandom;
+import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.UUID;
 
@@ -13,18 +13,12 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.archide.hsb.jsonmodel.ResponseData;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 
 @Service
@@ -33,6 +27,8 @@ public class ServiceUtil {
 	@Autowired
 	private Gson gson;
 	
+	
+	 DecimalFormat decimalFormat = new DecimalFormat("#.##");
 	
 	
 	private Random random = new Random();
@@ -162,6 +158,12 @@ public class ServiceUtil {
 		stringBuilder.append(RandomStringUtils.randomAlphanumeric(5));
 		return stringBuilder.toString();
 	}
+	
+	public  double roundOff(double value){
+        double totalCost =  Double.valueOf(decimalFormat.format(value));
+        return totalCost;
+
+    }
 	
 
 	

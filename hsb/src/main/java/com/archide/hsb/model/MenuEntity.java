@@ -72,6 +72,18 @@ public class MenuEntity {
 	
 	@Column(name = "TasteType")
 	private String tasteType;
+	
+	@Column(name = "MaxCount")
+	private int maxCount;
+	
+	@Column(name = "CurrentCount")
+	private int currentCount;
+	
+	@Column(name = "ShowingFrom")
+	private int showingFrom;
+	
+	@Column(name = "ShowingTo")
+	private int showingTo;
 
 	public int getMenuId() {
 		return menuId;
@@ -184,6 +196,38 @@ public class MenuEntity {
 	public void setTasteType(String tasteType) {
 		this.tasteType = tasteType;
 	}
+	
+	public int getMaxCount() {
+		return maxCount;
+	}
+
+	public void setMaxCount(int maxCount) {
+		this.maxCount = maxCount;
+	}
+
+	public int getShowingFrom() {
+		return showingFrom;
+	}
+
+	public void setShowingFrom(int showingFrom) {
+		this.showingFrom = showingFrom;
+	}
+
+	public int getShowingTo() {
+		return showingTo;
+	}
+
+	public void setShowingTo(int showingTo) {
+		this.showingTo = showingTo;
+	}
+
+	public int getCurrentCount() {
+		return currentCount;
+	}
+
+	public void setCurrentCount(int currentCount) {
+		this.currentCount = currentCount;
+	}
 
 	@Override
 	public String toString() {
@@ -191,8 +235,11 @@ public class MenuEntity {
 				+ name + ", foodCategory=" + foodCategory + ", menuCourse=" + menuCourse + ", price=" + price
 				+ ", status=" + status + ", foodType=" + foodType + ", dateTime=" + dateTime + ", serverTime="
 				+ serverTime + ", displayOrder=" + displayOrder + ", description=" + description + ", tasteType="
-				+ tasteType + "]";
+				+ tasteType + ", maxCount=" + maxCount + ", currentCount=" + currentCount + ", showingFrom="
+				+ showingFrom + ", showingTo=" + showingTo + "]";
 	}
+
+	
 	
 	
 

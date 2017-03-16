@@ -19,6 +19,8 @@ public class MenuItemJson {
 	private String tasteType;
 	private FoodType foodType;
 	
+	private int availableCount;
+	
 	public MenuItemJson(){
 		
 	}
@@ -35,11 +37,20 @@ public class MenuItemJson {
 		this.description = menuEntity.getDescription();
 		this.tasteType = menuEntity.getTasteType();
 		this.foodType = menuEntity.getFoodType();
+		this.availableCount = menuEntity.getMaxCount()  - menuEntity.getCurrentCount();
 	}
 	
 	
 	
 	
+	public int getAvailableCount() {
+		return availableCount;
+	}
+
+	public void setAvailableCount(int availableCount) {
+		this.availableCount = availableCount;
+	}
+
 	public long getServerDateTime() {
 		return serverDateTime;
 	}
