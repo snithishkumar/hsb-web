@@ -68,6 +68,17 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
 	}
 	
+	public PlacedOrdersEntity getPlacedOrdersById(String ordersId) {
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<PlacedOrdersEntity> criteriaQuery = builder.createQuery(PlacedOrdersEntity.class);
+		Root<PlacedOrdersEntity> root = criteriaQuery.from(PlacedOrdersEntity.class);
+		criteriaQuery.select(root);
+		criteriaQuery.where(builder.equal(root.get(PlacedOrdersEntity.ORDER_ID), ordersId));
+		Query<PlacedOrdersEntity> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
+		List<PlacedOrdersEntity> placeOrdersList =  q.getResultList();
+		return placeOrdersList.size() > 0 ? placeOrdersList.get(0) : null;
+	}
+	
 	@Override
 	public PlacedOrdersEntity getPlacedOrders(Session session,String placeOrdersUuid) {
 		Criteria criteria = session.createCriteria(PlacedOrdersEntity.class);
@@ -105,7 +116,10 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	public PlacedOrdersEntity getPlacedOrders(TableList tableList, String userMobileNumber) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PlacedOrdersEntity.class);
 		criteria.add(Restrictions.eq(PlacedOrdersEntity.TABLE_NUMBER, tableList));
-		criteria.add(Restrictions.eq(PlacedOrdersEntity.USER_MOBILE_NUMBER, userMobileNumber));
+		if(userMobileNumber != null && !userMobileNumber.trim().isEmpty()){
+			criteria.add(Restrictions.eq(PlacedOrdersEntity.USER_MOBILE_NUMBER, userMobileNumber));
+		}
+		
 		criteria.addOrder(Order.desc(PlacedOrdersEntity.ORDER_DATE_TIME));
 		criteria.setMaxResults(1);
 		List<PlacedOrdersEntity> placeOrdersList = criteria.list();
@@ -162,7 +176,12 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		CriteriaQuery<PlacedOrderItems> criteriaQuery = builder.createQuery(PlacedOrderItems.class);
 		Root<PlacedOrderItems> root = criteriaQuery.from(PlacedOrderItems.class);
 		criteriaQuery.select(root);
-		criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders),builder.and(builder.gt(root.get(PlacedOrderItems.SERVER_SYNC_TIME), serverLastUdpateTime)));
+		if(serverLastUdpateTime > 0){
+			criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders),builder.and(builder.gt(root.get(PlacedOrderItems.SERVER_SYNC_TIME), serverLastUdpateTime)));
+		}else{
+			criteriaQuery.where(builder.equal(root.get(PlacedOrderItems.PLACED_ORDERS), placedOrders));
+		}
+		
 		Query<PlacedOrderItems> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
 		List<PlacedOrderItems> placeOrderItemsList =  q.getResultList();
 		return placeOrderItemsList;

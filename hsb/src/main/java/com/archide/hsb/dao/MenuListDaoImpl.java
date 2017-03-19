@@ -20,6 +20,7 @@ import com.archide.hsb.model.FoodCategory;
 import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.MenuCourse;
 import com.archide.hsb.model.MenuEntity;
+import com.archide.hsb.model.ReservedTableEntity;
 
 @Repository
 public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
@@ -129,6 +130,14 @@ public class MenuListDaoImpl extends BaseDAOImpl implements MenuListDao{
 	@Override
 	public void deleteLoginUser(String mobileNumber){
 		Query query = sessionFactory.getCurrentSession().createQuery("delete LoginUsersEntity where mobileNumber = :mobileNumber");
+		query.setParameter("mobileNumber", mobileNumber);
+		int result = query.executeUpdate();
+		
+	}
+	
+	@Override
+	public void deleteReservedTable(String mobileNumber){
+		Query query = sessionFactory.getCurrentSession().createQuery("delete ReservedTableEntity where mobileNumber = :mobileNumber");
 		query.setParameter("mobileNumber", mobileNumber);
 		int result = query.executeUpdate();
 		

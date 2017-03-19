@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
+import com.archide.hsb.enumeration.AppType;
+import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.enumeration.UserType;
 import com.archide.hsb.jsonmodel.FoodCategoryJson;
@@ -28,7 +31,9 @@ import com.archide.hsb.model.MenuCourse;
 import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
+import com.archide.hsb.model.ReservedTableEntity;
 import com.archide.hsb.model.TableList;
+import com.archide.mobilepay.json.GetMenuRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -50,43 +55,56 @@ public class MenuService {
 	@Autowired
 	private Gson gson;
 	
-	
+	private ReservedTableEntity reserveTableNumber(String tableNumber,String mobileNumber,AppType appType){
+		try{
+			ReservedTableEntity reservedTableEntity = new ReservedTableEntity();
+			reservedTableEntity.setCreatedTime(ServiceUtil.getCurrentGmtTime());
+			reservedTableEntity.setMobileNumber(mobileNumber);
+			if(appType.toString().equals(AppType.Captain.toString()) && tableNumber != null){
+				reservedTableEntity.setTableNumber(tableNumber);
+			}
+			List<String> availableTableNumbers = tableListDao.getAvailableTableNumbers();
+			if(availableTableNumbers.size() > 0){
+				reservedTableEntity.setTableNumber(availableTableNumbers.get(0));
+			}else{
+				reservedTableEntity.setWaiting(false);
+			}
+			tableListDao.createReservedTableEntity(reservedTableEntity);
+			return reservedTableEntity;
+		}catch(ConstraintViolationException e){
+			reserveTableNumber(tableNumber, mobileNumber, appType);
+		}
+		return null;
+	}
 	
 	/**
 	 * Get Table List
 	 * @return
 	 */
 	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
-	public ResponseEntity<String> getMenuDetails(String lastServerSyncTimeTemp,String tableNumber,String mobileNumber,String userType){
+	public ResponseEntity<String> getMenuDetails(String requestData){
 		try{
-			if(userType != null){
-				LoginUsersEntity loginUsersEntity = menuListDao.getLoginUsers(mobileNumber);
-				if(loginUsersEntity != null && 
-						loginUsersEntity.getUserType().toString().equals(UserType.INDIVIDUAL.toString()) &&
-						!loginUsersEntity.getTableNumber().equals(tableNumber)){
-					return serviceUtil.getRestResponse(true, loginUsersEntity.getTableNumber(),404);
-				}
-				else if(loginUsersEntity == null){
-				    loginUsersEntity = new LoginUsersEntity();
-					loginUsersEntity.setMobileNumber(mobileNumber);
-					loginUsersEntity.setTableNumber(tableNumber);
-					loginUsersEntity.setUserType(UserType.valueOf(userType));
-					loginUsersEntity.setCreatedDateTime(ServiceUtil.getCurrentGmtTime());
-					menuListDao.createLoginUsers(loginUsersEntity);
-				}else if(loginUsersEntity != null && !loginUsersEntity.getTableNumber().equals(tableNumber)){
-					LoginUsersEntity loginUser = new LoginUsersEntity();
-					loginUser.setMobileNumber(mobileNumber);
-					loginUser.setTableNumber(tableNumber);
-					loginUser.setUserType(UserType.valueOf(userType));
-					loginUser.setCreatedDateTime(ServiceUtil.getCurrentGmtTime());
-					menuListDao.createLoginUsers(loginUser);
+			GetMenuRequest getMenuRequest = gson.fromJson(requestData, GetMenuRequest.class);
+			ReservedTableEntity reservedTableEntity = null;
+			if(getMenuRequest.getOrderType().toString().equals(OrderType.Dinning.toString())){
+				if(getMenuRequest.getAppType().toString().equals(AppType.Captain.toString())){
+					boolean isReserved = tableListDao.isReserved(getMenuRequest.getTableNumber());
+					if(!isReserved){
+						reservedTableEntity = reserveTableNumber(getMenuRequest.getTableNumber(), getMenuRequest.getMobileNumber(), getMenuRequest.getAppType());
+					}
+				}else{
+					reservedTableEntity = reserveTableNumber(getMenuRequest.getTableNumber(), getMenuRequest.getMobileNumber(), getMenuRequest.getAppType());
 				}
 			}
 			
 			GetMenuDetails getMenuDetails = new GetMenuDetails();
 			long lastServerSyncTime = 0;
-			if(lastServerSyncTimeTemp != null){
-				lastServerSyncTime = Long.valueOf(lastServerSyncTimeTemp);
+			if(getMenuRequest.getLastServerSyncTime() > 0 ){
+				lastServerSyncTime = Long.valueOf(getMenuRequest.getLastServerSyncTime());
+			}
+			
+			if(reservedTableEntity != null){
+				getMenuDetails.setTableNumber(reservedTableEntity.getTableNumber());
 			}
 			List<MenuCourse> menuCourses = menuListDao.getMenuCourse();
 			List<MenuListJson> menuListJsonList = new ArrayList<MenuListJson>();
@@ -105,21 +123,24 @@ public class MenuService {
 				}
 			}
 			getMenuDetails.setMenuListJsonList(menuListJsonList);
-			TableList tableList =	tableListDao.getTables(tableNumber);
-			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,mobileNumber);
-			if(placedOrders != null && !placedOrders.isClosed()){
-				PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrders);
-				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
-				for(PlacedOrderItems orderItems : placedOrderItemsList){
-					OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
-					placeOrdersJson.getMenuItems().add(orderedMenuItems);
+			if(getMenuRequest.getAppType().toString().equals(AppType.Captain.toString())){
+				TableList tableList =	tableListDao.getTables(getMenuRequest.getTableNumber());
+				PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(tableList,getMenuRequest.getMobileNumber());
+				if(placedOrders != null && !placedOrders.isClosed()){
+					PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrders);
+					List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrders);
+					for(PlacedOrderItems orderItems : placedOrderItemsList){
+						OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
+						placeOrdersJson.getMenuItems().add(orderedMenuItems);
+					}
+					getMenuDetails.setPreviousOrder(placeOrdersJson);
 				}
-				getMenuDetails.setPreviousOrder(placeOrdersJson);
 			}
+			
 			String data = gson.toJson(getMenuDetails);
 			return serviceUtil.getRestResponse(true, data);
 		}catch(Exception e){
-			logger.error("Error in getMenuDetails, Params["+lastServerSyncTimeTemp+","+tableNumber+","+mobileNumber+"]",e);
+			logger.error("Error in getMenuDetails, Params["+requestData+"]",e);
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}

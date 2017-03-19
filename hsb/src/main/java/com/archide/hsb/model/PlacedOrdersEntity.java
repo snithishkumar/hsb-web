@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.archide.hsb.enumeration.AppType;
+import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.jsonmodel.PlaceOrdersJson;
 import com.archide.hsb.service.ServiceUtil;
 import com.archide.mobilepay.enumeration.PaymentStatus;
@@ -72,6 +74,10 @@ public class PlacedOrdersEntity {
 	@Column(name = "PaymentStatus")
 	@Enumerated(EnumType.STRING)
 	private PaymentStatus paymentStatus;
+	@Column(name = "OrderType")
+	private OrderType orderType;
+	@Column(name = "AppType")
+	private AppType appType;
 	
 	public PlacedOrdersEntity(){
 		
@@ -89,11 +95,23 @@ public class PlacedOrdersEntity {
 		this.taxAmount = placeOrdersJson.getTaxAmount();
 		this.orderId = placeOrdersJson.getOrderId();
 		this.userMobileNumber = placeOrdersJson.getUserMobileNumber();
+		this.orderType = placeOrdersJson.getOrderType();
+		this.appType = placeOrdersJson.getAppType();
 	}
 	
 	
 	
 	
+	public OrderType getOrderType() {
+		return orderType;
+	}
+
+
+	public void setOrderType(OrderType orderType) {
+		this.orderType = orderType;
+	}
+
+
 	public boolean isMerged() {
 		return isMerged;
 	}

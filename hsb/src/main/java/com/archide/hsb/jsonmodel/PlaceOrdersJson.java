@@ -3,6 +3,8 @@ package com.archide.hsb.jsonmodel;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.archide.hsb.enumeration.AppType;
+import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.model.PlacedOrdersEntity;
 
 public class PlaceOrdersJson {
@@ -22,6 +24,8 @@ public class PlaceOrdersJson {
 	
 	private List<KitchenCookingComments> cookingCommentsList = new ArrayList<>();
 	private String comments;
+	private OrderType orderType;
+	private AppType appType;
 	
 	public PlaceOrdersJson(){
 		
@@ -47,9 +51,27 @@ public class PlaceOrdersJson {
  		this.serverDateTime = placedOrders.getServerDateTime();
  		this.orderDateTime = placedOrders.getOrderDateTime();
  		this.lastUpdatedDateTime = placedOrders.getLastUpdatedDateTime();
- 		this.tableNumber = placedOrders.getTableNumber().getTableNumber();
+ 		//this.tableNumber = placedOrders.getTableNumber() != null ? placedOrders.getTableNumber().getTableNumber() : "W";
  	}
+   
+   
 	
+	public OrderType getOrderType() {
+	return orderType;
+}
+
+public void setOrderType(OrderType orderType) {
+	this.orderType = orderType;
+}
+
+public AppType getAppType() {
+	return appType;
+}
+
+public void setAppType(AppType appType) {
+	this.appType = appType;
+}
+
 	public String getTableNumber() {
 		return tableNumber;
 	}

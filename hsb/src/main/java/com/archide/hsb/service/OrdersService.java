@@ -1,7 +1,9 @@
 package com.archide.hsb.service;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,7 @@ import com.archide.hsb.dao.MenuListDao;
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.dao.TableListDao;
 import com.archide.hsb.enumeration.OrderStatus;
+import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.jsonmodel.CookingCommentsJson;
 import com.archide.hsb.jsonmodel.FoodCategoryJson;
@@ -47,6 +50,7 @@ import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PaymentDetailsHistory;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
+import com.archide.hsb.model.ReservedTableEntity;
 import com.archide.hsb.model.TableList;
 import com.archide.mobilepay.enumeration.PaymentStatus;
 import com.archide.mobilepay.exception.ValidationException;
@@ -113,37 +117,53 @@ public class OrdersService {
 		return menuListJsonList;
 	}
 	
+	private String generateOrderId(){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HHmmss");
+		Date date = new Date();
+		String orderId = dateFormat.format(date);
+		return orderId;
+	}
+	
 	
 	@Transactional(readOnly = false,propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
 	public long placeAnOrder(String requestData,UnAvailableMenuDetails unAvailableMenuDetails)throws Exception{
 		PlaceOrdersJson placeOrdersJson = serviceUtil.fromJson(requestData, PlaceOrdersJson.class);
+		ReservedTableEntity reservedTableEntity = null;
 		if(placeOrdersJson != null){
-			TableList tableList =	tableListDao.getTables(placeOrdersJson.getTableNumber());
-			if(tableList == null){
-				throw new ValidationException(404, "Invalid table number.");
-				// return Invalid TableNumber
-				//return serviceUtil.getRestResponse(true, "Invalid table number.",404);
-			}
-			double totalAmount = 0;
-			boolean isUpdate = true;
-			PlacedOrdersEntity placedOrders = ordersDao.getPlacedOrders(placeOrdersJson.getPlaceOrderUuid());
-			if(placedOrders == null){
-				 placedOrders = new PlacedOrdersEntity(placeOrdersJson);
-				 placedOrders.setTableNumber(tableList);
-				 ordersDao.placeAnOrders(placedOrders);
-				
-				 isUpdate = false;
-			}else if(placedOrders.isClosed()){
-				throw new ValidationException(403, "Your order has been closed");
+			PlacedOrdersEntity placedOrders = null;
+			if(placeOrdersJson.getOrderType().toString().equals(OrderType.Dinning.toString())){
+			    reservedTableEntity = tableListDao.getReservedTableByMobile(placeOrdersJson.getUserMobileNumber(), placeOrdersJson.getTableNumber());
+				if(reservedTableEntity.getOrderId() == null){
+				    placedOrders =  new PlacedOrdersEntity(placeOrdersJson);
+				    String orderId = generateOrderId();
+				    if(reservedTableEntity.isWaiting()){
+				    	 orderId = "DW"+orderId;
+				    }else{
+				    	orderId = "D"+orderId;
+				    }
+				    placedOrders.setOrderId(orderId);
+					TableList tableList =	tableListDao.getTables(placeOrdersJson.getTableNumber());
+					 placedOrders.setTableNumber(tableList);
+					 ordersDao.placeAnOrders(placedOrders);
+					// New Order
+				}else{
+				     placedOrders =  ordersDao.getPlacedOrdersById(reservedTableEntity.getOrderId());
+					// Update Existing order
+				}
+			}else{
+				 placedOrders =  new PlacedOrdersEntity(placeOrdersJson);
+				 String orderId = generateOrderId();
+				 orderId = "TA"+orderId;
+				 placedOrders.setOrderId(orderId);  
+				    
+					TableList tableList =	tableListDao.getTables(placeOrdersJson.getTableNumber());
+					 placedOrders.setTableNumber(tableList);
+					 ordersDao.placeAnOrders(placedOrders);
 			}
 			
 			
-			/*else{
-				placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
-				placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
-				ordersDao.ordersUpdate(placedOrders);
-			}*/
-			 totalAmount = placedOrders.getTotalPrice();
+			
+			double totalAmount = placedOrders.getTotalPrice();
 			placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 			placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 			
@@ -169,7 +189,7 @@ public class OrdersService {
 								placedOrderItems = new PlacedOrderItems();
 								placedOrderItems.setQuantity(menuItems.getQuantity());
 								placedOrderItems.setMenuItem(menuEntity);
-								placedOrderItems.setTableNumber(tableList.getTableNumber());
+								placedOrderItems.setTableNumber(placeOrdersJson.getTableNumber());
 								placedOrderItems.setName(menuItems.getName());
 								placedOrderItems.setItemCode(menuItems.getItemCode());
 								placedOrderItems.setPlacedOrderItemsUUID(menuItems.getPlacedOrderItemsUUID());
@@ -197,13 +217,17 @@ public class OrdersService {
 				}
 			}
 			
-			if(isUpdate){
 				placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 				placedOrders.setTotalPrice(totalAmount);
 				placedOrders.setPrice(totalAmount);
 				placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 				ordersDao.ordersUpdate(placedOrders);
-			}
+				if(reservedTableEntity != null){
+					reservedTableEntity.setOrderId(placedOrders.getOrderId());
+					tableListDao.updateReservedTableEntity(reservedTableEntity);
+				}
+				
+				
 			if(unAvailableMenuDetails.getUnAvailableMenuDetails().size() > 0){
 				List<MenuListJson> menuListJsons = getMenuDetails();
 				unAvailableMenuDetails.setMenuListJsonList(menuListJsons);
@@ -449,7 +473,7 @@ public class OrdersService {
 		}
 		//ordersDao.updates(objects);
 		ordersDao.ordersUpdate(closingPlacedOrder);
-		menuListDao.deleteLoginUser(closingPlacedOrder.getUserMobileNumber());
+		menuListDao.deleteReservedTable(closingPlacedOrder.getUserMobileNumber());
 		PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(closingPlacedOrder);
 		placeOrdersJson.getMenuItems().addAll(billingList);
 		
@@ -563,32 +587,47 @@ public class OrdersService {
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
 	
-	private void processKitchenData(PlacedOrdersEntity placedOrdersEntity,List<PlaceOrdersJson> placeOrdersJsons,long lastServerTime){
-		 PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrdersEntity, true);
-			placeOrdersJsons.add(placeOrdersJson);
-			List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity, lastServerTime);
-			for(PlacedOrderItems placedOrderItems : placedOrderItemsList){
-				OrderedMenuItems orderedMenuItems = new OrderedMenuItems(placedOrderItems,true);
-				placeOrdersJson.getMenuItems().add(orderedMenuItems);
+	private void processKitchenData(PlacedOrdersEntity placedOrdersEntity, List<PlaceOrdersJson> placeOrdersJsons,
+			long lastServerTime) {
+		PlaceOrdersJson placeOrdersJson = new PlaceOrdersJson(placedOrdersEntity, true);
+		if (placedOrdersEntity.getTableNumber() == null) {
+			if (placedOrdersEntity.getOrderType().toString().equals(OrderType.TakeAway.toString())) {
+				placeOrdersJson.setTableNumber("T");
+			} else {
+				placeOrdersJson.setTableNumber("W");
 			}
-			List<CookingCommentsEntity> commentsEntities = ordersDao.getCookingComments(placedOrdersEntity, lastServerTime);
-			for(CookingCommentsEntity cookingCommentsEntity : commentsEntities){
-				KitchenCookingComments kitchenCookingComments = new KitchenCookingComments(cookingCommentsEntity);
-				placeOrdersJson.getCookingCommentsList().add(kitchenCookingComments);
-			}
+		} else {
+			placeOrdersJson.setTableNumber(placedOrdersEntity.getTableNumber().getTableNumber());
+		}
+
+		placeOrdersJsons.add(placeOrdersJson);
+		List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity, lastServerTime);
+		for (PlacedOrderItems placedOrderItems : placedOrderItemsList) {
+			OrderedMenuItems orderedMenuItems = new OrderedMenuItems(placedOrderItems, true);
+			placeOrdersJson.getMenuItems().add(orderedMenuItems);
+		}
+		List<CookingCommentsEntity> commentsEntities = ordersDao.getCookingComments(placedOrdersEntity, lastServerTime);
+		for (CookingCommentsEntity cookingCommentsEntity : commentsEntities) {
+			KitchenCookingComments kitchenCookingComments = new KitchenCookingComments(cookingCommentsEntity);
+			placeOrdersJson.getCookingCommentsList().add(kitchenCookingComments);
+		}
 	}
 	
 	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
 	public ResponseEntity<String> getPreviousOrder(String requestData){
 		try{
 			JsonObject requestJson = (JsonObject)jsonParser.parse(requestData);
-			long serverLastUdpateTime = requestJson.get("serverLastUdpateTime").getAsLong();
-			String mobileNumber = requestJson.get("mobileNumber").getAsString();
+			//long serverLastUdpateTime = requestJson.get("serverLastUdpateTime").getAsLong();
+			String mobileNumber = null;
+			if(requestJson.get("mobileNumber") != null){
+				 mobileNumber = requestJson.get("mobileNumber").getAsString();
+			}
+			
 			TableList tableList = tableListDao.getTables(requestJson.get("tableNumber").getAsString());
 			PlacedOrdersEntity placedOrdersEntity = ordersDao.getPlacedOrders(tableList,mobileNumber);
 			if(placedOrdersEntity != null && !placedOrdersEntity.isClosed()){
 				PlaceOrdersJson placeOrdersJson =new PlaceOrdersJson(placedOrdersEntity);
-				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPreviousPlacedOrderItems(placedOrdersEntity, serverLastUdpateTime);
+				List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPreviousPlacedOrderItems(placedOrdersEntity, 0);
 				for(PlacedOrderItems orderItems : placedOrderItemsList){
 					OrderedMenuItems orderedMenuItems = new OrderedMenuItems(orderItems);
 					placeOrdersJson.getMenuItems().add(orderedMenuItems);

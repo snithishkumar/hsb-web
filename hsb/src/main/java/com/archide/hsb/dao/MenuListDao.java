@@ -28,4 +28,6 @@ public interface MenuListDao {
     void deleteLoginUser(String mobileNumber);
     
     void deleteLoginUser(String mobileNumber,String tableNumber);
+    
+    void deleteReservedTable(String mobileNumber);
 }

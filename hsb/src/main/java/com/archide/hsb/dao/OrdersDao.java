@@ -47,7 +47,7 @@ public interface OrdersDao {
 
 	boolean isHistory(String orderId);
 
-	
+	PlacedOrdersEntity getPlacedOrdersById(String ordersId);
 
 	void savePaymentDetails(PaymentDetails paymentDetails);
 

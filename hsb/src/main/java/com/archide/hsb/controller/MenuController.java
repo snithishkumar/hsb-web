@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.archide.hsb.enumeration.AppType;
+import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.service.MenuService;
 
 @RestController
@@ -16,9 +18,8 @@ public class MenuController {
 	private MenuService menuService;
 	
 	@RequestMapping(value="/mobile/getMenuItems")
-	public ResponseEntity<String> getMenuLists(@RequestParam String lastServerSyncTime,@RequestParam String tableNumber,
-			@RequestParam String mobileNumber,@RequestParam(required =false) String userType){
-		return menuService.getMenuDetails(lastServerSyncTime,tableNumber,mobileNumber,userType);
+	public ResponseEntity<String> getMenuLists(@RequestBody String requestData){
+		return menuService.getMenuDetails(requestData);
 	}
 	
 	

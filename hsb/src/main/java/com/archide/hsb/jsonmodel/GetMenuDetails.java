@@ -7,6 +7,9 @@ public class GetMenuDetails {
 	
 	private List<MenuListJson> menuListJsonList = new ArrayList<>();
 	private PlaceOrdersJson previousOrder;
+	private String tableNumber;
+	
+	
 	public List<MenuListJson> getMenuListJsonList() {
 		return menuListJsonList;
 	}
@@ -22,6 +25,12 @@ public class GetMenuDetails {
 	@Override
 	public String toString() {
 		return "GetMenuDetails [menuListJsonList=" + menuListJsonList + ", previousOrder=" + previousOrder + "]";
+	}
+	public String getTableNumber() {
+		return tableNumber;
+	}
+	public void setTableNumber(String tableNumber) {
+		this.tableNumber = tableNumber;
 	}
 	
 	
