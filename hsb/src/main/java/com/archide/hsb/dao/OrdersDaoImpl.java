@@ -16,6 +16,7 @@ import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 import com.archide.hsb.enumeration.OrderStatus;
+import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.enumeration.Status;
 import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
@@ -133,6 +134,7 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		criteria.add(Restrictions.eq(PlacedOrdersEntity.USER_MOBILE_NUMBER, userMobileNumber));
 		criteria.addOrder(Order.desc(PlacedOrdersEntity.ORDER_DATE_TIME));
 		criteria.add(Restrictions.eq(PlacedOrdersEntity.IS_CLOSED, false));
+		criteria.add(Restrictions.ne(PlacedOrdersEntity.ORDER_TYPE, OrderType.TakeAway));
 		return criteria.list();
 	}
 	

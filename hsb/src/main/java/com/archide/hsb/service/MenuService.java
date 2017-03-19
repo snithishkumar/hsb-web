@@ -88,6 +88,12 @@ public class MenuService {
 			ReservedTableEntity reservedTableEntity = null;
 			if(getMenuRequest.getOrderType().toString().equals(OrderType.Dinning.toString())){
 				if(getMenuRequest.getAppType().toString().equals(AppType.Captain.toString())){
+					if(getMenuRequest.getTableNumber() != null){
+						TableList tableList = tableListDao.getTables(getMenuRequest.getTableNumber());
+						if(tableList == null){
+							return serviceUtil.getRestResponse(false, "InValid Table Number.",404);
+						}
+					}
 					boolean isReserved = tableListDao.isReserved(getMenuRequest.getTableNumber());
 					if(!isReserved){
 						reservedTableEntity = reserveTableNumber(getMenuRequest.getTableNumber(), getMenuRequest.getMobileNumber(), getMenuRequest.getAppType());

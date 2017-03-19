@@ -36,6 +36,9 @@ public class PlacedOrdersEntity {
 	public static final String PURCHASE_UUID = "purchaseUUID";
 	public static final String  PAYMENT_STATUS = "paymentStatus";
 	public static final String ORDER_DATE_TIME = "orderDateTime";
+	public static final String ORDER_TYPE = "orderType";
+	
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "PlacedOrdersId")
