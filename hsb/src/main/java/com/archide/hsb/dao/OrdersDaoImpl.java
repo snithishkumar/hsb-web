@@ -25,6 +25,7 @@ import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
+import com.archide.hsb.model.ReservedTableEntity;
 import com.archide.hsb.model.TableList;
 
 @Repository
@@ -318,6 +319,13 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		Criteria criteria =	session.createCriteria(LoginUsersEntity.class);
 		criteria.add(Restrictions.le(LoginUsersEntity.CREATED_DATE_TIME, time));
 		return criteria.list();
+	}
+	
+	
+	public void deleteReservedTable(Session session , long time){
+		Query query = session.createQuery("delete ReservedTableEntity where createdTime <= :createdTime and orderId is null");
+		query.setParameter("createdTime", time);
+		int result = query.executeUpdate();
 	}
 	
 	

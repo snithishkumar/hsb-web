@@ -5,11 +5,13 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.archide.hsb.dao.OrdersDao;
 import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.PlacedOrdersEntity;
+import com.archide.hsb.model.ReservedTableEntity;
 
 @Service
 public class SchedulerService {
@@ -34,6 +36,26 @@ public class SchedulerService {
 				}
 			}
 			session.getTransaction().commit();
+		}catch(Exception e){
+			if(session != null){
+				session.getTransaction().rollback();
+			}
+			logger.error("Error in removeSessionTimeoutUser", e);
+		}finally{
+			if(session != null){
+				session.close();
+			}
+		}
+	}
+	
+	@Scheduled(fixedDelay = 10000)
+	public void removeReservedTable(){
+		Session session = null;
+		try{
+			session = ordersDao.openSession();
+			session.getTransaction().begin();
+			long time = ServiceUtil.getCurrentGmtTime() - (10000 * 6 * 10);
+			ordersDao.deleteReservedTable(session, time);
 		}catch(Exception e){
 			if(session != null){
 				session.getTransaction().rollback();

@@ -11,6 +11,7 @@ import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
+import com.archide.hsb.model.ReservedTableEntity;
 import com.archide.hsb.model.TableList;
 
 public interface OrdersDao {
@@ -80,6 +81,8 @@ public interface OrdersDao {
 	List<DiscardEntity> getDiscardEntity(Session session,PaymentDetails paymentDetails);
 	
 	 List<LoginUsersEntity> getLoginUsersEntity(Session session , long time);
+	 
+	 void deleteReservedTable(Session session , long time);
 	 
 	 List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,Session session);
 	 

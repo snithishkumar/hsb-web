@@ -18,6 +18,7 @@ public class ReservedTableEntity {
 	public static final String TABLE_NUMBER = "tableNumber";
 	public static final String MOBILE_NUMBER = "mobileNumber";
 	public static final String IS_WAITING = "isWaiting";
+	public static final String CREATED_DATE_TIME = "createdTime";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
