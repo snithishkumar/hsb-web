@@ -2,10 +2,14 @@ package com.archide.hsb.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.archide.hsb.enumeration.AppType;
 
 @Entity
 @Table(name = "ReservedTable")
@@ -31,9 +35,18 @@ public class ReservedTableEntity {
 	private long lastUpdatedTime;
 	@Column(name = "IsWaiting")
 	private boolean isWaiting;
+	@Column(name = "AppType")
+	@Enumerated(EnumType.STRING)
+	private AppType appType;
 	
 	
 	
+	public AppType getAppType() {
+		return appType;
+	}
+	public void setAppType(AppType appType) {
+		this.appType = appType;
+	}
 	public boolean isWaiting() {
 		return isWaiting;
 	}

@@ -3,6 +3,7 @@ package com.archide.mobilepay.json;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.mobilepay.enumeration.DeliveryOptions;
 
@@ -22,7 +23,12 @@ public class MerchantPurchaseData {
 		this.billNumber = placedOrdersEntity.getOrderId();
 		this.purchaseDate = placedOrdersEntity.getOrderDateTime();
 		this.customerMobileNo = placedOrdersEntity.getUserMobileNumber();
-		this.deliveryOptions = DeliveryOptions.NONE;
+		if(placedOrdersEntity.getOrderType().toString().equals(OrderType.Dinning.toString())){
+			this.deliveryOptions = DeliveryOptions.COUNTER_COLLECTION;
+		}else{
+			this.deliveryOptions = DeliveryOptions.NONE;
+		}
+		
 		this.isRemovable = false;
 		this.totalAmount = placedOrdersEntity.getTotalPrice();
 	}

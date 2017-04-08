@@ -33,6 +33,7 @@ import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.ReservedTableEntity;
 import com.archide.hsb.model.TableList;
+import com.archide.mobilepay.exception.ValidationException;
 import com.archide.mobilepay.json.GetMenuRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -55,22 +56,21 @@ public class MenuService {
 	@Autowired
 	private Gson gson;
 	
-	private ReservedTableEntity reserveTableNumber(String tableNumber,String mobileNumber,AppType appType){
+	private ReservedTableEntity reserveTableNumber(String tableNumber,String mobileNumber,AppType appType)throws ValidationException{
 		try{
-			ReservedTableEntity reservedTableEntity = new ReservedTableEntity();
-			reservedTableEntity.setCreatedTime(ServiceUtil.getCurrentGmtTime());
-			reservedTableEntity.setMobileNumber(mobileNumber);
-			if(appType.toString().equals(AppType.Captain.toString()) && tableNumber != null){
-				reservedTableEntity.setTableNumber(tableNumber);
-			}
 			List<String> availableTableNumbers = tableListDao.getAvailableTableNumbers();
 			if(availableTableNumbers.size() > 0){
+				ReservedTableEntity reservedTableEntity = new ReservedTableEntity();
+				reservedTableEntity.setCreatedTime(ServiceUtil.getCurrentGmtTime());
+				reservedTableEntity.setMobileNumber(mobileNumber);
 				reservedTableEntity.setTableNumber(availableTableNumbers.get(0));
+				reservedTableEntity.setAppType(appType);
+				tableListDao.createReservedTableEntity(reservedTableEntity);
+				return reservedTableEntity;
 			}else{
-				reservedTableEntity.setWaiting(false);
+				throw new ValidationException(404, "No more tables");
+				// Not Available
 			}
-			tableListDao.createReservedTableEntity(reservedTableEntity);
-			return reservedTableEntity;
 		}catch(ConstraintViolationException e){
 			reserveTableNumber(tableNumber, mobileNumber, appType);
 		}
@@ -88,15 +88,11 @@ public class MenuService {
 			ReservedTableEntity reservedTableEntity = null;
 			if(getMenuRequest.getOrderType().toString().equals(OrderType.Dinning.toString())){
 				if(getMenuRequest.getAppType().toString().equals(AppType.Captain.toString())){
-					if(getMenuRequest.getTableNumber() != null){
-						TableList tableList = tableListDao.getTables(getMenuRequest.getTableNumber());
-						if(tableList == null){
-							return serviceUtil.getRestResponse(false, "InValid Table Number.",404);
-						}
-					}
 					boolean isReserved = tableListDao.isReserved(getMenuRequest.getTableNumber());
 					if(!isReserved){
 						reservedTableEntity = reserveTableNumber(getMenuRequest.getTableNumber(), getMenuRequest.getMobileNumber(), getMenuRequest.getAppType());
+					}else{
+						reservedTableEntity = tableListDao.getReservedTable(getMenuRequest.getTableNumber());
 					}
 				}else{
 					reservedTableEntity = reserveTableNumber(getMenuRequest.getTableNumber(), getMenuRequest.getMobileNumber(), getMenuRequest.getAppType());
@@ -111,6 +107,7 @@ public class MenuService {
 			
 			if(reservedTableEntity != null){
 				getMenuDetails.setTableNumber(reservedTableEntity.getTableNumber());
+				getMenuDetails.setMobileNumber(reservedTableEntity.getMobileNumber());
 			}
 			List<MenuCourse> menuCourses = menuListDao.getMenuCourse();
 			List<MenuListJson> menuListJsonList = new ArrayList<MenuListJson>();
@@ -144,7 +141,10 @@ public class MenuService {
 			}
 			
 			String data = gson.toJson(getMenuDetails);
-			return serviceUtil.getRestResponse(true, data);
+			return serviceUtil.getRestResponse(true, data, 200);
+		}catch(ValidationException e){
+			return serviceUtil.getRestResponse(true, e.getMessage(), e.getCode());
+			
 		}catch(Exception e){
 			logger.error("Error in getMenuDetails, Params["+requestData+"]",e);
 		}

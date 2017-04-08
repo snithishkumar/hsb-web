@@ -38,8 +38,7 @@ public class OrdersController {
 		logger.info("-----Raw Data End-------");
 		UnAvailableMenuDetails unAvailableMenuDetails = new UnAvailableMenuDetails();
 		try{
-			long serverDateTime = orderService.placeAnOrder(requestData,unAvailableMenuDetails);
-			return serviceUtil.getRestResponse(true,serverDateTime,200);
+			return orderService.placeAnOrder(requestData,unAvailableMenuDetails);
 			
 		}catch(ValidationException e){
 			return serviceUtil.getRestResponse(true, e.getMessage(),e.getCode());

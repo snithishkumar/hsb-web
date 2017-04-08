@@ -126,7 +126,7 @@ public class OrdersService {
 	
 	
 	@Transactional(readOnly = false,propagation=Propagation.REQUIRED,rollbackFor = Exception.class)
-	public long placeAnOrder(String requestData,UnAvailableMenuDetails unAvailableMenuDetails)throws Exception{
+	public ResponseEntity<String> placeAnOrder(String requestData,UnAvailableMenuDetails unAvailableMenuDetails)throws Exception{
 		PlaceOrdersJson placeOrdersJson = serviceUtil.fromJson(requestData, PlaceOrdersJson.class);
 		ReservedTableEntity reservedTableEntity = null;
 		if(placeOrdersJson != null){
@@ -135,6 +135,8 @@ public class OrdersService {
 			    reservedTableEntity = tableListDao.getReservedTableByMobile(placeOrdersJson.getUserMobileNumber(), placeOrdersJson.getTableNumber());
 				if(reservedTableEntity.getOrderId() == null){
 				    placedOrders =  new PlacedOrdersEntity(placeOrdersJson);
+				    placedOrders.setTotalPrice(0);
+				    placedOrders.setPrice(0);
 				    String orderId = generateOrderId();
 				    if(reservedTableEntity.isWaiting()){
 				    	 orderId = "DW"+orderId;
@@ -233,7 +235,17 @@ public class OrdersService {
 				unAvailableMenuDetails.setMenuListJsonList(menuListJsons);
 				throw new Exception("Some of ordered Items are unavailable");
 			}else{
-				return placedOrders.getServerDateTime();
+				if(placedOrders.getOrderType().toString().equals(OrderType.TakeAway.toString())){
+					try{
+						sendTakeAwayOrder(placedOrders);
+						return serviceUtil.getRestResponse(true,placedOrders.getServerDateTime(),201);
+					}catch(ValidationException e){
+						return serviceUtil.getRestResponse(false,e.getMessage(),e.getCode());
+					}
+					
+				}
+				return serviceUtil.getRestResponse(true,placedOrders.getServerDateTime(),200);
+				
 			}
 		}
 		throw new ValidationException(500,"Invalid data");
@@ -316,6 +328,17 @@ public class OrdersService {
 			throw new ValidationException(responseData.getStatusCode(),
 					responseString);
 		}
+	}
+	
+	
+	private void sendTakeAwayOrder(PlacedOrdersEntity placedOrdersEntity) throws ValidationException{
+		List<PlacedOrderItems> placedOrderItemsList = ordersDao.getPlacedOrderItems(placedOrdersEntity);
+		List<PurchaseItem> purchaseDetails = new ArrayList<>();
+		for (PlacedOrderItems orderItems : placedOrderItemsList) {
+			PurchaseItem purchaseItem = new PurchaseItem(orderItems);
+			purchaseDetails.add(purchaseItem);
+		}
+		sendData(placedOrdersEntity, purchaseDetails);
 	}
 	
 	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)

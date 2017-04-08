@@ -8,6 +8,7 @@ public class GetMenuDetails {
 	private List<MenuListJson> menuListJsonList = new ArrayList<>();
 	private PlaceOrdersJson previousOrder;
 	private String tableNumber;
+	private String mobileNumber;
 	
 	
 	public List<MenuListJson> getMenuListJsonList() {
@@ -32,6 +33,14 @@ public class GetMenuDetails {
 	public void setTableNumber(String tableNumber) {
 		this.tableNumber = tableNumber;
 	}
+	public String getMobileNumber() {
+		return mobileNumber;
+	}
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
+	}
+	
+	
 	
 	
 
