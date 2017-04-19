@@ -317,7 +317,9 @@ public class OrdersService {
 		
 		ResponseData responseData = gson.fromJson(response, ResponseData.class);
 		
-		
+		logger.info("------MobilePay Sync Start----------");
+		logger.info(response);
+		logger.info("------MobilePay Sync End----------");
 		if (responseData.getStatusCode() == 200) {
 			String responseString =  gson.toJson(responseData.getData());
 			Type listType = new TypeToken<ArrayList<CreatePurchaseResponse>>() {
