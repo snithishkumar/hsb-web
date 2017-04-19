@@ -39,5 +39,19 @@ public class TableListService {
 		}
 		return serviceUtil.getRestResponse(false, "Internal Server Error.");
 	}
+	
+	@Transactional(readOnly = false,propagation=Propagation.REQUIRED)
+	public ResponseEntity<String> removeReservedTable(String tableNumber){
+		try{
+			tableListDao.deleteReservedTable(tableNumber);
+			return serviceUtil.getRestResponse(true, "ok");
+		}catch(Exception e){
+			logger.error("Error in removeReserverdTable",e);
+		}
+		return serviceUtil.getRestResponse(false, "ok");
+	}
+	
+	
+	
 
 }

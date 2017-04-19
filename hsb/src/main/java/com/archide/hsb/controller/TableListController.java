@@ -17,5 +17,13 @@ public class TableListController {
 	public ResponseEntity<String> getListOfTables(){
 		return tableListService.getListOfTables();
 	}
+	
+	@RequestMapping(value="/mobile/removeReservedTable")
+	public ResponseEntity<String> removeReservedTable(String tableNumber){
+		return tableListService.removeReservedTable(tableNumber);
+	}
+	
+	
+	
 
 }

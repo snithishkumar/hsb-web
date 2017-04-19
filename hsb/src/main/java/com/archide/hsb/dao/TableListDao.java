@@ -28,5 +28,9 @@ public interface TableListDao {
 	
 	void updateReservedTableEntity(ReservedTableEntity reservedTableEntity);
 	
+	TableList getTableList(String tableNumber);
+	
+	void deleteReservedTable(String tableNumber);
+	
 
 }

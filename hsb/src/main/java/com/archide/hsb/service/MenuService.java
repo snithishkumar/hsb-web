@@ -56,6 +56,28 @@ public class MenuService {
 	@Autowired
 	private Gson gson;
 	
+	private ReservedTableEntity allocateTableNumber(String tableNumber, String mobileNumber, AppType appType)
+			throws ValidationException {
+		try {
+
+			TableList tableList = tableListDao.getTableList(tableNumber);
+			if (tableList == null) {
+				throw new ValidationException(404, "No more tables");
+			}
+			ReservedTableEntity reservedTableEntity = new ReservedTableEntity();
+			reservedTableEntity.setCreatedTime(ServiceUtil.getCurrentGmtTime());
+			reservedTableEntity.setMobileNumber(mobileNumber);
+			reservedTableEntity.setTableNumber(tableNumber);
+			reservedTableEntity.setAppType(appType);
+			tableListDao.createReservedTableEntity(reservedTableEntity);
+			return reservedTableEntity;
+		} catch (Exception e) {
+			logger.error("Error in allocateTableNumber", e);
+		}
+		return null;
+
+	}
+	
 	private ReservedTableEntity reserveTableNumber(String tableNumber,String mobileNumber,AppType appType)throws ValidationException{
 		try{
 			List<String> availableTableNumbers = tableListDao.getAvailableTableNumbers();
@@ -90,7 +112,7 @@ public class MenuService {
 				if(getMenuRequest.getAppType().toString().equals(AppType.Captain.toString())){
 					boolean isReserved = tableListDao.isReserved(getMenuRequest.getTableNumber());
 					if(!isReserved){
-						reservedTableEntity = reserveTableNumber(getMenuRequest.getTableNumber(), getMenuRequest.getMobileNumber(), getMenuRequest.getAppType());
+						reservedTableEntity = allocateTableNumber(getMenuRequest.getTableNumber(), getMenuRequest.getMobileNumber(), getMenuRequest.getAppType());
 					}else{
 						reservedTableEntity = tableListDao.getReservedTable(getMenuRequest.getTableNumber());
 					}

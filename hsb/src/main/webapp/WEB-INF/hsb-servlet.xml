@@ -25,10 +25,10 @@
 	<bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url"
-			value="jdbc:mysql://localhost/hsb1?useSSL=false" />
+			value="jdbc:mysql://localhost/hsb?useSSL=false" />
 		<property name="username" value="root" />
- 	     <!--    <property name="password" value="admin" />  -->
-	     <property name="password" value="Dec302013@" />
+ 	       <property name="password" value="admin" />
+	   <!--   <property name="password" value="Dec302013@" /> -->
 		<property name="initialSize" value="20" />
 		<property name="maxTotal" value="100" />
         <!-- Production Conf // http://www.codingpedia.org/ama/tomcat-jdbc-connection-pool-configuration-for-production-and-development/ -->
@@ -50,7 +50,7 @@
 		<property name="packagesToScan" value="com.archide.hsb.model" />
 		<property name="hibernateProperties">
 			<props>
-				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.show_sql">false</prop>
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect
 				</prop>

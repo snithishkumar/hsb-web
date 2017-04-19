@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +123,8 @@ public class OrdersService {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HHmmss");
 		Date date = new Date();
 		String orderId = dateFormat.format(date);
+		int ran = RandomUtils.nextInt(1, 100);
+		orderId = orderId + ran;
 		return orderId;
 	}
 	
@@ -226,6 +230,9 @@ public class OrdersService {
 				ordersDao.ordersUpdate(placedOrders);
 				if(reservedTableEntity != null){
 					reservedTableEntity.setOrderId(placedOrders.getOrderId());
+					if(reservedTableEntity.getMobileNumber() == null){
+						reservedTableEntity.setMobileNumber(placedOrders.getUserMobileNumber());
+					}
 					tableListDao.updateReservedTableEntity(reservedTableEntity);
 				}
 				

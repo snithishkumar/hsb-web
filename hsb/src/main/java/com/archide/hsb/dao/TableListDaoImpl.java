@@ -7,6 +7,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -29,6 +30,17 @@ public class TableListDaoImpl extends BaseDAOImpl implements TableListDao{
 		criteriaQuery.select(root);
 		Query<TableList> q = sessionFactory.getCurrentSession().createQuery(criteriaQuery);
 		return q.getResultList();
+	}
+	
+	
+	public TableList getTableList(String tableNumber) {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(TableList.class);
+		criteria.add(Restrictions.eq(TableList.TABLE_NUMBER, tableNumber));
+		List<TableList> tableList = criteria.list();
+		if(tableList.size() > 0){
+			return tableList.get(0);
+		}
+		return null;
 	}
 	
 	
@@ -106,5 +118,13 @@ public class TableListDaoImpl extends BaseDAOImpl implements TableListDao{
 		List<TableList> tableLists = q.getResultList();
 		return tableLists.size() > 0 ? tableLists.get(0) : null;
 	}
+	
+	
+	public void deleteReservedTable(String tableNumber){
+		Query query = sessionFactory.getCurrentSession().createQuery("delete ReservedTableEntity where tableNumber <= :tableNumber and orderId is null");
+		query.setParameter("tableNumber", tableNumber);
+		int result = query.executeUpdate();
+	}
+	
 
 }
