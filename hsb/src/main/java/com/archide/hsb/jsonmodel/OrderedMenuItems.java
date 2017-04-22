@@ -18,6 +18,7 @@ public class OrderedMenuItems {
 	private FoodType foodType;
 	private OrderStatus orderStatus;
 	private int unAvailableCount;
+	private double price;
 	// History
 	private String orderDateTime;
 	private String lastUpdatedDateTime;
@@ -46,6 +47,7 @@ public class OrderedMenuItems {
 		this.setMenuUuid(placedOrderItems.getMenuItem().getMenuUUID());
 		this.foodType = placedOrderItems.getMenuItem().getFoodType();
 		this.orderStatus = placedOrderItems.getOrderStatus();
+		this.price = placedOrderItems.getMenuItem().getPrice();
 		this.lastUpdatedDateTime = String.valueOf(placedOrderItems.getServerSyncTime());
 		this.categoryUuid = placedOrderItems.getMenuItem().getFoodCategory().getFoodCategoryUUID();
 		this.categoryName = placedOrderItems.getMenuItem().getFoodCategory().getCategoryName()+"-"+placedOrderItems.getMenuItem().getMenuCourse().getCategoryName();

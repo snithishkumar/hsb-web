@@ -71,7 +71,9 @@ public class MenuService {
 			reservedTableEntity.setAppType(appType);
 			tableListDao.createReservedTableEntity(reservedTableEntity);
 			return reservedTableEntity;
-		} catch (Exception e) {
+		} catch (ValidationException e) {
+			throw new ValidationException(404, "No more tables");
+		}catch (Exception e) {
 			logger.error("Error in allocateTableNumber", e);
 		}
 		return null;

@@ -158,6 +158,8 @@ public class OrdersService {
 				}
 			}else{
 				 placedOrders =  new PlacedOrdersEntity(placeOrdersJson);
+				 placedOrders.setTotalPrice(0);
+				 placedOrders.setPrice(0);
 				 String orderId = generateOrderId();
 				 orderId = "TA"+orderId;
 				 placedOrders.setOrderId(orderId);  
@@ -224,8 +226,9 @@ public class OrdersService {
 			}
 			
 				placedOrders.setServerDateTime(ServiceUtil.getCurrentGmtTime());
-				placedOrders.setTotalPrice(totalAmount);
-				placedOrders.setPrice(totalAmount);
+				double amt = serviceUtil.roundOff(totalAmount);
+				placedOrders.setTotalPrice(amt);
+				placedOrders.setPrice(amt);
 				placedOrders.setLastUpdatedDateTime(placedOrders.getServerDateTime());
 				ordersDao.ordersUpdate(placedOrders);
 				if(reservedTableEntity != null){
@@ -490,10 +493,10 @@ public class OrdersService {
 			}
 		}*/
 		
-		closingPlacedOrder.setPrice(cost);
+		closingPlacedOrder.setPrice(serviceUtil.roundOff(cost));
 		closingPlacedOrder.setDiscount(0);
 		closingPlacedOrder.setTaxAmount(0);
-		closingPlacedOrder.setTotalPrice(cost);
+		closingPlacedOrder.setTotalPrice(serviceUtil.roundOff(cost));
 		closingPlacedOrder.setServerDateTime(ServiceUtil.getCurrentGmtTime());
 		closingPlacedOrder.setLastUpdatedDateTime(closingPlacedOrder.getServerDateTime());
 		closingPlacedOrder.setClosed(true);

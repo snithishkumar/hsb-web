@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.archide.hsb.enumeration.AppType;
 import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.HistoryEntity;
@@ -82,7 +83,7 @@ public interface OrdersDao {
 	
 	 List<LoginUsersEntity> getLoginUsersEntity(Session session , long time);
 	 
-	 void deleteReservedTable(Session session , long time);
+	 void deleteReservedTable(Session session , long time,AppType appType);
 	 
 	 List<PlacedOrderItems> getPlacedOrderItems(PlacedOrdersEntity placedOrders,Session session);
 	 

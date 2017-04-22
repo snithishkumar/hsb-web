@@ -15,6 +15,7 @@ import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
+import com.archide.hsb.enumeration.AppType;
 import com.archide.hsb.enumeration.OrderStatus;
 import com.archide.hsb.enumeration.OrderType;
 import com.archide.hsb.enumeration.Status;
@@ -322,10 +323,12 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 	}
 	
 	
-	public void deleteReservedTable(Session session , long time){
-		Query query = session.createQuery("delete ReservedTableEntity where createdTime <= :createdTime and orderId is null");
+	public void deleteReservedTable(Session session , long time, AppType appType){
+		Query query = session.createQuery("delete ReservedTableEntity where createdTime <= :createdTime and orderId is null and appType = :appType");
 		query.setParameter("createdTime", time);
+		query.setParameter("appType", appType);
 		int result = query.executeUpdate();
+		System.out.println(result);
 	}
 	
 	

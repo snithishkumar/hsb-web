@@ -51,6 +51,7 @@ public class PlaceOrdersJson {
  		this.serverDateTime = placedOrders.getServerDateTime();
  		this.orderDateTime = placedOrders.getOrderDateTime();
  		this.lastUpdatedDateTime = placedOrders.getLastUpdatedDateTime();
+ 		this.orderType = placedOrders.getOrderType();
  		//this.tableNumber = placedOrders.getTableNumber() != null ? placedOrders.getTableNumber().getTableNumber() : "W";
  	}
    

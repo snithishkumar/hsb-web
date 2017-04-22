@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.archide.hsb.dao.OrdersDao;
+import com.archide.hsb.enumeration.AppType;
 import com.archide.hsb.model.LoginUsersEntity;
 import com.archide.hsb.model.PlacedOrdersEntity;
 import com.archide.hsb.model.ReservedTableEntity;
@@ -54,8 +55,11 @@ public class SchedulerService {
 		try{
 			session = ordersDao.openSession();
 			session.getTransaction().begin();
-			long time = ServiceUtil.getCurrentGmtTime() - (10000 * 6 * 10);
-			ordersDao.deleteReservedTable(session, time);
+			long time = ServiceUtil.getCurrentGmtTime() - (10000 * 6 * 3);
+			ordersDao.deleteReservedTable(session, time, AppType.Captain);
+			time = ServiceUtil.getCurrentGmtTime() - (10000 * 6 * 5);
+			ordersDao.deleteReservedTable(session, time, AppType.User);
+			session.getTransaction().commit();
 		}catch(Exception e){
 			if(session != null){
 				session.getTransaction().rollback();
