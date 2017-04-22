@@ -27,6 +27,8 @@ public class PlaceOrdersJson {
 	private OrderType orderType;
 	private AppType appType;
 	
+	private boolean isClosed;
+	
 	public PlaceOrdersJson(){
 		
 	}
@@ -57,6 +59,14 @@ public class PlaceOrdersJson {
    
    
 	
+	public boolean isClosed() {
+	return isClosed;
+}
+
+public void setClosed(boolean isClosed) {
+	this.isClosed = isClosed;
+}
+
 	public OrderType getOrderType() {
 	return orderType;
 }

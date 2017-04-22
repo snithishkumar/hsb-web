@@ -722,6 +722,9 @@ public class OrdersService {
 						}
 					}
 					placedOrdersEntity.setLastUpdatedDateTime(ServiceUtil.getCurrentGmtTime());
+					if(placedOrdersEntity.getOrderType().toString().equals(OrderType.TakeAway.toString()) && placeOrdersJson.isClosed()){
+						placedOrdersEntity.setClosed(true);
+					}
 					ordersDao.ordersUpdate(placedOrdersEntity);
 				}
 			}
