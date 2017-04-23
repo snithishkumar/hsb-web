@@ -613,7 +613,8 @@ public class OrdersService {
 					processKitchenData(placedOrdersEntity, kitchenOrderListResponse.getPlaceOrdersJsonList(), 0);
 				}
 			}
-			
+			int count = ordersDao.getUnAvailableCount();
+			kitchenOrderListResponse.setUnAvailableCount(count);
 			String data = gson.toJson(kitchenOrderListResponse);
 			return serviceUtil.getRestResponse(true, data);
 		}catch(Exception e){

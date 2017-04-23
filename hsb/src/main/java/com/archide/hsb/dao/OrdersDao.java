@@ -94,4 +94,6 @@ public interface OrdersDao {
 	 int updateCurrentCount(String menuUUID, long serverDateTime,int quantity);
 	 
 	 int updateOrderStatus(String menuUUID,long serverDateTime);
+	 
+	 Integer getUnAvailableCount();
 }

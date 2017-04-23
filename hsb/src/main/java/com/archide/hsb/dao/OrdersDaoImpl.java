@@ -23,10 +23,10 @@ import com.archide.hsb.model.CookingCommentsEntity;
 import com.archide.hsb.model.DiscardEntity;
 import com.archide.hsb.model.HistoryEntity;
 import com.archide.hsb.model.LoginUsersEntity;
+import com.archide.hsb.model.MenuEntity;
 import com.archide.hsb.model.PaymentDetails;
 import com.archide.hsb.model.PlacedOrderItems;
 import com.archide.hsb.model.PlacedOrdersEntity;
-import com.archide.hsb.model.ReservedTableEntity;
 import com.archide.hsb.model.TableList;
 
 @Repository
@@ -358,6 +358,14 @@ public class OrdersDaoImpl extends BaseDAOImpl implements OrdersDao {
 		query.setParameter("status", Status.UN_AVAILABLE);
 		int result = query.executeUpdate();
 		return result;
+	}
+	
+	
+	public Integer getUnAvailableCount(){
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(MenuEntity.class);
+		criteria.add(Restrictions.le(MenuEntity.MAX_COUNT, 15));
+		criteria.setProjection(Projections.rowCount());
+		return (int)(long)(Long)criteria.uniqueResult();
 	}
 	
 	

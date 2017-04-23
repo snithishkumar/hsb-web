@@ -32,6 +32,7 @@ public class MenuEntity {
 	public static final String DISPLAY_ORDER = "displayOrder";
 	public static final String TASTE_TYPE = "tasteType";
 	public static final String DESCRIPTION = "description";
+	public static final String MAX_COUNT = "maxCount";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
